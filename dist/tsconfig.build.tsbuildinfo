@@ -1114,11 +1114,15 @@
         "signature": "3293b0d1d6a7f902316e164fcf36ae099f1bbb0224484586eaab30d9dea78d32"
       },
       "../src/users/users.controller.ts": {
-        "version": "74acc1ec1681785a8290d87f5ed943996c75f0d7550f1dfc0784343cacfa9c57",
+        "version": "d343ad5beccf798042d39edb65ac20506761ac0b627e5a1a6c326684535e54b7",
         "signature": "68b1674efd9a07feb7e7ef0cc770778f05bcc09a86c7a8bd4d6faa72804fe229"
       },
+      "../src/users/users.service.ts": {
+        "version": "9fa2834dce9e991963565a887b080afe053a0b8eb0bd14c5dafd8a9c87b44155",
+        "signature": "b2ae3c452f293748d9531a6d403958bddf2c5b7fec55ee82c6598cbd27afe9c7"
+      },
       "../src/users/users.module.ts": {
-        "version": "1692f6a7299835db18073348ac63fae91638b3d4b112fd2b44ff986bf2c0ddeb",
+        "version": "968dae776db186ad7a1f7932c6fb51a5339527ea08995837a184c8731563d0bd",
         "signature": "12dec6c99bd8d11167fa91a31e737abbbf8c9cc789c151a25a9a1d13f328175c"
       },
       "../src/app.module.ts": {
@@ -3627,9 +3631,17 @@
         "../node_modules/@types/node/util.d.ts",
         "../node_modules/@types/node/ts3.2/util.d.ts"
       ],
+      "../src/users/users.service.ts": [
+        "../node_modules/@nestjs/common/index.d.ts",
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts"
+      ],
       "../src/users/users.module.ts": [
         "../node_modules/@nestjs/common/index.d.ts",
         "../src/users/users.controller.ts",
+        "../src/users/users.service.ts",
         "../node_modules/@types/node/fs.d.ts",
         "../node_modules/@types/node/ts3.2/fs.d.ts",
         "../node_modules/@types/node/util.d.ts",
@@ -7325,6 +7337,7 @@
       "../node_modules/@types/webpack/index.d.ts",
       "../node_modules/@types/yargs-parser/index.d.ts",
       "../node_modules/@types/yargs/index.d.ts",
+      "../src/users/users.service.ts",
       "../src/users/users.module.ts"
     ]
   },
