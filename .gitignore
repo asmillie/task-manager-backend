@@ -10,6 +10,7 @@ node_modules/
 # bundle
 packages/**/*.d.ts
 packages/**/*.js
+dist/
 
 # misc
 .DS_Store
@@ -34,5 +35,5 @@ yarn-error.log
 /benchmarks/memory
 build/config\.gypi
 
-#environment variables
+# environment variables
 environments
