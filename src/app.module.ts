@@ -11,6 +11,7 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     ConfigModule.forRoot({
       envFilePath: 'development.env',
+      isGlobal: true,
     }),
     MongooseModule.forRoot('mongodb://127.0.0.1:27017/task-manager-api', {
       useNewUrlParser: true,
