@@ -1,10 +1,9 @@
-import { Injectable } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
-import { numberLiteralTypeAnnotation } from '@babel/types';
+import * as path from 'path';
 
 export class ConfigService {
-    private readonly envConfig: Record<string, string>;
+    private envConfig: Record<string, string>;
 
     private readonly PORT = 'PORT';
     private readonly JWT_SECRET = 'JWT_SECRET';
@@ -13,7 +12,20 @@ export class ConfigService {
     private readonly DB_NAME = 'DB_NAME';
 
     constructor(filePath: string) {
-        this.envConfig = dotenv.parse(fs.readFileSync(filePath));
+        this.initConfigFile(filePath);
+
+        // this.envConfig = dotenv.parse(fs.readFileSync(filePath));
+    }
+
+    private async initConfigFile(filePath: string) {
+        await fs.readFile(filePath, (err, data) => {
+            if (!err) {
+                this.envConfig = dotenv.parse(data);
+                return console.log('Successful');
+            }
+
+            return console.log('Error reading file: ' + err);
+        });
     }
 
     get port(): string {
