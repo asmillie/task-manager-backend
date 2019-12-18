@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from 'src/auth/users/users.service';
-import { User } from './users/interfaces/user.interface';
+import { UsersService } from 'src/users/users.service';
+import { User } from '../users/interfaces/user.interface';
 import * as jwt from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 
