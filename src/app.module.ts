@@ -9,7 +9,6 @@ import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    UsersModule,
     ConfigModule.forRoot({
       envFilePath: 'development.env',
       isGlobal: true,
@@ -21,6 +20,7 @@ import { AuthModule } from './auth/auth.module';
       useUnifiedTopology: true,
     }),
     AuthModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
