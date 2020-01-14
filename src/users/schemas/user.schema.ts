@@ -27,6 +27,12 @@ export const UserSchema = new mongoose.Schema({
     }],
 }, {
     timestamps: true,
+}).method('toJSON', function() {
+    const user = this.toObject();
+    delete user.password;
+    delete user.tokens;
+
+    return user;
 });
 
 // // Collection relationships
@@ -56,15 +62,7 @@ export const UserSchema = new mongoose.Schema({
 //     return newToken;
 // });
 
-// // Remove sensitive information
-// userSchema.method('toJSON', function() {
-//     const user = this.toObject();
-//     delete user.password;
-//     delete user.tokens;
-//     delete user.avatar;
 
-//     return user;
-// });
 
 // // Find user by email and validate password
 // userSchema.statics.findByCredentials = async (email, password) => {
