@@ -11,14 +11,14 @@ import { LocalStrategy } from './passport/local.strategy';
 @Module({
   imports: [
     UsersModule,
-    PassportModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: await configService.get<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: '60s',
+          expiresIn: '3600s',
         },
       }),
     }),

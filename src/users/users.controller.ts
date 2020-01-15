@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Request } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard())
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
@@ -12,7 +14,7 @@ export class UsersController {
     }
 
     @Get('me')
-    async findUserById() {
-        return await this.usersService.findAll();
+    async findUserById(@Request() req) {
+        return await this.usersService.findUserById(req.user._id);
     }
 }
