@@ -15,7 +15,6 @@ export class AuthService {
         const user = await this.usersService.findUserByEmail(email);
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (passwordMatch) {
-            console.log('User found, password match. Returning user');
             return user.toJSON();
         }
 
