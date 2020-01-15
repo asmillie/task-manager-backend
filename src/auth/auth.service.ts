@@ -28,7 +28,7 @@ export class AuthService {
      * authenticating requests.
      * @param user User to be logged in
      */
-    async login(user: User) {
+    async loginUser(user: User) {
         const payload = {
             sub: user._id,
             email: user.email,
@@ -45,7 +45,7 @@ export class AuthService {
         await this.usersService.updateUser(user._id, createUserDto);
 
         return {
-            access_token: accessToken,
+            auth_token: accessToken,
         };
     }
 }
