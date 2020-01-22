@@ -1,6 +1,4 @@
 import * as mongoose from 'mongoose';
-import * as jwt from 'jsonwebtoken';
-import * as bcrypt from 'bcrypt';
 
 export const UserSchema = new mongoose.Schema({
     name: {
@@ -61,8 +59,6 @@ export const UserSchema = new mongoose.Schema({
 
 //     return newToken;
 // });
-
-
 
 // // Find user by email and validate password
 // userSchema.statics.findByCredentials = async (email, password) => {
