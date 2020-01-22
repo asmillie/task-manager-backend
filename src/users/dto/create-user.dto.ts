@@ -1,7 +1,7 @@
 import { IsNotEmpty, MinLength, IsEmail, IsLowercase } from 'class-validator';
 import { Token } from '../interfaces/token.interface';
 
-export class UserDto {
+export class CreateUserDto {
     @IsNotEmpty({ message: 'User name is required' })
     readonly name: string;
 

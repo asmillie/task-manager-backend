@@ -1,21 +1,27 @@
-import { Controller, Get, Post, Body, UseGuards, Request } from '@nestjs/common';
-import { UserDto } from './dto/user.dto';
+import { Controller, Get, Post, Body, UseGuards, Request, Patch } from '@nestjs/common';
+import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @UseGuards(AuthGuard())
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
-    @Post()
-    async signup(@Body() userDto: UserDto) {
+    @Post('signup')
+    async signup(@Body() createUserDto: CreateUserDto) {
         // TODO: Restrict to admin-level account
-        return await this.usersService.create(userDto);
+        return await this.usersService.create(createUserDto);
     }
 
     @Get('me')
     async findUserById(@Request() req) {
         return await this.usersService.findUserById(req.user._id);
+    }
+
+    @Patch()
+    async updateUser(@Request() req, @Body() updateUserDto: UpdateUserDto) {
+        return await this.usersService.updateUser(req.user._id, updateUserDto);
     }
 }
