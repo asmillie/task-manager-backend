@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Request, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Request, Patch, Delete } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -20,8 +20,13 @@ export class UsersController {
         return await this.usersService.findUserById(req.user._id);
     }
 
-    @Patch()
+    @Patch('me')
     async updateUser(@Request() req, @Body() updateUserDto: UpdateUserDto) {
         return await this.usersService.updateUser(req.user._id, updateUserDto);
+    }
+
+    @Delete('me')
+    async deleteUser(@Request() req) {
+        return await this.usersService.deleteUser(req.user._id);
     }
 }

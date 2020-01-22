@@ -36,6 +36,10 @@ export class UsersService {
         return await this.userModel.findByIdAndUpdate(userId, updateUserDto, { new: true });
     }
 
+    async deleteUser(userId: string): Promise<User> {
+        return await this.userModel.findByIdAndDelete(userId);
+    }
+
     async addToken(userId: string, newToken: string): Promise<User> {
         const user = await this.findUserById(userId);
         const userTokens: Token[] = (user.tokens === undefined) ? [] : user.tokens;
