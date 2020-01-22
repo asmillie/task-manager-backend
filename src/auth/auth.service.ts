@@ -3,7 +3,6 @@ import { UsersService } from 'src/users/users.service';
 import { User } from '../users/interfaces/user.interface';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -33,18 +32,27 @@ export class AuthService {
             email: user.email,
         };
 
-        const accessToken = this.jwtService.sign(payload);
-        const createUserDto: CreateUserDto = {
-            tokens: [
-                { token: accessToken },
-            ],
-            ...user,
-        };
-
-        await this.usersService.updateUser(user._id, createUserDto);
+        const authToken = this.jwtService.sign(payload);
+        const updatedUser = await this.usersService.addToken(user._id, authToken);
 
         return {
-            auth_token: accessToken,
+            auth_token: authToken,
+            updatedUser,
         };
+    }
+
+    /**
+     * Retrieves the authorized user and removes the
+     * authorization token to 'log out'.
+     * @param authToken Token being used to authorize action
+     * @param _id User id retrieved from token
+     */
+    async logoutUser(authToken: string, { _id }) {
+        if (!_id) {
+            return;
+        }
+
+        await this.usersService.removeToken(_id, authToken);
+        return;
     }
 }

@@ -1,4 +1,5 @@
 import { Document } from 'mongoose';
+import { Token } from './token.interface';
 
 export interface User extends Document {
     readonly name: string;
@@ -6,9 +7,7 @@ export interface User extends Document {
     readonly email: string;
     readonly age: number;
     readonly avatar: Buffer;
-    readonly tokens: [
-        { readonly token: string }
-    ];
+    readonly tokens: Token[];
     readonly createdAt: Date;
     readonly updatedAt: Date;
 }

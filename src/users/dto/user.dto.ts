@@ -1,6 +1,7 @@
 import { IsNotEmpty, MinLength, IsEmail, IsLowercase } from 'class-validator';
+import { Token } from '../interfaces/token.interface';
 
-export class CreateUserDto {
+export class UserDto {
     @IsNotEmpty({ message: 'User name is required' })
     readonly name: string;
 
@@ -13,7 +14,5 @@ export class CreateUserDto {
     readonly email: string;
 
     readonly avatar: Buffer;
-    readonly tokens: [{
-        readonly token: string;
-    }];
+    readonly tokens: Token[];
 }

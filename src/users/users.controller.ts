@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, UseGuards, Request } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { UserDto } from './dto/user.dto';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -9,8 +9,9 @@ export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
     @Post()
-    async create(@Body() createUserDto: CreateUserDto) {
-        return await this.usersService.create(createUserDto);
+    async signup(@Body() userDto: UserDto) {
+        // TODO: Restrict to admin-level account
+        return await this.usersService.create(userDto);
     }
 
     @Get('me')

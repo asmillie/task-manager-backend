@@ -11,4 +11,11 @@ export class AuthController {
     async login(@Request() req) {
         return await this.authService.loginUser(req.user);
     }
+
+    @UseGuards(AuthGuard())
+    @Post('logout')
+    async logout(@Request() req) {
+        const authToken = req.headers.authorization.replace('Bearer ', '');
+        return await this.authService.logoutUser(authToken, req.user);
+    }
 }
