@@ -5,6 +5,7 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { UserSchema } from './schemas/user.schema';
 import { PassportModule } from '@nestjs/passport';
+import { TasksModule } from 'src/tasks/tasks.module';
 
 @Module({
     imports: [
@@ -12,6 +13,7 @@ import { PassportModule } from '@nestjs/passport';
             { name: 'User', schema: UserSchema },
         ]),
         PassportModule.register({ defaultStrategy: 'jwt' }),
+        TasksModule,
     ],
     controllers: [UsersController],
     providers: [UsersService],

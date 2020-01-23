@@ -12,7 +12,9 @@ import { TaskSchema } from './schemas/task.schema';
       ]),
       PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
-  providers: [TasksService],
-  controllers: [TasksController]
+  providers: [
+    TasksService,
+  ],
+  controllers: [TasksController],
 })
 export class TasksModule {}
