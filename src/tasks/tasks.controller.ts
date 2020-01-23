@@ -1,4 +1,4 @@
-import { Controller, UseGuards, Post, Body, UsePipes, Req } from '@nestjs/common';
+import { Controller, UseGuards, Post, Body, Req } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TasksService } from './tasks.service';
