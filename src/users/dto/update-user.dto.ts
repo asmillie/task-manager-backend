@@ -14,4 +14,6 @@ export class UpdateUserDto {
     @IsLowercase()
     @IsEmail({}, { message: 'Must be a valid email address' })
     readonly email?: string;
+
+    readonly avatar?: Buffer;
 }

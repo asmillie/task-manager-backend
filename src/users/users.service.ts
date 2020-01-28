@@ -6,6 +6,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 import { Token } from './interfaces/token.interface';
+import * as sharp from 'sharp';
 
 @Injectable()
 export class UsersService {
@@ -60,5 +61,26 @@ export class UsersService {
 
     async hashPassword(password: string) {
         return await bcrypt.hash(password, 8);
+    }
+
+    async addAvatar(userId: string, file: Buffer): Promise<User> {
+        const avatar: Buffer = await sharp(file)
+            .resize({ width: 250, height: 250 })
+            .png()
+            .toBuffer();
+
+        const updateUserDto: UpdateUserDto = {
+            avatar,
+        };
+
+        return await this.updateUser(userId, updateUserDto);
+    }
+
+    async deleteAvatarByUserId(userId: string): Promise<User> {
+        const updateUserDto: UpdateUserDto = {
+            avatar: undefined,
+        };
+
+        return await this.updateUser(userId, updateUserDto);
     }
 }

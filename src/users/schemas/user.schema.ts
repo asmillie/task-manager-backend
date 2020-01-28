@@ -30,6 +30,7 @@ export const UserSchema = new mongoose.Schema({
     const user = this.toObject();
     delete user.password;
     delete user.tokens;
+    delete user.avatar;
 
     return user;
 });
