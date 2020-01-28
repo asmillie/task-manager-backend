@@ -52,4 +52,9 @@ export class UsersController {
         @UploadedFile() avatar) {
         return this.usersService.addAvatar(req.user._id, avatar.buffer);
     }
+
+    @Delete('me/avatar')
+    async deleteAvatar(@Request() req) {
+        return this.usersService.deleteAvatarByUserId(req.user._id);
+    }
 }
