@@ -35,7 +35,7 @@ export class UsersService {
     async updateUser(userId: string, updateUserDto: UpdateUserDto): Promise<User> {
         return await this.userModel.findByIdAndUpdate(userId, updateUserDto, { new: true });
     }
-
+    // TODO: Test cascade deletion of tasks owned by user
     async deleteUser(userId: string): Promise<User> {
         return await this.userModel.findByIdAndDelete(userId);
     }
