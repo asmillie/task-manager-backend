@@ -46,12 +46,22 @@ export class TasksService {
         }));
     }
 
-    async updateTask(taskId: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
-        return await this.taskModel.findByIdAndUpdate(taskId, updateTaskDto);
+    async updateTask(userId: string, taskId: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
+        const conditions =  {
+            owner: userId,
+            _id: taskId,
+        };
+
+        return await this.taskModel.findOneAndUpdate(conditions, updateTaskDto);
     }
 
-    async deleteTask(taskId: string): Promise<Task> {
-        return await this.taskModel.findByIdAndDelete(taskId);
+    async deleteTask(userId: string, taskId: string): Promise<Task> {
+        const conditions = {
+            owner: userId,
+            _id: taskId,
+        };
+
+        return await this.taskModel.findOneAndDelete(conditions);
     }
 
     async deleteAllTasksByUserId(userId: string) {
