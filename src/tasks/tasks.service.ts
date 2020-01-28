@@ -52,7 +52,7 @@ export class TasksService {
             _id: taskId,
         };
 
-        return await this.taskModel.findOneAndUpdate(conditions, updateTaskDto);
+        return await this.taskModel.findOneAndUpdate(conditions, updateTaskDto, { new: true });
     }
 
     async deleteTask(userId: string, taskId: string): Promise<Task> {
