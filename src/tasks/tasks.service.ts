@@ -12,10 +12,9 @@ export class TasksService {
         @InjectModel('Task') private readonly taskModel: Model<Task>) {}
 
     async create(createTaskDto: CreateTaskDto): Promise<Task> {
-        const task = new this.taskModel({
+        return await this.taskModel.create({
             ...createTaskDto,
         });
-        return await this.taskModel.create(task);
     }
 
     async findAllTasksByUserId(

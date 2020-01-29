@@ -14,11 +14,10 @@ export class UsersService {
         @InjectModel('User') private readonly userModel: Model<User>) {}
     // TODO: Handle error on duplicate email address
     async create(createUserDto: CreateUserDto): Promise<User> {
-        const createdUser = new this.userModel({
+        return await this.userModel.create({
             ...createUserDto,
             password: await this.hashPassword(createUserDto.password),
         });
-        return await createdUser.save();
     }
 
     async findAll(): Promise<User[]> {
