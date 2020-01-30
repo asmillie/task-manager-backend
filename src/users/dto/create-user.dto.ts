@@ -13,6 +13,6 @@ export class CreateUserDto {
     @IsEmail({}, { message: 'Must be a valid email address' })
     readonly email: string;
 
-    readonly avatar: Buffer;
-    readonly tokens: Token[];
+    readonly avatar?: Buffer;
+    readonly tokens?: Token[];
 }
