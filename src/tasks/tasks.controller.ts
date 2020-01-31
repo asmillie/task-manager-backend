@@ -18,7 +18,7 @@ export class TasksController {
 
     @Get(':id')
     async findTask(@Req() req, @Param('id') id: string) {
-        const task = await this.tasksService.findTask(req.user_id, id);
+        const task = await this.tasksService.findTask(req.user._id, id);
         return task;
     }
 
