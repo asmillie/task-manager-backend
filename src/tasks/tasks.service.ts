@@ -39,10 +39,10 @@ export class TasksService {
     }
 
     async findTask(userId: string, taskId: string): Promise<Task> {
-        return await this.taskModel.findOne(new this.taskModel({
+        return await this.taskModel.findOne({
             _id: taskId,
             owner: userId,
-        }));
+        });
     }
 
     async updateTask(userId: string, taskId: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
