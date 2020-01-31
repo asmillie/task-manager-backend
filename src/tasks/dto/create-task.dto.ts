@@ -10,6 +10,14 @@ export class CreateTaskDto {
     @IsOptional()
     readonly completed?: boolean;
 
+    constructor(owner: string, description: string, completed?: boolean) {
+        this._owner = owner;
+        this.description = description;
+        if (completed !== undefined) {
+            this.completed = completed;
+        }
+    }
+
     get owner(): string {
         return this._owner;
     }
