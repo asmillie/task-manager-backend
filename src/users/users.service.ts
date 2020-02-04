@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './interfaces/user.interface';
@@ -18,10 +18,6 @@ export class UsersService {
             ...createUserDto,
             password: await this.hashPassword(createUserDto.password),
         });
-    }
-
-    async findAll(): Promise<User[]> {
-        return await this.userModel.find().exec();
     }
 
     async findUserById(userId: string): Promise<User> {
@@ -58,7 +54,7 @@ export class UsersService {
         return await this.userModel.findByIdAndUpdate(userId, { tokens: userTokens }, { new: true });
     }
 
-    async hashPassword(password: string) {
+    async hashPassword(password: string): Promise<string> {
         return await bcrypt.hash(password, 8);
     }
 
