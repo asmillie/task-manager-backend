@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/interfaces/user.interface';
 import { JwtService } from '@nestjs/jwt';
@@ -18,7 +18,8 @@ export class AuthService {
                 return user.toJSON();
             }
         }
-        return;
+        // User not found, unauthorized request
+        throw new UnauthorizedException();
     }
 
     /**
@@ -50,10 +51,9 @@ export class AuthService {
      */
     async logoutUser(authToken: string, { _id }) {
         if (!_id) {
-            return;
+            throw new NotFoundException();
         }
 
-        await this.usersService.removeToken(_id, authToken);
-        return;
+        return await this.usersService.removeToken(_id, authToken);
     }
 }
