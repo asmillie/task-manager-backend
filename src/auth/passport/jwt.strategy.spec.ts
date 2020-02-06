@@ -1,9 +1,10 @@
 import { Test } from '@nestjs/testing';
 import { JwtStrategy } from './jwt.strategy';
-import { AuthService } from '../auth.service';
+import { UsersService } from '../../users/users.service';
+import { UnauthorizedException } from '@nestjs/common';
 
-const mockAuthService = () => ({
-    test: jest.fn(),
+const mockUsersService = () => ({
+    findUserById: jest.fn(),
 });
 
 const mockUser: any = {
@@ -23,7 +24,7 @@ const mockPayload = {
 
 describe('JwtStrategy', () => {
     let jwtStrategy: JwtStrategy;
-    let authService;
+    let usersService;
 
     beforeEach(async () => {
         const module = await Test.createTestingModule({
@@ -33,23 +34,32 @@ describe('JwtStrategy', () => {
                     useValue: 'jwtsecret',
                 },
                 {
-                    provide: AuthService,
-                    useFactory: mockAuthService,
+                    provide: UsersService,
+                    useFactory: mockUsersService,
                 },
                 JwtStrategy,
             ]
         }).compile();
 
         jwtStrategy = module.get<JwtStrategy>(JwtStrategy);
-        authService = module.get<AuthService>(AuthService);
+        usersService = module.get<UsersService>(UsersService);
     });
 
     describe('validate', () => {
-        it('should return user id and email from payload', async () => {
-            expect(jwtStrategy.validate(mockPayload)).resolves.toEqual({
-                _id: mockUser._id,
-                email: mockUser.email,
-            });
+        it('should retrieve and return user from usersService', async () => {
+            usersService.findUserById.mockResolvedValue(mockUser);
+
+            expect(usersService.findUserById).not.toHaveBeenCalled();
+            const result = await jwtStrategy.validate(mockPayload);
+            expect(usersService.findUserById).toHaveBeenCalledWith(mockPayload.sub);
+            expect(result).toEqual(mockUser);
+        });
+
+        it('should throw when no user found', async () => {
+            usersService.findUserById.mockResolvedValue(null);
+
+            expect(usersService.findUserById).not.toHaveBeenCalled();
+            expect(jwtStrategy.validate(mockPayload)).rejects.toThrow(UnauthorizedException);
         });
     });
 });
