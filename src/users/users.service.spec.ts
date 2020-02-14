@@ -51,8 +51,8 @@ describe('UsersService', () => {
             ],
         }).compile();
 
-        usersService = await module.get<UsersService>(UsersService);
-        userModel = await module.get<Model<User>>(getModelToken('User'));
+        usersService = module.get<UsersService>(UsersService);
+        userModel = module.get<Model<User>>(getModelToken('User'));
     });
 
     describe('hashPassword', () => {
