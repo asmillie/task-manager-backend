@@ -18,7 +18,7 @@ export class UsersController {
                return cb(new Error('Avatar image must be of the type .jpg, .jpeg or .png'));
             }
 
-            cb(undefined, true)
+            cb(undefined, true);
         },
     };
 
@@ -29,7 +29,7 @@ export class UsersController {
         // TODO: Restrict to admin-level account
         return await this.usersService.create(createUserDto);
     }
-
+    // TODO: User is found during auth process,, should just return that
     @Get('me')
     async findUserById(@Request() req) {
         return await this.usersService.findUserById(req.user._id);
