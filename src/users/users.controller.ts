@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Request, Patch, Delete, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Request, Patch, Delete, UseInterceptors, UploadedFile, HttpCode } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
@@ -46,6 +46,7 @@ export class UsersController {
     }
 
     @Post('me/avatar')
+    @HttpCode(200)
     @UseInterceptors(FileInterceptor('avatar', this.multerOptions))
     async saveAvatar(
         @Request() req,
