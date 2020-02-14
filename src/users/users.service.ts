@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './interfaces/user.interface';
@@ -14,6 +14,10 @@ export class UsersService {
         @InjectModel('User') private readonly userModel: Model<User>) {}
     // TODO: Handle error on duplicate email address
     async create(createUserDto: CreateUserDto): Promise<User> {
+        if (!createUserDto.password) {
+            throw new InternalServerErrorException();
+        }
+
         return await this.userModel.create({
             ...createUserDto,
             password: await this.hashPassword(createUserDto.password),
