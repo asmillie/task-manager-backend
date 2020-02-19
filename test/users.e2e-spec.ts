@@ -1,13 +1,11 @@
 import { Test } from '@nestjs/testing';
 import * as request from 'supertest';
-import { INestApplication, ValidationPipe, ExecutionContext, CanActivate, Next, CallHandler } from '@nestjs/common';
+import { INestApplication, ValidationPipe, ExecutionContext } from '@nestjs/common';
 import { UsersModule } from '../src/users/users.module';
 import { AuthGuard } from '@nestjs/passport';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongoExceptionFilter } from '../src/mongo-exception-filter';
-import { map } from 'rxjs/operators';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { MockMongooseService } from './mocks/mock-mongoose-service';
 
 // Mongo Memory Server may require additional time
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 600000;
@@ -17,7 +15,6 @@ const mockJwtGuard = {
 };
 
 describe('/users', () => {
-    let db: MongoMemoryServer;
     let app: INestApplication;
     let user: any;
     const userPassword = 'strongpassword';
@@ -26,17 +23,7 @@ describe('/users', () => {
         const module = await Test.createTestingModule({
             imports: [
                 MongooseModule.forRootAsync({
-                    useFactory: async () => {
-                        db = new MongoMemoryServer();
-                        const uri = await db.getUri('task-manager-api-test');
-                        return {
-                            uri,
-                            useNewUrlParser: true,
-                            useCreateIndex: true,
-                            useFindAndModify: false,
-                            useUnifiedTopology: true,
-                        };
-                    },
+                    useClass: MockMongooseService,
                 }),
                 UsersModule,
             ],
@@ -240,7 +227,7 @@ describe('/users', () => {
         it('should throw error on invalid file upload', () => {
             return request(app.getHttpServer())
                 .post('/users/me/avatar')
-                .expect(500);
+                .expect(400);
         });
     });
 
@@ -266,7 +253,5 @@ describe('/users', () => {
 
     afterEach(async () => {
         await app.close();
-        await db.stop();
-        db = undefined;
     });
 });
