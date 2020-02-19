@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './interfaces/user.interface';
@@ -63,6 +63,10 @@ export class UsersService {
     }
 
     async addAvatar(userId: string, file: Buffer): Promise<User> {
+        if (!file) {
+            throw new BadRequestException('Missing avatar image');
+        }
+
         const avatar: Buffer = await sharp(file)
             .resize({ width: 250, height: 250 })
             .png()
