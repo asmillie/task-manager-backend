@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, BadRequestException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './interfaces/user.interface';
@@ -10,56 +10,118 @@ import * as sharp from 'sharp';
 
 @Injectable()
 export class UsersService {
+
+    private logger = new Logger('UsersService');
+
     constructor(
         @InjectModel('User') private readonly userModel: Model<User>) {}
     // TODO: Handle error on duplicate email address
     async create(createUserDto: CreateUserDto): Promise<User> {
-        if (!createUserDto.password) {
+        const password = await this.hashPassword(createUserDto.password);
+        try {
+            return await this.userModel.create({
+                ...createUserDto,
+                password,
+            });
+        } catch (e) {
+            this.logger.error(
+                `Failed to create user. DTO: ${JSON.stringify(createUserDto)}`,
+            )
             throw new InternalServerErrorException();
         }
-
-        return await this.userModel.create({
-            ...createUserDto,
-            password: await this.hashPassword(createUserDto.password),
-        });
     }
 
     async findUserById(userId: string): Promise<User> {
-        return await this.userModel.findById(userId);
+        try {
+            return await this.userModel.findById(userId);
+        } catch (e) {
+            this.logger.error(
+                `Failed to find user by id ${userId}.`,
+                e.stack,
+            );
+            throw new InternalServerErrorException();
+        }
     }
 
     async findUserByEmail(email: string): Promise<User> {
-        return await this.userModel.findOne({ email });
+        try {
+            return await this.userModel.findOne({ email });
+        } catch (e) {
+            this.logger.error(
+                `Failed to find user by email ${email}.`,
+                e.stack,
+            );
+            throw new InternalServerErrorException();
+        }
     }
 
     async updateUser(userId: string, updateUserDto: UpdateUserDto): Promise<User> {
-        return await this.userModel.findByIdAndUpdate(userId, updateUserDto, { new: true });
+        try {
+            return await this.userModel.findByIdAndUpdate(userId, updateUserDto, { new: true });
+        } catch (e) {
+            this.logger.error(
+                `Failed to update user. User Id ${userId}, DTO: ${JSON.stringify(updateUserDto)}`,
+                e.stack,
+            );
+            throw new InternalServerErrorException();
+        }
     }
     // TODO: Test cascade deletion of tasks owned by user
     async deleteUser(userId: string): Promise<User> {
-        return await this.userModel.findByIdAndDelete(userId);
+        try {
+            return await this.userModel.findByIdAndDelete(userId);
+        } catch (e) {
+            this.logger.error(
+                `Failed to delete user for id ${userId}`,
+                e.stack,
+            );
+            throw new InternalServerErrorException();
+        }
     }
 
-    async addToken(userId: string, newToken: string): Promise<User> {
-        const user = await this.findUserById(userId);
+    async addToken(user: User, newToken: string): Promise<User> {
         const userTokens: Token[] = (user.tokens === undefined) ? [] : user.tokens;
         userTokens.push({ token: newToken });
 
-        return await this.userModel.findByIdAndUpdate(userId, { tokens: userTokens }, { new: true });
+        try {
+            return await this.userModel.findByIdAndUpdate(user._id, { tokens: userTokens }, { new: true });
+        } catch (e) {
+            this.logger.error(
+                `Failed to save token to user. User: ${JSON.stringify(user)},
+                 New Auth Token: ${newToken}, User Tokens: ${JSON.stringify(userTokens)}`,
+                 e.stack,
+            );
+            throw new InternalServerErrorException();
+        }
     }
 
-    async removeToken(userId: string, tokenToRemove: string): Promise<User> {
-        const user = await this.findUserById(userId);
+    async removeToken(user: User, tokenToRemove: string): Promise<User> {
         if (user.tokens === undefined) {
-            return;
+            throw new BadRequestException('User is already logged out');
         }
 
         const userTokens: Token[] = user.tokens.filter(token => token.token !== tokenToRemove);
-        return await this.userModel.findByIdAndUpdate(userId, { tokens: userTokens }, { new: true });
+        try {
+            return await this.userModel.findByIdAndUpdate(user._id, { tokens: userTokens }, { new: true });
+        } catch (e) {
+            this.logger.error(
+                `Failed to remove token from user. User: ${JSON.stringify(user)}, Auth Token: ${tokenToRemove}`,
+                e.stack,
+            );
+            throw new InternalServerErrorException();
+        }
     }
 
     async hashPassword(password: string): Promise<string> {
-        return await bcrypt.hash(password, 8);
+        try {
+            return await bcrypt.hash(password, 8);
+        } catch (e) {
+            this.logger.error(
+                `Failed to hash password.`,
+                e.stack,
+            );
+            throw new InternalServerErrorException();
+        }
     }
 
     async addAvatar(userId: string, file: Buffer): Promise<User> {
@@ -67,23 +129,44 @@ export class UsersService {
             throw new BadRequestException('Missing avatar image');
         }
 
-        const avatar: Buffer = await sharp(file)
+        let avatar: Buffer;
+        try {
+            avatar = await sharp(file)
             .resize({ width: 250, height: 250 })
             .png()
             .toBuffer();
+        } catch (e) {
+            this.logger.error(`Failed to resize avatar image.`);
+            throw new InternalServerErrorException();
+        }
 
         const updateUserDto: UpdateUserDto = {
             avatar,
         };
 
-        return await this.updateUser(userId, updateUserDto);
+        try {
+            return await this.updateUser(userId, updateUserDto);
+        } catch (e) {
+            this.logger.error(
+                `Failed to save avatar image for user id ${userId}.`,
+                e.stack,
+            );
+            throw new InternalServerErrorException();
+        }
     }
 
     async deleteAvatarByUserId(userId: string): Promise<User> {
         const updateUserDto: UpdateUserDto = {
             avatar: undefined,
         };
-
-        return await this.updateUser(userId, updateUserDto);
+        try {
+            return await this.updateUser(userId, updateUserDto);
+        } catch (e) {
+            this.logger.error(
+                `Failed to delete avatar for user id ${userId}`,
+                e.stack,
+            );
+            throw new InternalServerErrorException();
+        }
     }
 }

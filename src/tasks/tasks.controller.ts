@@ -8,6 +8,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 @UseGuards(AuthGuard())
 @Controller('tasks')
 export class TasksController {
+
     constructor(private readonly tasksService: TasksService) {}
 
     @Post()
