@@ -1,7 +1,8 @@
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsEmpty } from 'class-validator';
 
 export class CreateTaskDto {
 
+    @IsEmpty()
     private _owner: string;
 
     @IsNotEmpty({ message: 'Description is required' })
@@ -10,7 +11,7 @@ export class CreateTaskDto {
     @IsOptional()
     readonly completed?: boolean;
 
-    constructor(owner: string, description: string, completed: boolean = false) {
+    constructor(owner: string = '', description: string, completed: boolean = false) {
         this._owner = owner;
         this.description = description;
         this.completed = completed;
