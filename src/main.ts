@@ -4,11 +4,18 @@ import { ValidationPipe, Logger } from '@nestjs/common';
 import { MongoExceptionFilter } from './mongo-exception-filter';
 import * as config from 'config';
 import * as helmet from 'helmet';
+import * as rateLimit from 'express-rate-limit';
 
 async function bootstrap() {
   const logger = new Logger('bootstrap');
   const app = await NestFactory.create(AppModule);
   app.use(helmet());
+  app.use(
+    rateLimit({
+      windowMs: config.get<number>('rateLimit.windowMs'),
+      max: config.get<number>('rateLimit.maxRequestsPerWMS'),
+    }),
+  );
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     forbidNonWhitelisted: true,

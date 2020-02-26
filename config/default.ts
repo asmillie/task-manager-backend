@@ -10,4 +10,8 @@ export default {
         secret: process.env.JWT_SECRET || 'defaultjwt11',
         expiresIn: process.env.JWT_EXPIRES_IN || 3600,
     },
+    rateLimit: {
+        windowMs: 15 * 60 * 1000,
+        maxRequestsPerWMS: 100,
+    }
 };
