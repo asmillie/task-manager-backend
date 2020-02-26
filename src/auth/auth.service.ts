@@ -13,6 +13,12 @@ export class AuthService {
         private readonly usersService: UsersService,
         private readonly jwtService: JwtService) {}
 
+    /**
+     * Find user by email address and validate password
+     * @param email User email address
+     * @param password User password
+     * @throws {UnauthorizedException} if user is not found or password does not match
+     */
     async validateUser(email: string, password: string): Promise<User> {
         let user;
         try {
@@ -38,7 +44,8 @@ export class AuthService {
      * Generates a JWT (JSON Web Token) for the provided user.
      * Token is saved to the user before being returned for use in
      * authenticating requests.
-     * @param user User to be logged in
+     * @param user User to generate a JWT for
+     * @throws {InternalServerErrorException} if an error occurs while saving user token
      */
     async loginUser(user: User) {
         const payload = {
@@ -62,10 +69,10 @@ export class AuthService {
     }
 
     /**
-     * Retrieves the authorized user and removes the
-     * authorization token to 'log out'.
-     * @param authToken Token being used to authorize action
+     * Removes authentication token (JWT) from user to 'logout'
+     * @param authToken Token to remove
      * @param user User that owns token
+     * @throws {InternalServerErrorException} if an error occurs while deleting user token
      */
     async logoutUser(authToken: string, user: User) {
         try {

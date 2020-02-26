@@ -11,6 +11,12 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
         });
     }
 
+    /**
+     * Returns user that matches provided credentials.
+     * @param email User email address
+     * @param password User password
+     * @throws {UnauthorizedException} if user is not found
+     */
     async validate(email: string, password: string): Promise<any> {
         const user = await this.authService.validateUser(email, password);
         if (!user) {

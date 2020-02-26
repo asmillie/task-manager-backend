@@ -16,6 +16,11 @@ export class UsersService {
     constructor(
         @InjectModel('User') private readonly userModel: Model<User>) {}
 
+    /**
+     * Creates a new user in the database
+     * @param {CreateUserDto} createUserDto User to be created
+     * @throws {InternalServerErrorException} if an error occurs while saving user
+     */
     async create(createUserDto: CreateUserDto): Promise<User> {
         const password = await this.hashPassword(createUserDto.password);
         try {
@@ -26,11 +31,16 @@ export class UsersService {
         } catch (e) {
             this.logger.error(
                 `Failed to create user. DTO: ${JSON.stringify(createUserDto)}`,
-            )
+            );
             throw new InternalServerErrorException();
         }
     }
 
+    /**
+     * Finds user by id
+     * @param userId Id to search for
+     * @throws {InternalServerErrorException} if an error occurs while finding user
+     */
     async findUserById(userId: string): Promise<User> {
         try {
             return await this.userModel.findById(userId);
@@ -43,6 +53,11 @@ export class UsersService {
         }
     }
 
+    /**
+     * Finds user by email address
+     * @param email Email to search for
+     * @throws {InternalServerErrorException} if an error occurs while finding user
+     */
     async findUserByEmail(email: string): Promise<User> {
         try {
             return await this.userModel.findOne({ email });
@@ -55,6 +70,12 @@ export class UsersService {
         }
     }
 
+    /**
+     * Updates user fields
+     * @param userId Id of user being updated
+     * @param {UpdateUserDto} updateUserDto Object containing updated fields
+     * @throws {InternalServerErrorException} if an error occurs during update
+     */
     async updateUser(userId: string, updateUserDto: UpdateUserDto): Promise<User> {
         try {
             return await this.userModel.findByIdAndUpdate(userId, updateUserDto, { new: true });
@@ -67,6 +88,11 @@ export class UsersService {
         }
     }
     // TODO: Test cascade deletion of tasks owned by user
+    /**
+     * Deletes a user by id
+     * @param userId Id of user to be deleted
+     * @throws {InternalServerErrorException} if an error occurs during deletion
+     */
     async deleteUser(userId: string): Promise<User> {
         try {
             return await this.userModel.findByIdAndDelete(userId);
@@ -79,6 +105,12 @@ export class UsersService {
         }
     }
 
+    /**
+     * Saves authentication token to list of user-owned tokens
+     * @param user User to save token to
+     * @param newToken Authentication token (JWT) to save
+     * @throws {InternalServerErrorException} if an error occurs while updating user
+     */
     async addToken(user: User, newToken: string): Promise<User> {
         const userTokens: Token[] = (user.tokens === undefined) ? [] : user.tokens;
         userTokens.push({ token: newToken });
@@ -95,6 +127,13 @@ export class UsersService {
         }
     }
 
+    /**
+     * Deletes authentication token from list of user-owned tokens
+     * @param user User to remove token from
+     * @param tokenToRemove Authentication token being removed
+     * @throws {BadRequestException} if list of user tokens is undefined (User has no tokens)
+     * @throws {InternalServerErrorException} if an error occurs while updating user
+     */
     async removeToken(user: User, tokenToRemove: string): Promise<User> {
         if (user.tokens === undefined) {
             throw new BadRequestException('User is already logged out');
@@ -112,6 +151,11 @@ export class UsersService {
         }
     }
 
+    /**
+     * Takes password string and returns a hash
+     * @param password Password to be hashed
+     * @throws {InternalServerErrorException} if an error occurs while hashing password
+     */
     async hashPassword(password: string): Promise<string> {
         try {
             return await bcrypt.hash(password, 8);
@@ -124,6 +168,14 @@ export class UsersService {
         }
     }
 
+    /**
+     * Resizes avatar image before saving it to user
+     * @param userId Id of user to save avatar to
+     * @param {Buffer} file Avatar image
+     * @throws {BadRequestException} if file is empty
+     * @throws {InternalServerErrorException} if an error occurs while resizing image
+     * @throws {InternalServerErrorException} if an error occurs while saving image
+     */
     async addAvatar(userId: string, file: Buffer): Promise<User> {
         if (!file) {
             throw new BadRequestException('Missing avatar image');
@@ -155,6 +207,11 @@ export class UsersService {
         }
     }
 
+    /**
+     * Deletes user avatar
+     * @param userId Id of user to delete avatar from
+     * @throws {InternalServerErrorException} if an error occurs while deleting image
+     */
     async deleteAvatarByUserId(userId: string): Promise<User> {
         const updateUserDto: UpdateUserDto = {
             avatar: undefined,

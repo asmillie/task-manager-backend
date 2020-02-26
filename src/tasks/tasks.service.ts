@@ -14,6 +14,10 @@ export class TasksService {
     constructor(
         @InjectModel('Task') private readonly taskModel: Model<Task>) {}
 
+    /**
+     * Creates a new task
+     * @param createTaskDto 
+     */
     async create(createTaskDto: CreateTaskDto): Promise<Task> {
         try {
             return await this.taskModel.create({

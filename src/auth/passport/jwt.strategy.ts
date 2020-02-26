@@ -15,6 +15,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         });
     }
 
+    /**
+     * Finds and returns user that matches id contained in JWT payload.
+     * @param payload User email and id extracted from JWT
+     * @throws {UnauthorizedException} if user is not found
+     */
     async validate(payload: any): Promise<User> {
         const user = await this.usersService.findUserById(payload.sub);
         if (user) {
