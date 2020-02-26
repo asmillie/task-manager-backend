@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
+import * as config from 'config';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -14,7 +15,8 @@ import { TasksModule } from './tasks/tasks.module';
       envFilePath: 'development.env',
       isGlobal: true,
     }),
-    MongooseModule.forRoot('mongodb://127.0.0.1:27017/task-manager-api', {
+    MongooseModule.forRoot(
+      config.get<string>('database.uri'), {
       useNewUrlParser: true,
       useCreateIndex: true,
       useFindAndModify: false,

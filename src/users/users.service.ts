@@ -15,7 +15,7 @@ export class UsersService {
 
     constructor(
         @InjectModel('User') private readonly userModel: Model<User>) {}
-    // TODO: Handle error on duplicate email address
+
     async create(createUserDto: CreateUserDto): Promise<User> {
         const password = await this.hashPassword(createUserDto.password);
         try {
