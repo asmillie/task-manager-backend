@@ -7,7 +7,7 @@ export default {
         name: process.env.DATABASE_NAME || 'task-manager-api',
     },
     jwt: {
-        secret: process.env.JWT_SECRET || 'developmentsecret32',
+        secret: process.env.JWT_SECRET || 'defaultjwt11',
         expiresIn: process.env.JWT_EXPIRES_IN || 3600,
     },
 };
