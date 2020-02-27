@@ -24,27 +24,51 @@ export class UsersController {
 
     constructor(private readonly usersService: UsersService) {}
 
+    /**
+     * Creates a new user in the database and then returns the user profile.
+     * @param {CreateUserDto} createUserDto User to be created
+     */
     @Post('signup')
     async signup(@Body() createUserDto: CreateUserDto) {
         // TODO: Restrict to admin-level account
         return await this.usersService.create(createUserDto);
     }
 
+    /**
+     * Returns user profile
+     * @param req Request object
+     */
     @Get('me')
     async findUserById(@Request() req) {
         return req.user;
     }
 
+    /**
+     * Updates user then returns updated user profile
+     * @param req Request object
+     * @param {UpdateUserDto} updateUserDto User fields to update
+     */
     @Patch('me')
     async updateUser(@Request() req, @Body() updateUserDto: UpdateUserDto) {
         return await this.usersService.updateUser(req.user._id, updateUserDto);
     }
 
+    /**
+     * Deletes logged-in user from the database and returns the profile
+     * of the deleted user
+     * @param req Request object
+     */
     @Delete('me')
     async deleteUser(@Request() req) {
         return await this.usersService.deleteUser(req.user._id);
     }
 
+    /**
+     * Saves user avatar to database and then returns user profile
+     * @param req Request object
+     * @param avatar Uploaded avatar file
+     * @throws {BadRequestException} if avatar is missing from request
+     */
     @Post('me/avatar')
     @HttpCode(200)
     @UseInterceptors(FileInterceptor('avatar', this.multerOptions))
@@ -57,6 +81,10 @@ export class UsersController {
         return this.usersService.addAvatar(req.user._id, avatar.buffer);
     }
 
+    /**
+     * Deletes logged-in user avatar
+     * @param req Request object
+     */
     @Delete('me/avatar')
     async deleteAvatar(@Request() req) {
         return this.usersService.deleteAvatarByUserId(req.user._id);

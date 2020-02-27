@@ -11,18 +11,35 @@ export class TasksController {
 
     constructor(private readonly tasksService: TasksService) {}
 
+    /**
+     * Creates a task for logged-in user and returns task in
+     * response
+     * @param req Request object
+     * @param {CreateTaskDto} createTaskDto Task to be created
+     */
     @Post()
     async createTask(@Req() req, @Body() createTaskDto: CreateTaskDto) {
         createTaskDto.owner = req.user._id;
         return await this.tasksService.create(createTaskDto);
     }
 
+    /**
+     * Finds a task by id belonging to user
+     * @param req Request object
+     * @param id Id of task to find
+     */
     @Get(':id')
     async findTask(@Req() req, @Param('id') id: string) {
         const task = await this.tasksService.findTask(req.user._id, id);
         return task;
     }
 
+    /**
+     * Finds and returns all tasks owned by logged-in user
+     * @param req Request object
+     * @param completed Filter tasks by completion status
+     * @param taskQueryOptions Optional search criteria for task fields
+     */
     @Get()
     async findAllTasks(
         @Req() req,
@@ -31,6 +48,12 @@ export class TasksController {
         return await this.tasksService.findAllTasksByUserId(req.user._id, completed, taskQueryOptions);
     }
 
+    /**
+     * Updates and returns a task belonging to logged-in user
+     * @param req Request object
+     * @param id Id of task to update
+     * @param {UpdateTaskDto} updateTaskDto Task fields to update
+     */
     @Patch(':id')
     async updateTask(
         @Req() req,
@@ -39,6 +62,12 @@ export class TasksController {
         return await this.tasksService.updateTask(req.user._id, id, updateTaskDto);
     }
 
+    /**
+     * Deletes a task belonging to currently logged-in user. Deleted
+     * task is returned in the response.
+     * @param req Request object
+     * @param id Id of task to delete
+     */
     @Delete(':id')
     async deleteTask(
         @Req() req,
@@ -46,6 +75,10 @@ export class TasksController {
         return await this.tasksService.deleteTask(req.user._id, id);
     }
 
+    /**
+     * Deletes all tasks belonging to currently logged-in user
+     * @param req Request object
+     */
     @Delete()
     async deleteAllUserTasks(@Req() req) {
         return await this.tasksService.deleteAllTasksByUserId(req.user._id);

@@ -16,7 +16,8 @@ export class TasksService {
 
     /**
      * Creates a new task
-     * @param createTaskDto 
+     * @param {CreateTaskDto} createTaskDto Task to be created
+     * @throws {InternalServerErrorException} if an error occurs while creating task
      */
     async create(createTaskDto: CreateTaskDto): Promise<Task> {
         try {
@@ -32,6 +33,14 @@ export class TasksService {
         }
     }
 
+    /**
+     * Finds all tasks for a user based on submitted
+     * search criteria
+     * @param userId Id of user that owns tasks
+     * @param completed Filter tasks by completion status
+     * @param taskQueryOptions Task fields search criteria
+     * @throws {InternalServerErrorException} if an error occurs while finding tasks
+     */
     async findAllTasksByUserId(
         userId: string,
         completed: boolean,
@@ -60,6 +69,12 @@ export class TasksService {
         }
     }
 
+    /**
+     * Finds a task by id
+     * @param userId Id of user that owns task
+     * @param taskId Id of task to find
+     * @throws {InternalServerErrorException} if an error occurs while finding task
+     */
     async findTask(userId: string, taskId: string): Promise<Task> {
         try {
             return await this.taskModel.findOne({
@@ -75,6 +90,13 @@ export class TasksService {
         }
     }
 
+    /**
+     * Updates a task
+     * @param userId Id of user that owns task
+     * @param taskId Id of task to update
+     * @param {UpdateTaskDto} updateTaskDto Task fields to update
+     * @throws {InternalServerErrorException} if an error occurs while updating task
+     */
     async updateTask(userId: string, taskId: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
         const conditions =  {
             owner: userId,
@@ -92,6 +114,12 @@ export class TasksService {
         }
     }
 
+    /**
+     * Deletes a task
+     * @param userId Id of user that owns task
+     * @param taskId Id of task to delete
+     * @throws {InternalServerErrorException} if an error occurs while deleting task
+     */
     async deleteTask(userId: string, taskId: string): Promise<Task> {
         const conditions = {
             owner: userId,
@@ -109,6 +137,11 @@ export class TasksService {
         }
     }
 
+    /**
+     * Delete all tasks belonging to a user
+     * @param userId Id of user that owns tasks
+     * @throws {InternalServerErrorException} if an error occurs while deleting tasks
+     */
     async deleteAllTasksByUserId(userId: string) {
         try {
             return await this.taskModel.deleteMany({ owner: userId });
