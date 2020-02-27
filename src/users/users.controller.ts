@@ -29,10 +29,10 @@ export class UsersController {
         // TODO: Restrict to admin-level account
         return await this.usersService.create(createUserDto);
     }
-    // TODO: User is found during auth process,, should just return that
+
     @Get('me')
     async findUserById(@Request() req) {
-        return await this.usersService.findUserById(req.user._id);
+        return req.user;
     }
 
     @Patch('me')
