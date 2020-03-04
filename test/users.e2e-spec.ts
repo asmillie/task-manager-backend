@@ -249,7 +249,7 @@ describe('/users', () => {
                 .delete('/users/me/avatar')
                 .expect(200);
         });
-    })
+    });
 
     afterEach(async () => {
         await app.close();

@@ -13,5 +13,5 @@ export default {
     rateLimit: {
         windowMs: 15 * 60 * 1000,
         maxRequestsPerWMS: 100,
-    }
+    },
 };

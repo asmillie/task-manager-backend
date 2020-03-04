@@ -38,7 +38,7 @@ describe('JwtStrategy', () => {
                     useFactory: mockUsersService,
                 },
                 JwtStrategy,
-            ]
+            ],
         }).compile();
 
         jwtStrategy = module.get<JwtStrategy>(JwtStrategy);
