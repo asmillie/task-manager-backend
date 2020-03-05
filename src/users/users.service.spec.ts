@@ -146,15 +146,12 @@ describe('UsersService', () => {
 
     describe('addToken', () => {
         it('should add a token to user', async () => {
-            jest.spyOn(usersService, 'findUserById').mockResolvedValue(mockUser);
             userModel.findByIdAndUpdate.mockResolvedValue('User');
 
-            expect(usersService.findUserById).not.toHaveBeenCalled();
             expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
-            const result = await usersService.addToken('id', 'newToken');
-            expect(usersService.findUserById).toHaveBeenCalledWith('id');
+            const result = await usersService.addToken(mockUser, 'newToken');
             expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
-                'id',
+                mockUser._id,
                 { tokens: [{ token: 'newToken' }] },
                 { new: true },
             );
@@ -164,7 +161,6 @@ describe('UsersService', () => {
 
     describe('removeToken', () => {
         it('should remove a token from user', async () => {
-            jest.spyOn(usersService, 'findUserById').mockResolvedValue(mockUser);
             userModel.findByIdAndUpdate.mockResolvedValue('User');
             const mockToken: Token = {
                 token: 'tokenToRemove',
@@ -174,12 +170,10 @@ describe('UsersService', () => {
             // Add one token to be removed
             mockUser.tokens.push(mockToken);
 
-            expect(usersService.findUserById).not.toHaveBeenCalled();
             expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
-            const result = await usersService.removeToken('id', mockToken.token);
-            expect(usersService.findUserById).toHaveBeenCalledWith('id');
+            const result = await usersService.removeToken(mockUser, mockToken.token);
             expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
-                'id',
+                mockUser._id,
                 { tokens: [] },
                 { new: true },
             );

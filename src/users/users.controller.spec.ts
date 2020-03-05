@@ -68,13 +68,9 @@ describe('UsersController', () => {
     });
 
     describe('findUserById', () => {
-        it('should find a user by id', async () => {
-            usersService.findUserById.mockResolvedValue(mockUser);
-
-            expect(usersService.findUserById).not.toHaveBeenCalled();
+        it('should return user request object provided by JWT strategy', async () => {
             const result = await usersController.findUserById(mockReq);
-            expect(usersService.findUserById).toHaveBeenCalledWith(mockReq.user._id);
-            expect(result).toEqual(mockUser);
+            expect(result).toEqual(mockReq.user);
         });
     });
 
