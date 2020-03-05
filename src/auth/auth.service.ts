@@ -20,14 +20,14 @@ export class AuthService {
      * @throws {UnauthorizedException} if user is not found or password does not match
      */
     async validateUser(email: string, password: string): Promise<User> {
-        let user;
+        let user: User;
         try {
             user = await this.usersService.findUserByEmail(email);
         } catch (e) {
             this.logger.error(
-                `Failed to find user for email ${email}.`,
-                e.stack,
+                `Failed to find user for email "${email}".`,
             );
+            throw new UnauthorizedException();
         }
 
         if (user) {
@@ -80,7 +80,6 @@ export class AuthService {
         } catch (e) {
             this.logger.error(
                 `Failed to remove auth token from user id ${user._id}. User: ${JSON.stringify(user)}, Auth Token: ${authToken}`,
-                e.stack,
             );
             throw new InternalServerErrorException();
         }

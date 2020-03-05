@@ -4,7 +4,7 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 
 import * as bcrypt from 'bcrypt';
-import { UnauthorizedException, NotFoundException } from '@nestjs/common';
+import { UnauthorizedException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 jest.mock('bcrypt', () => {
     return {
         bcrypt: jest.fn().mockReturnThis(),
@@ -70,11 +70,13 @@ describe('AuthService', () => {
             expect(result).toEqual('User JSON');
         });
 
-        it('should throw when no user is found', () => {
-            usersService.findUserByEmail.mockResolvedValue(undefined);
+        it('should throw when no user is found', async () => {
+            usersService.findUserByEmail.mockResolvedValue(null);
 
             expect(usersService.findUserByEmail).not.toHaveBeenCalled();
-            expect(authService.validateUser('non-existant email', 'password')).rejects.toThrow(UnauthorizedException);
+            await expect(
+                authService.validateUser('non-existant email', 'password'),
+            ).rejects.toThrow(UnauthorizedException);
         });
     });
 
@@ -91,13 +93,13 @@ describe('AuthService', () => {
         it('should call usersService.addToken to save authToken', async () => {
             expect(usersService.addToken).not.toHaveBeenCalled();
             await authService.loginUser(mockUser);
-            expect(usersService.addToken).toHaveBeenCalledWith(mockUser._id, mockJwt);
+            expect(usersService.addToken).toHaveBeenCalledWith(mockUser, mockJwt);
         });
 
         it('should return new authToken and updated user', async () => {
             usersService.addToken.mockResolvedValue(mockUser);
 
-            expect(authService.loginUser(mockUser)).resolves.toEqual({
+            await expect(authService.loginUser(mockUser)).resolves.toEqual({
                 auth_token: mockJwt,
                 updatedUser: mockUser,
             });
@@ -110,12 +112,16 @@ describe('AuthService', () => {
 
             expect(usersService.removeToken).not.toHaveBeenCalled();
             const result = await authService.logoutUser(mockJwt, mockUser);
-            expect(usersService.removeToken).toHaveBeenCalledWith(mockUser._id, mockJwt);
+            expect(usersService.removeToken).toHaveBeenCalledWith(mockUser, mockJwt);
             expect(result).toEqual('success');
         });
 
-        it('should throw when _id field is empty', async () => {
-            expect(authService.logoutUser(mockJwt, { _id: undefined })).rejects.toThrow(NotFoundException);
+        it('should throw when usersService.removeToken fails', async () => {
+            usersService.removeToken.mockRejectedValue(null);
+
+            await expect(
+                authService.logoutUser(mockJwt,  mockUser),
+            ).rejects.toThrow(InternalServerErrorException);
         });
     });
 });
