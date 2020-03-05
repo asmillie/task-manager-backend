@@ -60,8 +60,8 @@ describe('TasksService', () => {
             ],
         }).compile();
 
-        tasksService = await module.get<TasksService>(TasksService);
-        taskModel = await module.get<Model<Task>>(getModelToken('Task'));
+        tasksService = module.get<TasksService>(TasksService);
+        taskModel = module.get<Model<Task>>(getModelToken('Task'));
     });
 
     describe('findAllTasksByUserId', () => {

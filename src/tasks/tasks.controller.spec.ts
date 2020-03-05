@@ -38,8 +38,8 @@ describe('TasksController', () => {
         .useValue({ canActivate: () => true })
         .compile();
 
-        tasksController = await module.get<TasksController>(TasksController);
-        tasksService = await module.get<TasksService>(TasksService);
+        tasksController = module.get<TasksController>(TasksController);
+        tasksService = module.get<TasksService>(TasksService);
     });
 
     describe('createTask', () => {
@@ -53,6 +53,7 @@ describe('TasksController', () => {
             expect(tasksService.create).not.toHaveBeenCalled();
             const result = await tasksController.createTask(mockReq, mockTaskDto);
             expect(tasksService.create).toHaveBeenCalledWith(mockTaskDto);
+            expect(result).toEqual('Created Task');
         });
     });
 
