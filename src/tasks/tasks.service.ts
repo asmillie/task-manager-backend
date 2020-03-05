@@ -27,7 +27,6 @@ export class TasksService {
         } catch (e) {
             this.logger.error(
                 `Failed to create task for user id ${createTaskDto.owner}. DTO: ${JSON.stringify(createTaskDto)}`,
-                e.stack,
                 );
             throw new InternalServerErrorException();
         }
@@ -63,7 +62,6 @@ export class TasksService {
         } catch (e) {
             this.logger.error(
                 `Failed to find all tasks for user id ${userId}. Conditions: ${JSON.stringify(conditions)}, Options: ${JSON.stringify(options)}`,
-                e.stack,
             );
             throw new InternalServerErrorException();
         }
@@ -84,7 +82,6 @@ export class TasksService {
         } catch (e) {
             this.logger.error(
                 `Failed to find task id ${taskId} for user id ${userId}.`,
-                e.stack,
             );
             throw new InternalServerErrorException();
         }
@@ -108,7 +105,6 @@ export class TasksService {
         } catch (e) {
             this.logger.error(
                 `Failed to update task id ${taskId} for user id ${userId}. DTO: ${JSON.stringify(updateTaskDto)}`,
-                e.stack,
             );
             throw new InternalServerErrorException();
         }
@@ -131,7 +127,6 @@ export class TasksService {
         } catch (e) {
             this.logger.error(
                 `Failed to delete task id ${taskId} for user id ${userId}. Conditions: ${JSON.stringify(conditions)}`,
-                e.stack,
             );
             throw new InternalServerErrorException();
         }
@@ -148,7 +143,6 @@ export class TasksService {
         } catch (e) {
             this.logger.error(
                 `Failed to delete all tasks for user id ${userId}`,
-                e.stack,
             );
             throw new InternalServerErrorException();
         }

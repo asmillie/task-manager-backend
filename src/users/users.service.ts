@@ -47,7 +47,6 @@ export class UsersService {
         } catch (e) {
             this.logger.error(
                 `Failed to find user by id ${userId}.`,
-                e.stack,
             );
             throw new InternalServerErrorException();
         }
@@ -64,7 +63,6 @@ export class UsersService {
         } catch (e) {
             this.logger.error(
                 `Failed to find user by email ${email}.`,
-                e.stack,
             );
             throw new InternalServerErrorException();
         }
@@ -82,7 +80,6 @@ export class UsersService {
         } catch (e) {
             this.logger.error(
                 `Failed to update user. User Id ${userId}, DTO: ${JSON.stringify(updateUserDto)}`,
-                e.stack,
             );
             throw new InternalServerErrorException();
         }
@@ -99,7 +96,6 @@ export class UsersService {
         } catch (e) {
             this.logger.error(
                 `Failed to delete user for id ${userId}`,
-                e.stack,
             );
             throw new InternalServerErrorException();
         }
@@ -121,7 +117,6 @@ export class UsersService {
             this.logger.error(
                 `Failed to save token to user. User: ${JSON.stringify(user)},
                  New Auth Token: ${newToken}, User Tokens: ${JSON.stringify(userTokens)}`,
-                 e.stack,
             );
             throw new InternalServerErrorException();
         }
@@ -145,7 +140,6 @@ export class UsersService {
         } catch (e) {
             this.logger.error(
                 `Failed to remove token from user. User: ${JSON.stringify(user)}, Auth Token: ${tokenToRemove}`,
-                e.stack,
             );
             throw new InternalServerErrorException();
         }
@@ -162,7 +156,6 @@ export class UsersService {
         } catch (e) {
             this.logger.error(
                 `Failed to hash password.`,
-                e.stack,
             );
             throw new InternalServerErrorException();
         }
@@ -201,7 +194,6 @@ export class UsersService {
         } catch (e) {
             this.logger.error(
                 `Failed to save avatar image for user id ${userId}.`,
-                e.stack,
             );
             throw new InternalServerErrorException();
         }
@@ -221,7 +213,6 @@ export class UsersService {
         } catch (e) {
             this.logger.error(
                 `Failed to delete avatar for user id ${userId}`,
-                e.stack,
             );
             throw new InternalServerErrorException();
         }
