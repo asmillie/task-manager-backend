@@ -33,3 +33,11 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
+
+## Documentation
+
+```bash
+# generate documentation
+$ npx compodoc -p tsconfig.json -s
+
+```
