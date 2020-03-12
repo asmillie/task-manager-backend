@@ -10,6 +10,7 @@ async function bootstrap() {
   const logger = new Logger('bootstrap');
   const app = await NestFactory.create(AppModule);
   app.use(helmet());
+  app.enableCors();
   app.use(
     rateLimit({
       windowMs: config.get<number>('rateLimit.windowMs'),
