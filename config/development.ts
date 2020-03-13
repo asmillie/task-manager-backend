@@ -8,4 +8,7 @@ export default {
         secret: 'developmentsecret32',
         expiresIn: 3600,
     },
+    sendgrid: {
+        key: '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',
+    },
 };
