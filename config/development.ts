@@ -1,5 +1,5 @@
 export default {
-    base_url: 'http://localhost/',
+    base_url: 'http://localhost',
     port: 3000,
     database: {
         uri: 'mongodb+srv://taskapp:eBdlFPPgP8X9FRij@cluster0-opwul.mongodb.net/task-api?retryWrites=true',
