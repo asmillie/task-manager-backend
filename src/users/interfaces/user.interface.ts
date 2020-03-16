@@ -4,8 +4,14 @@ import { Token } from './token.interface';
 export interface User extends Document {
     readonly name: string;
     readonly password: string;
-    readonly email: string;
-    readonly emailVerified: boolean;
+    readonly email: [{
+        readonly address: string,
+        readonly verified: boolean,
+        readonly verification: [{
+            readonly token: string;
+            readonly expiry: Date;
+        }],
+    }];
     readonly avatar: Buffer;
     readonly tokens: Token[];
     readonly createdAt: Date;
