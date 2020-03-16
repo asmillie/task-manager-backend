@@ -9,7 +9,7 @@ export const UserSchema = new mongoose.Schema({
         type: String,
         trim: true,
     },
-    email: [{
+    email: {
         address: {
             unique: true,
             type: String,
@@ -29,7 +29,7 @@ export const UserSchema = new mongoose.Schema({
                 trim: true,
             },
         }],
-    }],
+    },
     avatar: {
         type: Buffer,
     },
