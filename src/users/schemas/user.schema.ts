@@ -9,15 +9,27 @@ export const UserSchema = new mongoose.Schema({
         type: String,
         trim: true,
     },
-    email: {
-        unique: true,
-        type: String,
-        trim: true,
-    },
-    emailVerified: {
-        type: Boolean,
-        default: false,
-    },
+    email: [{
+        address: {
+            unique: true,
+            type: String,
+            trim: true,
+        },
+        verified: {
+            type: Boolean,
+            default: false,
+        },
+        verification: [{
+            token: {
+                type: String,
+                trim: true,
+            },
+            expiry: {
+                type: Date,
+                trim: true,
+            },
+        }],
+    }],
     avatar: {
         type: Buffer,
     },
