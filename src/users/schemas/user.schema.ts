@@ -19,7 +19,7 @@ export const UserSchema = new mongoose.Schema({
             type: Boolean,
             default: false,
         },
-        verification: [{
+        verification: {
             token: {
                 type: String,
                 trim: true,
@@ -28,7 +28,7 @@ export const UserSchema = new mongoose.Schema({
                 type: Date,
                 trim: true,
             },
-        }],
+        },
     },
     avatar: {
         type: Buffer,
