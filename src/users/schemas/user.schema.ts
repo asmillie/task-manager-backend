@@ -14,6 +14,10 @@ export const UserSchema = new mongoose.Schema({
         type: String,
         trim: true,
     },
+    emailVerified: {
+        type: Boolean,
+        default: false,
+    },
     avatar: {
         type: Buffer,
     },
