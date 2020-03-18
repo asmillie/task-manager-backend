@@ -36,6 +36,7 @@
     "config": "^3.2.5",
     "express-rate-limit": "^5.1.1",
     "helmet": "^3.21.3",
+    "moment": "^2.24.0",
     "mongoose": "^5.8.11",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
@@ -43,7 +44,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.5.4",
-    "sharp": "^0.24.0"
+    "sharp": "^0.25.1"
   },
   "devDependencies": {
     "@compodoc/compodoc": "^1.1.11",
@@ -62,7 +63,7 @@
     "@types/sharp": "^0.24.0",
     "@types/supertest": "^2.0.8",
     "jest": "^24.9.0",
-    "mongodb-memory-server": "^6.2.4",
+    "mongodb-memory-server": "^6.3.3",
     "prettier": "^1.18.2",
     "supertest": "^4.0.2",
     "ts-jest": "^24.3.0",
