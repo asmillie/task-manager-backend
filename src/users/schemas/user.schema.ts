@@ -20,7 +20,7 @@ export const UserSchema = new mongoose.Schema({
             default: false,
         },
         verification: {
-            token: {
+            code: {
                 type: String,
                 trim: true,
             },

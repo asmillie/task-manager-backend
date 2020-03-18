@@ -8,7 +8,7 @@ export interface User extends Document {
         readonly address: string,
         readonly verified: boolean,
         readonly verification: {
-            readonly token: string;
+            readonly code: string;
             readonly expiry: Date;
         },
     };
