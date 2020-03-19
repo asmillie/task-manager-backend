@@ -25,16 +25,6 @@ export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
     /**
-     * Creates a new user in the database and then returns the user profile.
-     * @param {CreateUserDto} createUserDto User to be created
-     */
-    @Post('signup')
-    async signup(@Body() createUserDto: CreateUserDto) {
-        // TODO: Restrict to admin-level account
-        return await this.usersService.create(createUserDto);
-    }
-
-    /**
      * Returns user profile
      * @param req Request object
      */
