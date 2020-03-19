@@ -17,7 +17,9 @@ const mockUsersService = () => ({
 const mockUser: any = {
     _id : '5e286b8940b3a61cacd8667d',
     name : 'Jenny',
-    email : 'jenny.email@emailsite.com',
+    email : {
+        address: 'jenny.email@emailsite.com',
+    },
     password : '$2b$08$gTuxdD.U26AgUfcDpqIS7unCzyWUV1tQB2681ZFRv95gki5e3TxSS',
     tokens : [],
     avatar: undefined,
@@ -51,22 +53,6 @@ describe('UsersController', () => {
         usersService = module.get<UsersService>(UsersService);
     });
 
-    describe('signup', () => {
-        it('should create a new user', async () => {
-            usersService.create.mockResolvedValue('user');
-            const createUserDto: CreateUserDto = {
-                name: 'Joe Smith',
-                email: 'joe.smith@email.com',
-                password: 'strongpassword',
-            };
-
-            expect(usersService.create).not.toHaveBeenCalled();
-            const result = await usersController.signup(createUserDto);
-            expect(usersService.create).toHaveBeenCalledWith(createUserDto);
-            expect(result).toEqual('user');
-        });
-    });
-
     describe('findUserById', () => {
         it('should return user request object provided by JWT strategy', async () => {
             const result = await usersController.findUserById(mockReq);
@@ -78,7 +64,9 @@ describe('UsersController', () => {
         it('should update a user', async () => {
             usersService.updateUser.mockResolvedValue(mockUser);
             const updateUserDto: UpdateUserDto = {
-                email: 'new.email@addr.co',
+                email: {
+                    address: 'new.email@addr.co',
+                },
             };
 
             expect(usersService.updateUser).not.toHaveBeenCalled();
