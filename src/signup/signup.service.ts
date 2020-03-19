@@ -60,7 +60,7 @@ export class SignupService {
      * @throws {InternalServerErrorException} if no user is found for id
      * @throws {ForbiddenException} if code does not match or has expired
      */
-    async verifyEmail(id: string, code: string): Promise<User> {
+    async verifyEmail(id: string, code: string): Promise<boolean> {
         const user = await this.usersService.findUserById(id);
         if (!user) {
             this.logger.warn(`Failed to find a user for id ${id} during email verification.`);
@@ -86,7 +86,9 @@ export class SignupService {
             },
         };
 
-        return await this.usersService.updateUser(id, updateUserDto);
+        await this.usersService.updateUser(id, updateUserDto);
+
+        return true;
     }
 
     /**
