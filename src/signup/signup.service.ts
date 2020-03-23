@@ -44,7 +44,7 @@ export class SignupService {
             await this.sendVerificationEmail(user.id, user.email.address, code, expiry);
             return user;
         } catch (e) {
-            this.logger.error(`Failed during signup process. DTO: ${createUserDto}`);
+            this.logger.error(`Failed during signup process. DTO: ${JSON.stringify(createUserDto)}`);
             throw new InternalServerErrorException();
         }
     }
