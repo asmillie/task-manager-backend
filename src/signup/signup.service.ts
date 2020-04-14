@@ -39,14 +39,24 @@ export class SignupService {
             },
         };
 
+        let user: User;
         try {
-            const user = await this.usersService.create(createUserDto);
-            await this.sendVerificationEmail(user.id, user.email.address, code, expiry);
-            return user;
+            user = await this.usersService.create(createUserDto);
         } catch (e) {
             this.logger.error(`Failed during signup process. DTO: ${JSON.stringify(createUserDto)}`);
             throw new InternalServerErrorException();
         }
+
+        try {
+            await this.sendVerificationEmail(user.id, user.email.address, code, expiry);
+        } catch (e) {
+            this.logger.error(
+                `Failed to send verification email to ${user.email.address} for user id ${user.id}`,
+            );
+            throw new InternalServerErrorException();
+        }
+
+        return user;
     }
 
     /**
@@ -61,9 +71,16 @@ export class SignupService {
      * @throws {ForbiddenException} if code does not match or has expired
      */
     async verifyEmail(id: string, code: string): Promise<boolean> {
-        const user = await this.usersService.findUserById(id);
+        let user: User;
+        try {
+            user = await this.usersService.findUserById(id);
+        } catch (e) {
+            this.logger.error(`Failed to find user for id ${id}`);
+            throw new InternalServerErrorException();
+        }
+
         if (!user) {
-            this.logger.warn(`Failed to find a user for id ${id} during email verification.`);
+            this.logger.warn(`No user found for id ${id}`);
             throw new InternalServerErrorException();
         }
 
@@ -72,9 +89,9 @@ export class SignupService {
             throw new ForbiddenException();
         }
 
-        const userExpiry = user.email.verification.expiry;
+        const userExpiry = new Date(user.email.verification.expiry);
         const now = new Date();
-        if (userExpiry.valueOf() >= now.valueOf()) {
+        if (userExpiry.getTime() <= now.getTime()) {
             this.logger.log(`Email verification failed for User Id ${id} as code has expired.`);
             throw new ForbiddenException();
         }
@@ -86,7 +103,12 @@ export class SignupService {
             },
         };
 
-        await this.usersService.updateUser(id, updateUserDto);
+        try {
+            await this.usersService.updateUser(id, updateUserDto);
+        } catch (e) {
+            this.logger.error(`Failed to update user as verified. DTO: ${JSON.stringify(updateUserDto)}`);
+            throw new InternalServerErrorException();
+        }
 
         return true;
     }
@@ -102,7 +124,7 @@ export class SignupService {
     private async sendVerificationEmail(id: string, email: string, code: string, expiry: Date) {
         const baseUrl = config.get<string>('base_url');
         const verifyLink = new URL(`/verifyEmail?id=${id}&code=${code}`, baseUrl);
-        const dateFormat = moment(expiry.toDateString()).format('MMM Do YYYY, h:mm a');
+        const dateFormat = moment(expiry).format('MMM Do YYYY, h:mm a');
         // Send email
         const msg = {
             to: email,
