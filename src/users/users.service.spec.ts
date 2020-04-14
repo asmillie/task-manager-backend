@@ -69,7 +69,9 @@ describe('UsersService', () => {
 
         const createUserDto: CreateUserDto = {
             name: 'User One',
-            email: 'valid.email@email.com',
+            email: {
+                address: 'valid.email@email.com',
+            },
             password: 'somepassword1',
         };
 
@@ -119,7 +121,9 @@ describe('UsersService', () => {
             userModel.findByIdAndUpdate.mockResolvedValue(updatedUser);
 
             const updateUserDto: UpdateUserDto = {
-                email: 'new.email@addr.co.uk',
+                email: {
+                    address: 'new.email@addr.co.uk',
+                },
             };
 
             expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
