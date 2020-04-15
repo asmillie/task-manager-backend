@@ -6,6 +6,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongoExceptionFilter } from '../src/mongo-exception-filter';
 import { MockMongooseService } from './mocks/mock-mongoose-service';
+import { UsersService } from '../src/users/users.service';
 
 // Mongo Memory Server may require additional time
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 600000;
@@ -17,6 +18,7 @@ const mockJwtGuard = {
 describe('/users', () => {
     let app: INestApplication;
     let user: any;
+    let usersService;
     const userPassword = 'strongpassword';
 
     beforeEach(async () => {
@@ -31,6 +33,8 @@ describe('/users', () => {
         .overrideGuard(AuthGuard())
         .useValue(mockJwtGuard)
         .compile();
+
+        usersService = module.get<UsersService>('UsersService');
 
         app = module.createNestApplication();
         app.useGlobalPipes(new ValidationPipe({
@@ -49,56 +53,11 @@ describe('/users', () => {
 
         mockJwtGuard.canActivate.mockImplementation(() => true);
 
-        await request(app.getHttpServer())
-            .post('/users/signup')
-            .send(userOne)
-            .then(response => {
-                user = response.body;
-                expect(user.name).toEqual(userOne.name);
-                expect(user.email).toEqual(userOne.email);
-            })
-            .catch(() => {
-                throw new Error('Error inserting test user to database');
-            });
-    });
-
-    describe('POST /signup', () => {
-
-        beforeEach(() => {
-            mockJwtGuard.canActivate.mockImplementation(() => true);
-        });
-
-        it('should create and return a new user', () => {
-            const body = {
-                name: 'Joe Smith',
-                password: 'reallystrongpassword',
-                email: 'valid.email@email.com',
-            };
-
-            return request(app.getHttpServer())
-                .post('/users/signup')
-                .send(body)
-                .expect(201)
-                .then(response => {
-                    expect(response.body._id).toBeDefined();
-                    expect(response.body.name).toEqual(body.name);
-                    expect(response.body.password).toBeUndefined();
-                    expect(response.body.email).toEqual(body.email);
-                });
-        });
-
-        it('should return 400 error on invalid data', () => {
-            const invalidBody = {
-                name: 123,
-                password: '',
-                email: 'invalidemail',
-            };
-
-            return request(app.getHttpServer())
-                .post('/users/signup')
-                .send(invalidBody)
-                .expect(400);
-        });
+        try {
+            user = await usersService.create(userOne);
+        } catch (e) {
+            throw new Error(`UsersService: Error inserting test user to database. User -> ${JSON.stringify(userOne)}`);
+        }
     });
 
     describe('GET /me', () => {
