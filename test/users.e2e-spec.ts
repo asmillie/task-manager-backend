@@ -47,17 +47,19 @@ describe('/users', () => {
         // Mock User for Tests
         const userOne = {
             name: 'John Doe',
-            email: 'john.doe@email.com',
+            email: {
+                address: 'john.doe@email.com',
+            },
             password: userPassword,
         };
 
         mockJwtGuard.canActivate.mockImplementation(() => true);
 
-        try {
-            user = await usersService.create(userOne);
-        } catch (e) {
-            throw new Error(`UsersService: Error inserting test user to database. User -> ${JSON.stringify(userOne)}`);
-        }
+        await usersService.create(userOne)
+            .then(newUser => user = newUser.toJSON())
+            .catch(err => {
+                throw new Error(`UsersService: Error inserting test user to database. User -> ${JSON.stringify(userOne)}`);
+            });
     });
 
     describe('GET /me', () => {
@@ -66,7 +68,9 @@ describe('/users', () => {
                 .mockImplementation((context: ExecutionContext) => {
                     context.switchToHttp().getRequest().user = {
                         _id: user._id,
-                        email: user.email,
+                        email: {
+                            address: user.email.address,
+                        },
                     };
                     return true;
                 });
@@ -74,10 +78,10 @@ describe('/users', () => {
             await request(app.getHttpServer())
                 .get('/users/me')
                 .expect(200)
-                .then(response => {
-                    expect(response.body._id).toEqual(user._id);
-                    expect(response.body.password).not.toBeDefined();
-                    expect(response.body.email).toEqual(user.email);
+                .then(({ body }) => {
+                    expect(body._id).toMatch(user._id.toString());
+                    expect(body.password).not.toBeDefined();
+                    expect(body.email.address).toEqual(user.email.address);
                 });
         });
 
@@ -150,7 +154,7 @@ describe('/users', () => {
                 .delete('/users/me')
                 .expect(200)
                 .then(({ body }) => {
-                    expect(body._id).toEqual(user._id);
+                    expect(body._id).toEqual(user._id.toString());
                 });
         });
 
