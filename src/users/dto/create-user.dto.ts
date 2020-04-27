@@ -1,6 +1,7 @@
-import { IsNotEmpty, MinLength, ValidateNested } from 'class-validator';
+import { IsNotEmpty, MinLength, ValidateNested, IsOptional } from 'class-validator';
 import { Token } from '../interfaces/token.interface';
 import { CreateEmailDto } from './create-email.dto';
+import { Type } from 'class-transformer';
 
 export class CreateUserDto {
     @IsNotEmpty({ message: 'User name is required' })
@@ -11,8 +12,12 @@ export class CreateUserDto {
     readonly password: string;
 
     @ValidateNested()
+    @Type(() => CreateEmailDto)
     readonly email: CreateEmailDto;
 
+    @IsOptional()
     readonly avatar?: Buffer;
+
+    @IsOptional()
     readonly tokens?: Token[];
 }
