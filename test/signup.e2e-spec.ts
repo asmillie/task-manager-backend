@@ -74,7 +74,7 @@ describe('/signup', () => {
         });
     });
 
-    describe('POST /verifyEmail/id', () => {
+    describe('GET /verifyEmail/id', () => {
         it('should update a user as verified when provided a correct code that has not expired', async () => {
             // Create Test User in DB
             const validCode = 'valid-code';
@@ -96,7 +96,7 @@ describe('/signup', () => {
             expect(userToBeValidated.email.verified).toEqual(false);
             // Make verification request with valid code for user id
             await request(app.getHttpServer())
-                .post(`/signup/verifyEmail/${userToBeValidated._id}?code=${validCode}`)
+                .get(`/signup/verifyEmail/${userToBeValidated._id}?code=${validCode}`)
                 .expect(200);
             // Retrieve user from DB
             const userResult = await usersService.findUserById(userToBeValidated._id)
@@ -110,7 +110,7 @@ describe('/signup', () => {
 
         it('should return error when verification fails', async () => {
             await request(app.getHttpServer())
-                .post(`/signup/verifyEmail/invalidId?code=invalid-code`)
+                .get(`/signup/verifyEmail/invalidId?code=invalid-code`)
                 .expect(500);
         });
     });

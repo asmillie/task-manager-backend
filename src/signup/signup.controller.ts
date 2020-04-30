@@ -1,4 +1,4 @@
-import { Controller, Post, Param, Query, Body, HttpCode } from '@nestjs/common';
+import { Controller, Post, Param, Query, Body, HttpCode, Get } from '@nestjs/common';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { SignupService } from './signup.service';
 
@@ -27,7 +27,7 @@ export class SignupController {
      * @returns {boolean} True on email verified
      */
     @HttpCode(200)
-    @Post('verifyEmail/:id')
+    @Get('verifyEmail/:id')
     async verifyEmail(@Param('id') id: string, @Query('code') code: string) {
         return await this.signupService.verifyEmail(id, code);
     }
