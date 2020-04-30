@@ -110,7 +110,11 @@ describe('UsersService', () => {
 
             expect(userModel.findOne).not.toHaveBeenCalled();
             const result = await usersService.findUserByEmail('email');
-            expect(userModel.findOne).toHaveBeenCalledWith({ email: 'email' });
+            expect(userModel.findOne).toHaveBeenCalledWith({
+                email: {
+                    address: 'email',
+                },
+            });
             expect(result).toEqual('user');
         });
     });

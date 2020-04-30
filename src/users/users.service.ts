@@ -57,12 +57,12 @@ export class UsersService {
      * @param email Email to search for
      * @throws {InternalServerErrorException} if an error occurs while finding user
      */
-    async findUserByEmail(email: string): Promise<User> {
+    async findUserByEmail(userEmail: string): Promise<User> {
         try {
-            return await this.userModel.findOne({ email });
+            return await this.userModel.findOne({ 'email.address': userEmail });
         } catch (e) {
             this.logger.error(
-                `Failed to find user by email ${email}.`,
+                `Failed to find user by email ${userEmail}.`,
             );
             throw new InternalServerErrorException();
         }
