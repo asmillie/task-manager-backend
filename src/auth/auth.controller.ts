@@ -1,6 +1,7 @@
 import { Controller, Request, Post, UseGuards, HttpCode } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
+import { VerifiedEmailGuard } from './verified-email.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -12,7 +13,10 @@ export class AuthController {
      * in the response along with user details.
      * @param req Request object
      */
-    @UseGuards(AuthGuard('local'))
+    @UseGuards(
+        AuthGuard('local'),
+        VerifiedEmailGuard,
+    )
     @HttpCode(200)
     @Post('login')
     async login(@Request() req) {
