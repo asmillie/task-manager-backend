@@ -31,4 +31,10 @@ export class SignupController {
     async verifyEmail(@Param('id') id: string, @Query('code') code: string) {
         return await this.signupService.verifyEmail(id, code);
     }
+
+    @HttpCode(200)
+    @Get('resendEmail/:id')
+    async resendEmail(@Param('id') id: string) {
+        return await this.signupService.resendEmail(id);
+    }
 }
