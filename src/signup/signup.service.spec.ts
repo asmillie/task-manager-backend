@@ -6,10 +6,11 @@ import { InternalServerErrorException, ForbiddenException } from '@nestjs/common
 import { UpdateUserDto } from '../users/dto/update-user.dto';
 import { mocked } from 'ts-jest/utils';
 
-// import * as config from 'config';
 import * as sgMail from '@sendgrid/mail';
-// jest.mock('config');
 jest.mock('@sendgrid/mail');
+
+import * as bcrypt from 'bcrypt';
+jest.mock('bcrypt');
 
 const mockUsersService = () => ({
   create: jest.fn(),
@@ -222,5 +223,101 @@ describe('SignupService', () => {
           ),
       ).rejects.toThrow(InternalServerErrorException);
     });
+  });
+
+  describe('createVerificationCode', () => {
+
+    it('should return a code', async () => {
+      const code = '$2b$08$BEbLwyctJEsY4556MaX.gegwdJirDdPparz/mrMm9H2MhnTAMF2yG';
+      mocked(bcrypt).hash.mockResolvedValue(code);
+
+      expect((signupService as any).createVerificationCode()).resolves.toEqual(code);
+    });
+
+    it('should throw on error creating hash', async () => {
+      mocked(bcrypt).hash.mockRejectedValue('error');
+
+      expect((signupService as any).createVerificationCode()).rejects.toThrow(InternalServerErrorException);
+    });
+  });
+
+  describe('resendEmail', () => {
+    let createCodeSpy;
+    let getExpiryDateSpy;
+    let sendEmailSpy;
+    const code = 'code';
+    const date = new Date('01-01-2200');
+
+    beforeEach(() => {
+      createCodeSpy = jest.spyOn((signupService as any), 'createVerificationCode');
+      getExpiryDateSpy =  jest.spyOn((signupService as any), 'getExpiryDate');
+      sendEmailSpy = jest.spyOn((signupService as any), 'sendVerificationEmail');
+    });
+
+    describe('success', () => {
+
+      beforeEach(() => {
+        createCodeSpy.mockResolvedValue(code);
+        getExpiryDateSpy.mockReturnValue(date);
+        usersService.findUserById.mockResolvedValue(mockUser);
+        usersService.updateUser.mockResolvedValue(mockUser);
+        sendEmailSpy.mockResolvedValue(true);
+      });
+
+      it('should call usersService.updateUser() with new email verification details', async () => {
+        const updateUserDto: UpdateUserDto = {
+          ...mockUser,
+          email: {
+            ...mockUser.email,
+            verification: {
+              token: code,
+              expiry: date,
+            },
+          },
+        };
+
+        expect(usersService.updateUser).not.toHaveBeenCalled();
+        await signupService.resendEmail(mockUser._id);
+        expect(usersService.updateUser).toHaveBeenCalledWith(mockUser._id, updateUserDto);
+
+      });
+
+      it('should send email to user with new email verification details', async () => {
+        expect(sendEmailSpy).not.toHaveBeenCalled();
+        await signupService.resendEmail(mockUser._id);
+        expect(sendEmailSpy).toHaveBeenCalledWith(
+          mockUser._id,
+          mockUser.email.address,
+          code,
+          date);
+      });
+    });
+
+    describe('error handling', () => {
+
+      beforeEach(() => {
+        createCodeSpy.mockResolvedValue(code);
+        getExpiryDateSpy.mockReturnValue(date);
+        usersService.findUserById.mockResolvedValue(mockUser);
+        usersService.updateUser.mockResolvedValue(mockUser);
+        sendEmailSpy.mockResolvedValue(true);
+      });
+
+      it('should throw when no user is found', async () => {
+        usersService.findUserById.mockRejectedValue(null);
+        expect(signupService.resendEmail('id')).rejects.toThrow(InternalServerErrorException);
+      });
+
+      it('should throw on failure to update user', async () => {
+        usersService.updateUser.mockRejectedValue('error');
+        expect(signupService.resendEmail('id')).rejects.toThrow(InternalServerErrorException);
+      });
+
+      it('should throw on failure to send email', async () => {
+        sendEmailSpy.mockRejectedValue(false);
+        expect(signupService.resendEmail('id')).rejects.toThrow(InternalServerErrorException);
+      });
+    });
+    
   });
 });

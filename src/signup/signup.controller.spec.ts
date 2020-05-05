@@ -7,6 +7,7 @@ import { InternalServerErrorException } from '@nestjs/common';
 const mockSignupService = () => ({
   signup: jest.fn(),
   verifyEmail: jest.fn(),
+  resendEmail: jest.fn(),
 });
 
 const mockUser: any = {
@@ -82,6 +83,23 @@ describe('Signup Controller', () => {
       signupService.verifyEmail.mockRejectedValue(new InternalServerErrorException());
 
       expect(controller.verifyEmail('id', 'invalid code')).rejects.toThrowError(InternalServerErrorException);
+    });
+  });
+
+  describe('GET /resendEmail', () => {
+    it('should call signupService.resendEmail() with user id', async () => {
+      signupService.resendEmail.mockResolvedValue(true);
+
+      expect(signupService.resendEmail).not.toHaveBeenCalled();
+      await controller.resendEmail('id');
+      expect(signupService.resendEmail).toHaveBeenCalledWith('id');
+    });
+
+    it('should return error thrown by signupService.resendEmail()', async () => {
+      signupService.resendEmail.mockRejectedValue(new InternalServerErrorException());
+
+      expect(signupService.resendEmail).not.toHaveBeenCalled();
+      expect(controller.resendEmail('invalid id')).rejects.toThrow(InternalServerErrorException);
     });
   });
 });
