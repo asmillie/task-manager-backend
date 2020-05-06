@@ -1,4 +1,4 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication, ValidationPipe, InternalServerErrorException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { SignupModule } from '../src/signup/signup.module';
 import { MockMongooseService } from './mocks/mock-mongoose-service';
@@ -111,6 +111,42 @@ describe('/signup', () => {
         it('should return error when verification fails', async () => {
             await request(app.getHttpServer())
                 .get(`/signup/verifyEmail/invalidId?code=invalid-code`)
+                .expect(500);
+        });
+    });
+
+    describe('GET /resendEmail/id', () => {
+        it('should refresh and send email verification details to user', async () => {
+            mocked(sgMail).send.mockResolvedValue(null);
+
+            // Create Test User in DB
+            const validUser: CreateUserDto = {
+                ...user,
+                email: {
+                    ...user.email,
+                    verification: {
+                        code: 'expired-code',
+                        expiry: new Date('01-01-2020'),
+                    },
+                },
+            };
+
+            const testUser = await usersService.create(validUser).catch((err) => {
+                throw new Error(`Error creating user: ${err}`);
+            });
+
+            await request(app.getHttpServer())
+                .get(`/signup/resendEmail/${testUser._id}`)
+                .expect(200);
+
+            expect(mocked(sgMail).send).toHaveBeenCalled();
+        });
+
+        it('should return error on failure to resend email', async () => {
+            mocked(sgMail).send.mockRejectedValue(new InternalServerErrorException());
+
+            await request(app.getHttpServer())
+                .get(`/signup/resendEmail/invalid-id`)
                 .expect(500);
         });
     });
