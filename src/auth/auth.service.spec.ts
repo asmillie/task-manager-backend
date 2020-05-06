@@ -4,7 +4,7 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 
 import * as bcrypt from 'bcrypt';
-import { UnauthorizedException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
 jest.mock('bcrypt', () => {
     return {
         bcrypt: jest.fn().mockReturnThis(),
