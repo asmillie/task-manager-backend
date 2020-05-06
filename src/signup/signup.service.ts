@@ -26,7 +26,7 @@ export class SignupService {
      * @throws {InternalServerErrorException} if the create or sendVerificationEmail methods fail
      */
     async signup(userDto: CreateUserDto): Promise<User> {
-        const code = this.createVerificationCode();
+        const code = await this.createVerificationCode();
         const expiry = this.getExpiryDate();
         const createUserDto: CreateUserDto = {
             ...userDto,
@@ -114,6 +114,57 @@ export class SignupService {
     }
 
     /**
+     * Retrieves user data for provided ID and updates that
+     * user with a new email verification code and expiry date.
+     * An email is then sent to the user's email address with
+     * the new verification code to confirm the provided email
+     * address is both valid and owned by the user.
+     * @param id ID of user to resend verification email to
+     */
+    async resendEmail(id: string): Promise<boolean> {
+        let user: User;
+        try {
+            user = await this.usersService.findUserById(id);
+        } catch (e) {
+            this.logger.error(`Failed to find user for id ${id}`);
+            throw new InternalServerErrorException();
+        }
+
+        const code = await this.createVerificationCode();
+        const expiry = this.getExpiryDate();
+
+        const updateUser: UpdateUserDto = {
+            email: {
+                address: user.email.address,
+                verification: {
+                    token: code,
+                    expiry,
+                },
+            },
+        };
+
+        try {
+            await this.usersService.updateUser(id, updateUser);
+        } catch (e) {
+            this.logger.error(
+                `Failed to update user email verification fields. DTO: ${JSON.stringify(updateUser)}`,
+            );
+            throw new InternalServerErrorException();
+        }
+
+        try {
+            await this.sendVerificationEmail(id, user.email.address, code, expiry);
+        } catch (e) {
+            this.logger.error(
+                `Failed to resend verification email to ${user.email.address} for user id ${user.id}`,
+            );
+            throw new InternalServerErrorException();
+        }
+
+        return true;
+    }
+
+    /**
      * Creates a link for a User to verify their email address which includes
      * their User Id and Verification Code.
      * @param id User Id
@@ -123,7 +174,7 @@ export class SignupService {
      */
     private async sendVerificationEmail(id: string, email: string, code: string, expiry: Date) {
         const baseUrl = config.get<string>('base_url');
-        const verifyLink = new URL(`/verifyEmail?id=${id}&code=${code}`, baseUrl);
+        const verifyLink = new URL(`/signup/verifyEmail/${id}?code=${code}`, baseUrl);
         const dateFormat = moment(expiry).format('MMM Do YYYY, h:mm a');
         // Send email
         const msg = {
@@ -149,18 +200,16 @@ export class SignupService {
      * to be used as a verification code.
      * @throws { InternalServerErrorException } on error generating hash
      */
-    private createVerificationCode(): string {
+    private async createVerificationCode(): Promise<string> {
         const date = Date.now().toString();
         const rand = Math.floor((Math.random() * 1000)).toString();
-        bcrypt.hash(rand + date, 8, (err, hash) => {
-            if (err) {
+
+        return await bcrypt.hash(rand + date, 8)
+            .then(hash => hash)
+            .catch(err => {
                 this.logger.error(`Error generating verification URL from DateTime ${date} and ${rand}`);
                 throw new InternalServerErrorException();
-            }
-
-            return hash;
-        });
-        return null;
+            });
     }
 
     /**
