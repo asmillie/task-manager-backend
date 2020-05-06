@@ -6,56 +6,19 @@ import * as request from 'supertest';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MockMongooseService } from './mocks/mock-mongoose-service';
 import { UsersService } from '../src/users/users.service';
-import { AuthGuard } from '@nestjs/passport';
-import { JwtService } from '@nestjs/jwt';
-
-import * as bcrypt from 'bcrypt';
-jest.mock('bcrypt', () => ({
-        bcrypt: jest.fn().mockReturnThis(),
-        compare: jest.fn().mockResolvedValue(true),
-    }),
-);
+import { User } from '../src/users/interfaces/user.interface';
+import { CreateUserDto } from '../src/users/dto/create-user.dto';
+import { AuthService } from '../src/auth/auth.service';
 
 // Mongo Memory Server may require additional time
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 600000;
 
-const mockUsersService = {
-    findUserByEmail: jest.fn(),
-    addToken: jest.fn(),
-    removeToken: jest.fn(),
-};
-
-const mockJwtService = {
-    sign: jest.fn().mockResolvedValue('signed-jwt'),
-};
-
-const mockJwtGuard = {
-    canActivate: jest.fn(),
-};
-
-const mockUser: any = {
-    _id : '5e286b8940b3a61cacd8667d',
-    name : 'Jenny',
-    email : 'jenny.email@emailsite.com',
-    toJSON: jest.fn().mockReturnValue('User JSON'),
-};
-
-const mockJwt = 'jsonwebtoken';
-
-const mockUserData: any = {
-    ...mockUser,
-    password : '$2b$08$gTuxdD.U26AgUfcDpqIS7unCzyWUV1tQB2681ZFRv95gki5e3TxSS',
-    tokens : [
-        { token: mockJwt },
-    ],
-    avatar: undefined,
-};
-
-const mockJwtSecretProvider = 'jwtsecret';
-
 describe('/auth', () => {
     let app: INestApplication;
     let usersService;
+    let authService;
+    let verifiedUser: User;
+    const verifiedUserPassword = 'strongpassword32';
 
     beforeEach(async () => {
         const module = await Test.createTestingModule({
@@ -67,17 +30,12 @@ describe('/auth', () => {
             ],
         })
         .overrideProvider('JWT_SECRET')
-        .useValue(mockJwtSecretProvider)
-        .overrideProvider(UsersService)
-        .useValue(mockUsersService)
-        .overrideProvider(JwtService)
-        .useValue(mockJwtService)
-        .overrideGuard(AuthGuard())
-        .useValue(mockJwtGuard)
+        .useValue('jwtsecret')
         .compile();
 
         app = module.createNestApplication();
         usersService = module.get<UsersService>(UsersService);
+        authService = module.get<AuthService>(AuthService);
 
         app.useGlobalPipes(new ValidationPipe({
             whitelist: true,
@@ -85,19 +43,47 @@ describe('/auth', () => {
           }));
         app.useGlobalFilters(new MongoExceptionFilter());
         await app.init();
+
+        // Create Test User
+        const createUserDto: CreateUserDto = {
+            name: 'Bruce Wayne',
+            password: verifiedUserPassword,
+            email: {
+                address: 'dark.knight@gotham.com',
+            },
+        };
+        // Add Test User to DB
+        try {
+            verifiedUser = await usersService.create(createUserDto);
+        } catch (e) {
+            throw new Error(`Failed to create user: ${e}`);
+        }
+
+        // Update User as Verified
+        try {
+            await usersService.updateUser(
+                verifiedUser._id,
+                {
+                    email: {
+                        ...verifiedUser.email,
+                        verified: true,
+                    },
+                },
+            );
+        } catch (e) {
+            throw new Error(`Failed to update user as verified: ${e}`);
+        }
     });
 
     describe('POST /auth/login', () => {
 
-        it('should validate user credentials and return an authentication token', () => {
-            usersService.findUserByEmail.mockResolvedValue(mockUser);
-            usersService.addToken.mockResolvedValue(mockUser);
+        it('should validate user credentials and return an authentication token', async () => {
 
             return request(app.getHttpServer())
                 .post('/auth/login')
                 .send({
-                    email: mockUser.email,
-                    password: 'strongpassword',
+                    email: verifiedUser.email.address,
+                    password: verifiedUserPassword,
                 })
                 .expect(200)
                 .then((response) => {
@@ -109,35 +95,38 @@ describe('/auth', () => {
 
             return request(app.getHttpServer())
                 .post('/auth/login')
+                .send({
+                    email: 'riddler@gotham.com',
+                    password: 'riddlemethis',
+                })
                 .expect(401);
         });
     });
 
     describe('POST /auth/logout', () => {
 
-        it('should logout currently logged-in user', () => {
-            usersService.removeToken.mockResolvedValue(mockUser);
-            mockJwtGuard.canActivate
-                .mockImplementation((context: ExecutionContext) => {
-                    context.switchToHttp().getRequest().user = {
-                        _id: mockUser._id,
-                        email: mockUser.email,
-                    };
-                    return true;
-                });
+        it('should logout currently logged-in user', async () => {
+            // login User
+            let payload;
+            try {
+                payload = await authService.loginUser(verifiedUser);
+            } catch (e) {
+                throw new Error(`Failed to login user: ${e}`);
+            }
+            // Get Auth Token returned by login method
+            const authToken = payload.auth_token;
 
             return request(app.getHttpServer())
                 .post('/auth/logout')
-                .set('Authorization', 'Bearer valid-jwt')
+                .set('Authorization', `Bearer ${authToken}`)
                 .expect(200);
         });
 
         it('should reject logout attempt for unauthorized user', () => {
-            mockJwtGuard.canActivate.mockResolvedValue(false);
 
             return request(app.getHttpServer())
                 .post('/auth/logout')
-                .expect(403);
+                .expect(401);
         });
     });
 });
