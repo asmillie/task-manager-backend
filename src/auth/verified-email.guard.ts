@@ -1,8 +1,11 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { Observable } from 'rxjs';
 
 @Injectable()
 export class VerifiedEmailGuard implements CanActivate {
+
+  private logger = new Logger('VerifiedEmailGuard');
+
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
@@ -11,6 +14,7 @@ export class VerifiedEmailGuard implements CanActivate {
     if (user && user.email.verified) {
       return true;
     } else {
+      this.logger.warn(`Login attempt by unverified email address. User: ${JSON.stringify(user)}`);
       throw new UnauthorizedException('Email address has not been verified');
     }
   }
