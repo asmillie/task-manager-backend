@@ -79,7 +79,7 @@ export class UsersService {
             return await this.userModel.findByIdAndUpdate(userId, updateUserDto, { new: true });
         } catch (e) {
             this.logger.error(
-                `Failed to update user. User Id ${userId}, DTO: ${JSON.stringify(updateUserDto)}`,
+                `Failed to update user. Error: ${e}. User Id ${userId}, DTO: ${JSON.stringify(updateUserDto)}`,
             );
             throw new InternalServerErrorException();
         }
