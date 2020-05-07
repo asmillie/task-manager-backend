@@ -10,6 +10,7 @@ import { TasksModule } from './tasks/tasks.module';
 import { SignupModule } from './signup/signup.module';
 import { DemoService } from './demo/demo/demo.service';
 import { DemoController } from './demo/demo/demo.controller';
+import { DemoModule } from './demo/demo.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { DemoController } from './demo/demo/demo.controller';
     UsersModule,
     TasksModule,
     SignupModule,
+    DemoModule,
   ],
   controllers: [AppController, DemoController],
   providers: [AppService, DemoService],
