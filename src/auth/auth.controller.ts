@@ -1,4 +1,4 @@
-import { Controller, Request, Post, UseGuards, HttpCode } from '@nestjs/common';
+import { Controller, Request, Post, UseGuards, HttpCode, Get, Body } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { VerifiedEmailGuard } from './verified-email.guard';
@@ -35,5 +35,11 @@ export class AuthController {
     async logout(@Request() req) {
         const authToken = req.headers.authorization.replace('Bearer ', '');
         return await this.authService.logoutUser(authToken, req.user);
+    }
+
+    @HttpCode(200)
+    @Get('resetPassword')
+    async resetPassword(@Body('email') email: string) {
+        // TODO: call service method
     }
 }

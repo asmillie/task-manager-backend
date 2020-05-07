@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './interfaces/user.interface';
@@ -7,6 +7,9 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 import { Token } from './interfaces/token.interface';
 import * as sharp from 'sharp';
+import * as generatePassword from 'password-generator';
+import * as sgMail from '@sendgrid/mail';
+import * as config from 'config';
 
 @Injectable()
 export class UsersService {
@@ -214,6 +217,45 @@ export class UsersService {
             this.logger.error(
                 `Failed to delete avatar for user id ${userId}`,
             );
+            throw new InternalServerErrorException();
+        }
+    }
+    // TODO: Generate code to be added to email link
+    async resetPassword(email: string) {
+        const user = await this.findUserByEmail(email);
+        if (!user) {
+            this.logger.warn(`Failed to find user by email while attempting password reset. Email: ${email}`);
+            throw new NotFoundException();
+        }
+
+        const newPassword = generatePassword(14, false);
+        const hashedPassword = await this.hashPassword(newPassword);
+
+        const updateUserDto: UpdateUserDto = {
+            password: hashedPassword,
+        };
+
+        await this.updateUser(user._id, updateUserDto);
+
+        // await this.sendPasswordResetEmail(email);
+    }
+    // TODO: Add id and code to email link
+    private async sendPasswordResetEmail(id: string, email: string, code: string) {
+        const baseUrl = config.get<string>('base_url');
+        const passwordResetUrl = new URL(`/auth/resetPassword`, baseUrl);
+        // Send email
+        const msg = {
+            to: email,
+            from: 'no-reply@example.com',
+            subject: 'Task Manager API Password Reset',
+            html:
+            `A request to reset your password for the Task Manager API has been made. `,
+        };
+
+        try {
+            await sgMail.send(msg);
+        } catch (e) {
+            this.logger.error(`Error sending verification email. Email Details: ${JSON.stringify(msg)}`);
             throw new InternalServerErrorException();
         }
     }
