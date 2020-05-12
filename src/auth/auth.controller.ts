@@ -36,10 +36,4 @@ export class AuthController {
         const authToken = req.headers.authorization.replace('Bearer ', '');
         return await this.authService.logoutUser(authToken, req.user);
     }
-
-    @HttpCode(200)
-    @Get('resetPassword')
-    async resetPassword(@Body('email') email: string) {
-        // TODO: call service method
-    }
 }

@@ -242,14 +242,14 @@ export class UsersService {
     // TODO: Add id and code to email link
     private async sendPasswordResetEmail(id: string, email: string, code: string) {
         const baseUrl = config.get<string>('base_url');
-        const passwordResetUrl = new URL(`/auth/resetPassword`, baseUrl);
+        const passwordResetUrl = new URL(`/users/resetPassword?id=${id}&code=${code}`, baseUrl);
         // Send email
         const msg = {
             to: email,
             from: 'no-reply@example.com',
             subject: 'Task Manager API Password Reset',
             html:
-            `A request to reset your password for the Task Manager API has been made. `,
+            `To reset your password for the Task `,
         };
 
         try {

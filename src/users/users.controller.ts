@@ -79,4 +79,10 @@ export class UsersController {
     async deleteAvatar(@Request() req) {
         return this.usersService.deleteAvatarByUserId(req.user._id);
     }
+
+    @HttpCode(200)
+    @Get('resetPassword')
+    async resetPassword(@Body('email') email: string) {
+        // TODO: call service method
+    }
 }
