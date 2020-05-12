@@ -15,20 +15,6 @@ export const UserSchema = new mongoose.Schema({
             type: String,
             trim: true,
         },
-        verified: {
-            type: Boolean,
-            default: false,
-        },
-        verification: {
-            code: {
-                type: String,
-                trim: true,
-            },
-            expiry: {
-                type: Date,
-                trim: true,
-            },
-        },
     },
     avatar: {
         type: Buffer,

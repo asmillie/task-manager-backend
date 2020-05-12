@@ -63,43 +63,4 @@ describe('Signup Controller', () => {
       expect(controller.signup(userDto)).rejects.toThrow(InternalServerErrorException);
     });
   });
-
-  describe('POST /verifyEmail', () => {
-    it('should call signupService to verify code', async () => {
-      signupService.verifyEmail.mockResolvedValue(true);
-
-      expect(signupService.verifyEmail).not.toHaveBeenCalled();
-      await controller.verifyEmail('id', 'valid code');
-      expect(signupService.verifyEmail).toHaveBeenCalledWith('id', 'valid code');
-    });
-
-    it('should return result from signupService on successful verification', async () => {
-      signupService.verifyEmail.mockResolvedValue(true);
-
-      expect(await controller.verifyEmail('id', 'valid code')).toEqual(true);
-    });
-
-    it('should return error when signupService throws error', async () => {
-      signupService.verifyEmail.mockRejectedValue(new InternalServerErrorException());
-
-      expect(controller.verifyEmail('id', 'invalid code')).rejects.toThrowError(InternalServerErrorException);
-    });
-  });
-
-  describe('GET /resendEmail', () => {
-    it('should call signupService.resendEmail() with user id', async () => {
-      signupService.resendEmail.mockResolvedValue(true);
-
-      expect(signupService.resendEmail).not.toHaveBeenCalled();
-      await controller.resendEmail('id');
-      expect(signupService.resendEmail).toHaveBeenCalledWith('id');
-    });
-
-    it('should return error thrown by signupService.resendEmail()', async () => {
-      signupService.resendEmail.mockRejectedValue(new InternalServerErrorException());
-
-      expect(signupService.resendEmail).not.toHaveBeenCalled();
-      expect(controller.resendEmail('invalid id')).rejects.toThrow(InternalServerErrorException);
-    });
-  });
 });

@@ -6,11 +6,6 @@ export interface User extends Document {
     readonly password: string;
     readonly email: {
         readonly address: string,
-        readonly verified: boolean,
-        readonly verification: {
-            readonly code: string;
-            readonly expiry: Date;
-        },
     };
     readonly avatar: Buffer;
     readonly tokens: Token[];

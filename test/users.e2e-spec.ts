@@ -102,7 +102,9 @@ describe('/users', () => {
                 .mockImplementation((context: ExecutionContext) => {
                     context.switchToHttp().getRequest().user = {
                         _id: user._id,
-                        email: user.email,
+                        email: {
+                            address: user.email,
+                        },
                     };
                     return true;
                 });
@@ -110,7 +112,9 @@ describe('/users', () => {
 
         it('should update user email and return updated user', async () => {
             const updates = {
-                email: 'new.email@email.com',
+                email: {
+                    address: 'new.email@email.com',
+                },
             };
 
             await request(app.getHttpServer())

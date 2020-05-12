@@ -12,7 +12,9 @@ import * as request from 'supertest';
 const mockUser: any = {
     _id : '5e286b8940b3a61cacd8667d',
     name : 'Jenny',
-    email : 'jenny.email@emailsite.com',
+    email : {
+        address: 'jenny.email@emailsite.com',
+    },
     toJSON: jest.fn().mockReturnValue('User JSON'),
 };
 
@@ -28,7 +30,9 @@ const mockJwtGuard = {
     .mockImplementation((context: ExecutionContext) => {
         context.switchToHttp().getRequest().user = {
             _id: mockUser._id,
-            email: mockUser.email,
+            email: {
+                address: mockUser.email,
+            },
         };
         return true;
     }),

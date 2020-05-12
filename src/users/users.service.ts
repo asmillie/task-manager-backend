@@ -220,43 +220,4 @@ export class UsersService {
             throw new InternalServerErrorException();
         }
     }
-    // TODO: Generate code to be added to email link
-    async resetPassword(email: string) {
-        const user = await this.findUserByEmail(email);
-        if (!user) {
-            this.logger.warn(`Failed to find user by email while attempting password reset. Email: ${email}`);
-            throw new NotFoundException();
-        }
-
-        const newPassword = generatePassword(14, false);
-        const hashedPassword = await this.hashPassword(newPassword);
-
-        const updateUserDto: UpdateUserDto = {
-            password: hashedPassword,
-        };
-
-        await this.updateUser(user._id, updateUserDto);
-
-        // await this.sendPasswordResetEmail(email);
-    }
-    // TODO: Add id and code to email link
-    private async sendPasswordResetEmail(id: string, email: string, code: string) {
-        const baseUrl = config.get<string>('base_url');
-        const passwordResetUrl = new URL(`/users/resetPassword?id=${id}&code=${code}`, baseUrl);
-        // Send email
-        const msg = {
-            to: email,
-            from: 'no-reply@example.com',
-            subject: 'Task Manager API Password Reset',
-            html:
-            `To reset your password for the Task `,
-        };
-
-        try {
-            await sgMail.send(msg);
-        } catch (e) {
-            this.logger.error(`Error sending verification email. Email Details: ${JSON.stringify(msg)}`);
-            throw new InternalServerErrorException();
-        }
-    }
 }

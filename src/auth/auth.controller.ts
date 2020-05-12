@@ -1,7 +1,6 @@
 import { Controller, Request, Post, UseGuards, HttpCode, Get, Body } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
-import { VerifiedEmailGuard } from './verified-email.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -15,7 +14,6 @@ export class AuthController {
      */
     @UseGuards(
         AuthGuard('local'),
-        VerifiedEmailGuard,
     )
     @HttpCode(200)
     @Post('login')

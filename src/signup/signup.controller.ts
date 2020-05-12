@@ -17,24 +17,4 @@ export class SignupController {
     async signup(@Body() createUserDto: CreateUserDto) {
         return await this.signupService.signup(createUserDto);
     }
-
-    /**
-     * Calls {@link SignupService#verifyEmail} to check
-     * the provided code for the given user id against
-     * the one stored in user data.
-     * @param id User id
-     * @param code Email verification code
-     * @returns {boolean} True on email verified
-     */
-    @HttpCode(200)
-    @Get('verifyEmail/:id')
-    async verifyEmail(@Param('id') id: string, @Query('code') code: string) {
-        return await this.signupService.verifyEmail(id, code);
-    }
-
-    @HttpCode(200)
-    @Get('resendEmail/:id')
-    async resendEmail(@Param('id') id: string) {
-        return await this.signupService.resendEmail(id);
-    }
 }
