@@ -3,10 +3,7 @@ import { UsersService } from '../users/users.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import * as config from 'config';
 import * as sgMail from '@sendgrid/mail';
-import * as bcrypt from 'bcrypt';
-import * as moment from 'moment';
 import { User } from '../users/interfaces/user.interface';
-import { UpdateUserDto } from '../users/dto/update-user.dto';
 
 @Injectable()
 export class SignupService {
@@ -18,10 +15,7 @@ export class SignupService {
     }
 
     /**
-     * Adds email verification data to User DTO before calling
-     * [UsersService create method]{@link UsersService#create}
-     * to save the user. An email is then sent to the user by
-     * calling the [sendVerificationEmail method]{@link SignupService#sendVerificationEmail}.
+     * Creates a new User account.
      * @param userDto User data
      * @throws {InternalServerErrorException} if the create or sendVerificationEmail methods fail
      */

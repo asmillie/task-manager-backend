@@ -1,5 +1,6 @@
-import { IsNotEmpty, MinLength, IsEmail, IsLowercase, IsOptional } from 'class-validator';
+import { IsNotEmpty, MinLength, IsEmail, IsLowercase, IsOptional, ValidateNested } from 'class-validator';
 import { UpdateEmailDto } from './update-email.dto';
+import { Type } from 'class-transformer';
 
 export class UpdateUserDto {
     @IsOptional()
@@ -12,8 +13,8 @@ export class UpdateUserDto {
     readonly password?: string;
 
     @IsOptional()
-    @IsLowercase()
-    @IsEmail({}, { message: 'Must be a valid email address' })
+    @ValidateNested()
+    @Type(() => UpdateEmailDto)
     readonly email?: UpdateEmailDto;
 
     readonly avatar?: Buffer;

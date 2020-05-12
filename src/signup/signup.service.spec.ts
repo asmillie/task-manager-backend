@@ -55,17 +55,8 @@ describe('SignupService', () => {
 
   describe('signup', () => {
 
-    let sendEmailSpy;
-
-    beforeEach(() => {
-      jest.spyOn(signupService as any, 'createVerificationCode').mockReturnValue(mockVerificationCode);
-      jest.spyOn(signupService as any, 'getExpiryDate').mockReturnValue(mockExpiryDate);
-      sendEmailSpy = jest.spyOn(signupService as any, 'sendVerificationEmail');
-    });
-
     it('should call usersService to create user and then return user', async () => {
       usersService.create.mockResolvedValue(mockUser);
-      sendEmailSpy.mockImplementation(() => true);
 
       expect(usersService.create).not.toHaveBeenCalled();
       const result = await signupService.signup(mockUserDto);

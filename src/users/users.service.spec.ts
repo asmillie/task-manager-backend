@@ -107,16 +107,12 @@ describe('UsersService', () => {
     });
 
     describe('findUserByEmail', () => {
-        it('should find one user by email', async () => {
+        it('should find user by email address', async () => {
             userModel.findOne.mockResolvedValue('user');
 
             expect(userModel.findOne).not.toHaveBeenCalled();
             const result = await usersService.findUserByEmail('email');
-            expect(userModel.findOne).toHaveBeenCalledWith({
-                email: {
-                    address: 'email',
-                },
-            });
+            expect(userModel.findOne).toHaveBeenCalledWith({ 'email.address': 'email' });
             expect(result).toEqual('user');
         });
     });

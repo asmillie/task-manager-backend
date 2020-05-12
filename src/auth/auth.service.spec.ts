@@ -27,7 +27,9 @@ const mockJwtService = () => ({
 const mockUser: any = {
     _id : '5e286b8940b3a61cacd8667d',
     name : 'Jenny',
-    email : 'jenny.email@emailsite.com',
+    email : {
+        address: 'jenny.email@emailsite.com',
+    },
     password : '$2b$08$gTuxdD.U26AgUfcDpqIS7unCzyWUV1tQB2681ZFRv95gki5e3TxSS',
     tokens : [],
     avatar: undefined,
@@ -86,7 +88,7 @@ describe('AuthService', () => {
             await authService.loginUser(mockUser);
             expect(jwtService.sign).toHaveBeenCalledWith({
                 sub: mockUser._id,
-                email: mockUser.email,
+                email: mockUser.email.address,
             });
         });
 
