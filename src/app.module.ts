@@ -8,9 +8,6 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { TasksModule } from './tasks/tasks.module';
 import { SignupModule } from './signup/signup.module';
-import { DemoService } from './demo/demo/demo.service';
-import { DemoController } from './demo/demo/demo.controller';
-import { DemoModule } from './demo/demo.module';
 
 @Module({
   imports: [
@@ -25,9 +22,8 @@ import { DemoModule } from './demo/demo.module';
     UsersModule,
     TasksModule,
     SignupModule,
-    DemoModule,
   ],
-  controllers: [AppController, DemoController],
-  providers: [AppService, DemoService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
