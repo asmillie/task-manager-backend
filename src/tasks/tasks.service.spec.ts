@@ -6,6 +6,7 @@ import { Task } from './interfaces/task.interface';
 import { TaskQueryOptions } from './classes/task-query-options';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { InternalServerErrorException } from '@nestjs/common';
 
 const mockUser = {
     _id : '5e286b8940b3a61cacd8667d',
@@ -79,6 +80,14 @@ describe('TasksService', () => {
             const result = await tasksService.findAllTasksByUserId(mockUser._id, undefined, mockTaskQueryOptions);
             expect(result).toEqual('value');
         });
+
+        it('throws on error during find operation', async () => {
+            taskModel.find.mockRejectedValue(undefined);
+
+            expect(taskModel.find).not.toHaveBeenCalled();
+            expect(tasksService.findAllTasksByUserId('id', undefined, mockTaskQueryOptions))
+                .rejects.toThrow(InternalServerErrorException);
+        });
     });
 
     describe('findTask', () => {
@@ -90,6 +99,14 @@ describe('TasksService', () => {
             expect(taskModel.findOne).toHaveBeenCalledTimes(1);
             expect(result).toEqual(mockTask);
         });
+
+        it('throws on error during findOne operation', async () => {
+            taskModel.findOne.mockRejectedValue(undefined);
+
+            expect(taskModel.findOne).not.toHaveBeenCalled();
+            expect(tasksService.findTask(mockUser._id, mockTaskDto.owner))
+                .rejects.toThrow(InternalServerErrorException);
+        });
     });
 
     describe('create', () => {
@@ -100,6 +117,13 @@ describe('TasksService', () => {
             const result = await tasksService.create(mockTaskDto);
             expect(taskModel.create).toHaveBeenCalledWith(mockTaskDto);
             expect(result).toEqual(mockTask);
+        });
+
+        it('throws on error during create operation', async () => {
+            taskModel.create.mockRejectedValue(undefined);
+
+            expect(taskModel.create).not.toHaveBeenCalled();
+            expect(tasksService.create(mockTaskDto)).rejects.toThrow(InternalServerErrorException);
         });
     });
 
@@ -115,6 +139,14 @@ describe('TasksService', () => {
             });
             expect(result).toEqual({ affected: 1 });
         });
+
+        it('throws on error during delete operation', async () => {
+            taskModel.findOneAndDelete.mockRejectedValue(undefined);
+
+            expect(taskModel.findOneAndDelete).not.toHaveBeenCalled();
+            expect(tasksService.deleteTask(mockUser._id, mockTaskDto.owner))
+                .rejects.toThrow(InternalServerErrorException);
+        });
     });
 
     describe('deleteAllTasksByUserId', () => {
@@ -125,6 +157,13 @@ describe('TasksService', () => {
             const result = await tasksService.deleteAllTasksByUserId(mockUser._id);
             expect(taskModel.deleteMany).toHaveBeenCalledWith({ owner: mockUser._id });
             expect(result).toEqual({ affected: 1 });
+        });
+
+        it('throws on error during delete operation', async () => {
+            taskModel.deleteMany.mockRejectedValue(undefined);
+
+            expect(taskModel.deleteMany).not.toHaveBeenCalled();
+            expect(tasksService.deleteAllTasksByUserId(mockUser._id)).rejects.toThrow(InternalServerErrorException);
         });
     });
 
@@ -143,6 +182,14 @@ describe('TasksService', () => {
                 { new: true },
             );
             expect(result).toEqual('Updated Task');
+        });
+
+        it('throws on error during update operation', async () => {
+            taskModel.findOneAndUpdate.mockRejectedValue(undefined);
+
+            expect(taskModel.findOneAndUpdate).not.toHaveBeenCalled();
+            expect(tasksService.updateTask(mockUser._id, mockTask._id, null))
+                .rejects.toThrow(InternalServerErrorException);
         });
     });
 });
