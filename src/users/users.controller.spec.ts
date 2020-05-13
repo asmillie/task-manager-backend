@@ -4,6 +4,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { InternalServerErrorException } from '@nestjs/common';
 
 const mockUsersService = () => ({
     create: jest.fn(),
@@ -74,6 +75,19 @@ describe('UsersController', () => {
             expect(usersService.updateUser).toHaveBeenCalledWith(mockReq.user._id, updateUserDto);
             expect(result).toEqual(mockUser);
         });
+
+        it('should return error thrown by usersService', async () => {
+            usersService.updateUser.mockRejectedValue(new InternalServerErrorException());
+            const updateUserDto: UpdateUserDto = {
+                email: {
+                    address: 'new.email@addr.co',
+                },
+            };
+
+            expect(usersService.updateUser).not.toHaveBeenCalled();
+            expect(usersController.updateUser(mockReq, updateUserDto))
+                .rejects.toThrow(InternalServerErrorException);
+        });
     });
 
     describe('deleteUser', () => {
@@ -84,6 +98,13 @@ describe('UsersController', () => {
             const result = await usersController.deleteUser(mockReq);
             expect(usersService.deleteUser).toHaveBeenCalledWith(mockReq.user._id);
             expect(result).toEqual('success');
+        });
+
+        it('should return error thrown by usersService', async () => {
+            usersService.deleteUser.mockRejectedValue(new InternalServerErrorException());
+
+            expect(usersService.deleteUser).not.toHaveBeenCalled();
+            expect(usersController.deleteUser(mockReq)).rejects.toThrow(InternalServerErrorException);
         });
     });
 
@@ -96,6 +117,13 @@ describe('UsersController', () => {
             expect(usersService.addAvatar).toHaveBeenCalledWith(mockReq.user._id, 'image');
             expect(result).toEqual(mockUser);
         });
+
+        it('should return error thrown by usersService', async () => {
+            usersService.addAvatar.mockRejectedValue(new InternalServerErrorException());
+
+            expect(usersService.addAvatar).not.toHaveBeenCalled();
+            expect(usersController.saveAvatar(mockReq, { buffer: 'image' })).rejects.toThrow(InternalServerErrorException);
+        });
     });
 
     describe('deleteAvatar', () => {
@@ -106,6 +134,13 @@ describe('UsersController', () => {
             const result = await usersController.deleteAvatar(mockReq);
             expect(usersService.deleteAvatarByUserId).toHaveBeenCalledWith(mockReq.user._id);
             expect(result).toEqual(mockUser);
+        });
+
+        it('should return error thrown by usersService', async () => {
+            usersService.deleteAvatarByUserId.mockRejectedValue(new InternalServerErrorException());
+
+            expect(usersService.deleteAvatarByUserId).not.toHaveBeenCalled();
+            expect(usersController.deleteAvatar(mockReq)).rejects.toThrow(InternalServerErrorException);
         });
     });
 });

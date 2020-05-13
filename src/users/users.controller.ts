@@ -1,6 +1,5 @@
 import { Controller, Get, Post, Body, UseGuards, Request, Patch, Delete, UseInterceptors, UploadedFile, HttpCode, BadRequestException } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateUserDto } from './dto/update-user.dto';
