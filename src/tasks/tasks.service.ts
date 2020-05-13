@@ -5,6 +5,7 @@ import { Task } from './interfaces/task.interface';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskQueryOptions } from './classes/task-query-options';
+import { TaskSortOption } from './classes/task-sort-option';
 
 @Injectable()
 export class TasksService {
@@ -50,18 +51,21 @@ export class TasksService {
             completed,
         };
 
-        let options = null;
-        if (taskQueryOptions) {
-            options = {
-                ...taskQueryOptions,
-            };
+        let sort;
+        if (taskQueryOptions.sort) {
+            taskQueryOptions.sort.forEach((tso: TaskSortOption) => {
+                sort += (tso.direction === 'asc') ? '' : '-';
+                sort += `'${tso.field}'`;
+            });
+        } else {
+            sort = 'createdAt';
         }
 
         try {
-            return await this.taskModel.find(conditions, null, options);
+            return await this.taskModel.find(conditions, null, sort);
         } catch (e) {
             this.logger.error(
-                `Failed to find all tasks for user id ${userId}. Conditions: ${JSON.stringify(conditions)}, Options: ${JSON.stringify(options)}`,
+                `Failed to find all tasks for user id ${userId}. Conditions: ${JSON.stringify(conditions)}, Sort: ${JSON.stringify(sort)}`,
             );
             throw new InternalServerErrorException();
         }

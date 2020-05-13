@@ -10,11 +10,13 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 const mockUser = {
     _id : '5e286b8940b3a61cacd8667d',
     name : 'Jenny',
-    email : 'jenny.email@emailsite.com',
+    email : {
+        address: 'jenny.email@emailsite.com',
+    },
     password : '$2b$08$gTuxdD.U26AgUfcDpqIS7unCzyWUV1tQB2681ZFRv95gki5e3TxSS',
     tokens : [],
     createdAt : '2020-01-22T15:34:33.356Z',
-    updatedAt : '2020-01-22T15:34:33.356Z',
+    updatedAt : '2020-02-22T15:34:33.356Z',
 };
 
 const mockTaskDto = new CreateTaskDto(
@@ -34,6 +36,11 @@ const mockUpdatedTask = {
 
 const mockTaskQueryOptions: TaskQueryOptions = {
     limit: 5,
+    skip: 1,
+    sort: [
+        { field: 'completed', direction: 'desc' },
+        { field: 'updatedAt', direction: 'asc' },
+    ],
 };
 
 const mockTaskModel = () => ({
