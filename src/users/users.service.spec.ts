@@ -8,6 +8,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Token } from './interfaces/token.interface';
 
 import * as sharp from 'sharp';
+import { InternalServerErrorException, BadRequestException } from '@nestjs/common';
 jest.mock('sharp', () => {
     return () => ({
         sharp: jest.fn().mockReturnThis(),
@@ -93,6 +94,13 @@ describe('UsersService', () => {
             const result = await usersService.create(createUserDto);
             expect(result).toEqual('user');
         });
+
+        it('should throw on error during create operation', async () => {
+            userModel.create.mockRejectedValue(undefined);
+
+            expect(userModel.create).not.toHaveBeenCalled();
+            expect(usersService.create(createUserDto)).rejects.toThrow(InternalServerErrorException);
+        });
     });
 
     describe('findUserById', () => {
@@ -104,6 +112,13 @@ describe('UsersService', () => {
             expect(userModel.findById).toHaveBeenCalledWith('id');
             expect(result).toEqual('user');
         });
+
+        it('should throw on error during find operation', async () => {
+            userModel.findById.mockRejectedValue(undefined);
+
+            expect(userModel.findById).not.toHaveBeenCalled();
+            expect(usersService.findUserById('id')).rejects.toThrow(InternalServerErrorException);
+        });
     });
 
     describe('findUserByEmail', () => {
@@ -114,6 +129,13 @@ describe('UsersService', () => {
             const result = await usersService.findUserByEmail('email');
             expect(userModel.findOne).toHaveBeenCalledWith({ 'email.address': 'email' });
             expect(result).toEqual('user');
+        });
+
+        it('should throw on error during find operation', async () => {
+            userModel.findOne.mockRejectedValue(undefined);
+
+            expect(userModel.findOne).not.toHaveBeenCalled();
+            expect(usersService.findUserByEmail('email')).rejects.toThrow(InternalServerErrorException);
         });
     });
 
@@ -137,6 +159,13 @@ describe('UsersService', () => {
             );
             expect(result).toEqual(updatedUser);
         });
+
+        it('should throw on error during update operation', async () => {
+            userModel.findByIdAndUpdate.mockRejectedValue(undefined);
+
+            expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
+            expect(usersService.updateUser('id', null)).rejects.toThrow(InternalServerErrorException);
+        });
     });
 
     describe('deleteUser', () => {
@@ -147,6 +176,13 @@ describe('UsersService', () => {
             const result = await usersService.deleteUser('id');
             expect(userModel.findByIdAndDelete).toHaveBeenCalledWith('id');
             expect(result).toEqual('success');
+        });
+
+        it('should throw on error during delete operation', async () => {
+            userModel.findByIdAndDelete.mockRejectedValue(undefined);
+
+            expect(userModel.findByIdAndDelete).not.toHaveBeenCalled();
+            expect(usersService.deleteUser('id')).rejects.toThrow(InternalServerErrorException);
         });
     });
 
@@ -162,6 +198,13 @@ describe('UsersService', () => {
                 { new: true },
             );
             expect(result).toEqual('User');
+        });
+
+        it('should throw on error durinig find operation', async () => {
+            userModel.findByIdAndUpdate.mockRejectedValue(undefined);
+
+            expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
+            expect(usersService.addToken(mockUser, 'newToken')).rejects.toThrow(InternalServerErrorException);
         });
     });
 
@@ -185,6 +228,13 @@ describe('UsersService', () => {
             );
             expect(result).toEqual('User');
         });
+
+        it('should throw on error during find operation', async () => {
+            userModel.findByIdAndUpdate.mockRejectedValue(undefined);
+
+            expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
+            expect(usersService.removeToken(mockUser, 'token')).rejects.toThrow(InternalServerErrorException);
+        });
     });
 
     describe('addAvatar', () => {
@@ -196,6 +246,20 @@ describe('UsersService', () => {
             const result = await usersService.addAvatar('id', mockBuffer);
             expect(result).toEqual(mockUser);
         });
+
+        it('should throw on missing avatar image', async () => {
+            jest.spyOn(usersService, 'updateUser').mockRejectedValue(undefined);
+
+            expect(usersService.updateUser).not.toHaveBeenCalled();
+            expect(usersService.addAvatar('id', null)).rejects.toThrow(BadRequestException);
+        });
+
+        it('should throw on error during update operation', async () => {
+            jest.spyOn(usersService, 'updateUser').mockRejectedValue(undefined);
+
+            expect(usersService.updateUser).not.toHaveBeenCalled();
+            expect(usersService.addAvatar('id', Buffer.from('avatar'))).rejects.toThrow(InternalServerErrorException);
+        });
     });
 
     describe('deleteAvatarByUserId', () => {
@@ -206,6 +270,13 @@ describe('UsersService', () => {
             const result = await usersService.deleteAvatarByUserId('id');
             expect(usersService.updateUser).toHaveBeenCalledWith('id', { avatar: undefined });
             expect(result).toEqual(mockUser);
+        });
+
+        it('should throw on error during update operation', async () => {
+            jest.spyOn(usersService, 'updateUser').mockRejectedValue(undefined);
+
+            expect(usersService.updateUser).not.toHaveBeenCalled();
+            expect(usersService.deleteAvatarByUserId('id')).rejects.toThrow(InternalServerErrorException);
         });
     });
 });
