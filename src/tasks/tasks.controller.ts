@@ -45,6 +45,7 @@ export class TasksController {
         @Req() req,
         @Query('completed') completed: boolean,
         @Body() taskQueryOptions?: TaskQueryOptions) {
+        // console.log(`TQO: ${JSON.stringify(taskQueryOptions)}`);
         return await this.tasksService.findAllTasksByUserId(req.user._id, completed, taskQueryOptions);
     }
 

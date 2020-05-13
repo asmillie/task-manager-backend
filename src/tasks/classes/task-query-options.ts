@@ -1,5 +1,6 @@
-import { IsOptional, IsBoolean, IsInt, IsPositive } from 'class-validator';
+import { IsOptional, IsInt, IsPositive, ValidateNested } from 'class-validator';
 import { TaskSortOption } from './task-sort-option';
+import { Type } from 'class-transformer';
 
 export class TaskQueryOptions {
     @IsOptional()
@@ -11,5 +12,8 @@ export class TaskQueryOptions {
     @IsInt()
     readonly skip?: number;
 
+    @IsOptional()
+    @Type(() => TaskSortOption)
+    @ValidateNested()
     readonly sort?: TaskSortOption[];
 }
