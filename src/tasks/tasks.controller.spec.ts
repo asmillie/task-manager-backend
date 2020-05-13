@@ -3,9 +3,8 @@ import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { TaskQueryOptions } from './classes/task-query-options';
-import { TaskSortOption } from './classes/task-sort-option';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { InternalServerErrorException } from '@nestjs/common';
 
 const mockTasksService = () => ({
     create: jest.fn(),
@@ -43,17 +42,29 @@ describe('TasksController', () => {
     });
 
     describe('createTask', () => {
-        it('creates a task', async () => {
-            tasksService.create.mockResolvedValue('Created Task');
-            const mockTaskDto = new CreateTaskDto(
+        let mockTaskDto: CreateTaskDto;
+
+        beforeEach(() => {
+            mockTaskDto = new CreateTaskDto(
                 '5e286b8940b3a61cacd8667d',
                 'Test Task Feature',
             );
+        });
+
+        it('creates a task', async () => {
+            tasksService.create.mockResolvedValue('Created Task');
 
             expect(tasksService.create).not.toHaveBeenCalled();
             const result = await tasksController.createTask(mockReq, mockTaskDto);
             expect(tasksService.create).toHaveBeenCalledWith(mockTaskDto);
             expect(result).toEqual('Created Task');
+        });
+
+        it('returns error thrown by tasksService', async () => {
+            tasksService.create.mockRejectedValue(new InternalServerErrorException());
+
+            expect(tasksService.create).not.toHaveBeenCalled();
+            expect(tasksController.createTask(mockReq, mockTaskDto)).rejects.toThrow(InternalServerErrorException);
         });
     });
 
@@ -66,14 +77,24 @@ describe('TasksController', () => {
             expect(tasksService.findTask).toHaveBeenCalledWith(mockReq.user._id, 'id string');
             expect(result).toEqual('Found Task');
         });
+
+        it('returns error thrown by tasksService', async () => {
+            tasksService.findTask.mockRejectedValue(new InternalServerErrorException());
+
+            expect(tasksService.findTask).not.toHaveBeenCalled();
+            expect(tasksController.findTask(mockReq, 'id string')).rejects.toThrow(InternalServerErrorException);
+        });
     });
 
     describe('findAllTasks', () => {
         it('should find all tasks by user id and provided query options', async () => {
             tasksService.findAllTasksByUserId.mockResolvedValue('list of tasks');
-            const taskQueryOptions: TaskQueryOptions = {
+            const taskQueryOptions = {
+                limit: 3,
+                skip: 2,
                 sort: [
-                    new TaskSortOption('updatedAt', 'desc'),
+                    { field: 'updatedAt', direction: 'desc' },
+                    { field: 'completed', direction: 'asc' },
                 ],
             };
 
@@ -89,6 +110,14 @@ describe('TasksController', () => {
                 taskQueryOptions,
             );
             expect(result).toEqual('list of tasks');
+        });
+
+        it('should return error thrown by tasksService', async () => {
+            tasksService.findAllTasksByUserId.mockRejectedValue(new InternalServerErrorException());
+
+            expect(tasksService.findAllTasksByUserId).not.toHaveBeenCalled();
+            expect(tasksController.findAllTasks(mockReq, undefined, undefined))
+                .rejects.toThrow(InternalServerErrorException);
         });
     });
 
@@ -108,6 +137,15 @@ describe('TasksController', () => {
             );
             expect(result).toEqual('Updated Task');
         });
+
+        it('should return error thrown by tasksService', async () => {
+            tasksService.updateTask.mockRejectedValue(new InternalServerErrorException());
+
+            expect(tasksService.updateTask).not.toHaveBeenCalled();
+            expect(tasksController.updateTask(mockReq, 'id', null))
+                .rejects.toThrow(InternalServerErrorException);
+
+        });
     });
 
     describe('deleteTask', () => {
@@ -119,6 +157,14 @@ describe('TasksController', () => {
             expect(tasksService.deleteTask).toHaveBeenCalledWith(mockReq.user._id, 'id');
             expect(result).toEqual(true);
         });
+
+        it('should return error thrown by tasksService', async () => {
+            tasksService.deleteTask.mockRejectedValue(new InternalServerErrorException());
+
+            expect(tasksService.deleteTask).not.toHaveBeenCalled();
+            expect(tasksController.deleteTask(mockReq, 'invalid id'))
+                .rejects.toThrow(InternalServerErrorException);
+        });
     });
 
     describe('deleteAllUserTasks', () => {
@@ -129,6 +175,13 @@ describe('TasksController', () => {
             const result = await tasksController.deleteAllUserTasks(mockReq);
             expect(tasksService.deleteAllTasksByUserId).toHaveBeenCalledWith(mockReq.user._id);
             expect(result).toEqual(true);
+        });
+
+        it('should return error thrown by tasksService', async () => {
+            tasksService.deleteAllTasksByUserId.mockRejectedValue(new InternalServerErrorException());
+
+            expect(tasksService.deleteAllTasksByUserId).not.toHaveBeenCalled();
+            expect(tasksController.deleteAllUserTasks(mockReq)).rejects.toThrow(InternalServerErrorException);
         });
     });
 });
