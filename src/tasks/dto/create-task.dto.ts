@@ -11,10 +11,12 @@ export class CreateTaskDto {
     @IsOptional()
     readonly completed?: boolean;
 
-    constructor(owner: string = '', description: string, completed: boolean = false) {
+    constructor(owner: string = '', description: string, completed?: boolean) {
         this._owner = owner;
         this.description = description;
-        this.completed = completed;
+        if (completed !== undefined) {
+            this.completed = completed;
+        }
     }
 
     get owner(): string {

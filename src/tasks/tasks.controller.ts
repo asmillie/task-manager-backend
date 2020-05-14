@@ -43,7 +43,7 @@ export class TasksController {
     @Get()
     async findAllTasks(
         @Req() req,
-        @Query('completed') completed: boolean,
+        @Query('completed') completed?: boolean,
         @Body() taskQueryOptions?: TaskQueryOptions) {
         return await this.tasksService.findAllTasksByUserId(req.user._id, completed, taskQueryOptions);
     }

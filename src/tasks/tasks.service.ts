@@ -24,6 +24,7 @@ export class TasksService {
         try {
             return await this.taskModel.create({
                 ...createTaskDto,
+                owner: createTaskDto.owner,
             });
         } catch (e) {
             this.logger.error(
@@ -43,26 +44,32 @@ export class TasksService {
      */
     async findAllTasksByUserId(
         userId: string,
-        completed: boolean,
+        completed?: boolean,
         taskQueryOptions?: TaskQueryOptions): Promise<Task[]> {
 
         const conditions = {
             owner: userId,
-            completed,
         };
 
-        let sort;
+        if (completed !== undefined) {
+            conditions['completed'] = completed;
+        }
+
+        let sort = '';
         if (taskQueryOptions.sort) {
             taskQueryOptions.sort.forEach((tso: TaskSortOption) => {
-                sort += (tso.direction === 'asc') ? '' : '-';
-                sort += `'${tso.field}'`;
+                if (tso.direction === 'asc') {
+                    sort += `'-${tso.field}', `;
+                } else {
+                    sort += `'${tso.field}', `;
+                }
             });
         } else {
             sort = 'createdAt';
         }
 
         try {
-            return await this.taskModel.find(conditions, null, sort);
+            return await this.taskModel.find(conditions, null, { ...taskQueryOptions, sort });
         } catch (e) {
             this.logger.error(
                 `Failed to find all tasks for user id ${userId}. Conditions: ${JSON.stringify(conditions)}, Sort: ${JSON.stringify(sort)}`,
