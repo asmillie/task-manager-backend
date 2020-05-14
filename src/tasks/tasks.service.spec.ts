@@ -25,9 +25,10 @@ const mockTaskDto = new CreateTaskDto(
     'Test Task Feature',
 );
 
-const mockTask = {
+const mockTask: any = {
     _id: '8es9090b097cw90a09d',
-    ...mockTaskDto,
+    description: 'Test Tasks Service',
+    completed: true,
 };
 
 const mockUpdatedTask = {
@@ -111,12 +112,15 @@ describe('TasksService', () => {
 
     describe('create', () => {
         it('creates a task', async () => {
-            taskModel.create.mockResolvedValue(mockTask);
+            taskModel.create.mockResolvedValue('task');
 
             expect(taskModel.create).not.toHaveBeenCalled();
             const result = await tasksService.create(mockTaskDto);
-            expect(taskModel.create).toHaveBeenCalledWith(mockTaskDto);
-            expect(result).toEqual(mockTask);
+            expect(taskModel.create).toHaveBeenCalledWith({
+                ...mockTaskDto,
+                owner: mockTaskDto.owner,
+            });
+            expect(result).toEqual('task');
         });
 
         it('throws on error during create operation', async () => {
