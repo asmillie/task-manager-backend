@@ -5,6 +5,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { InternalServerErrorException } from '@nestjs/common';
+import { TokenOwnershipGuard } from '../auth/token-ownership.guard';
 
 const mockTasksService = () => ({
     create: jest.fn(),
@@ -34,6 +35,8 @@ describe('TasksController', () => {
             ],
         })
         .overrideGuard(AuthGuard())
+        .useValue({ canActivate: () => true })
+        .overrideGuard(TokenOwnershipGuard)
         .useValue({ canActivate: () => true })
         .compile();
 
