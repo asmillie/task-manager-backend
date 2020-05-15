@@ -3,4 +3,8 @@ export default {
     sendgrid: {
         key: 'sendgrid-api-key',
     },
+    jwt: {
+        secret: 'test-jwt-secret',
+        expiresIn: 3600,
+    },
 };
