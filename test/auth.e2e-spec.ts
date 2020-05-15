@@ -58,21 +58,6 @@ describe('/auth', () => {
         } catch (e) {
             throw new Error(`Failed to create user: ${e}`);
         }
-
-        // Update User as Verified
-        try {
-            await usersService.updateUser(
-                verifiedUser._id,
-                {
-                    email: {
-                        ...verifiedUser.email,
-                        verified: true,
-                    },
-                },
-            );
-        } catch (e) {
-            throw new Error(`Failed to update user as verified: ${e}`);
-        }
     });
 
     describe('POST /auth/login', () => {

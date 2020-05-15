@@ -9,12 +9,17 @@ import { Model } from 'mongoose';
 import { Task } from '../src/tasks/interfaces/task.interface';
 import * as request from 'supertest';
 
+const mockAuthToken = 'valid-jwt';
+
 const mockUser: any = {
     _id : '5e286b8940b3a61cacd8667d',
     name : 'Jenny',
     email : {
         address: 'jenny.email@emailsite.com',
     },
+    tokens: [
+        { token: mockAuthToken },
+    ],
     toJSON: jest.fn().mockReturnValue('User JSON'),
 };
 
@@ -28,12 +33,7 @@ const mockTask: any = {
 const mockJwtGuard = {
     canActivate: jest.fn()
     .mockImplementation((context: ExecutionContext) => {
-        context.switchToHttp().getRequest().user = {
-            _id: mockUser._id,
-            email: {
-                address: mockUser.email,
-            },
-        };
+        context.switchToHttp().getRequest().user = mockUser;
         return true;
     }),
 };
@@ -83,6 +83,7 @@ describe('/tasks', () => {
 
             await request(app.getHttpServer())
                 .post('/tasks')
+                .set('Authorization', `Bearer ${mockAuthToken}`)
                 .send({
                     description: mockTask.description,
                 })
@@ -96,6 +97,7 @@ describe('/tasks', () => {
                     _id: mockTask._id,
                     _owner: 'attempt to set different owner id',
                 })
+                .set('Authorization', `Bearer ${mockAuthToken}`)
                 .expect(400);
         });
     });
@@ -106,6 +108,7 @@ describe('/tasks', () => {
 
             return request(app.getHttpServer())
                 .get(`/tasks/${mockTask._id}`)
+                .set('Authorization', `Bearer ${mockAuthToken}`)
                 .expect(200)
                 .then(response => {
                     const task = response.body;
@@ -120,6 +123,7 @@ describe('/tasks', () => {
 
             return request(app.getHttpServer())
                 .get(`/tasks/${mockTask._id}`)
+                .set('Authorization', `Bearer ${mockAuthToken}`)
                 .expect(500);
         });
     });
@@ -133,6 +137,7 @@ describe('/tasks', () => {
 
             return request(app.getHttpServer())
                 .patch(`/tasks/${mockTask._id}`)
+                .set('Authorization', `Bearer ${mockAuthToken}`)
                 .expect(200)
                 .then(response => {
                     const task = response.body;
@@ -146,6 +151,7 @@ describe('/tasks', () => {
 
             return request(app.getHttpServer())
                 .patch(`/tasks/${mockTask._id}`)
+                .set('Authorization', `Bearer ${mockAuthToken}`)
                 .expect(500);
         });
     });
@@ -156,6 +162,7 @@ describe('/tasks', () => {
 
             return request(app.getHttpServer())
                 .delete(`/tasks/${mockTask._id}`)
+                .set('Authorization', `Bearer ${mockAuthToken}`)
                 .expect(200);
         });
 
@@ -164,6 +171,7 @@ describe('/tasks', () => {
 
             return request(app.getHttpServer())
                 .delete(`/tasks/${mockTask._id}`)
+                .set('Authorization', `Bearer ${mockAuthToken}`)
                 .expect(500);
         });
     });
@@ -174,6 +182,7 @@ describe('/tasks', () => {
 
             return request(app.getHttpServer())
                 .delete('/tasks')
+                .set('Authorization', `Bearer ${mockAuthToken}`)
                 .expect(200);
         });
 
@@ -182,6 +191,7 @@ describe('/tasks', () => {
 
             return request(app.getHttpServer())
                 .delete('/tasks')
+                .set('Authorization', `Bearer ${mockAuthToken}`)
                 .expect(500);
         });
     });
