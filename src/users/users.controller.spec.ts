@@ -13,6 +13,7 @@ const mockUsersService = () => ({
     deleteUser: jest.fn(),
     addAvatar: jest.fn(),
     deleteAvatarByUserId: jest.fn(),
+    getAvatar: jest.fn(),
 });
 
 const mockUser: any = {
@@ -125,6 +126,24 @@ describe('UsersController', () => {
 
             expect(usersService.addAvatar).not.toHaveBeenCalled();
             expect(usersController.saveAvatar(mockReq, { buffer: 'image' })).rejects.toThrow(InternalServerErrorException);
+        });
+    });
+
+    describe('getAvatar', () => {
+        it('should get and return user avatar image', async () => {
+            usersService.getAvatar.mockResolvedValue('avatar');
+
+            expect(usersService.getAvatar).not.toHaveBeenCalled();
+            const result = await usersController.getAvatar(mockReq);
+            expect(usersService.getAvatar).toHaveBeenCalledWith(mockReq.user._id);
+            expect(result).toEqual('avatar');
+        });
+
+        it('should return error thrown by usersService', async () => {
+            usersService.getAvatar.mockRejectedValue(new InternalServerErrorException());
+
+            expect(usersService.getAvatar).not.toHaveBeenCalled();
+            expect(usersController.getAvatar(mockReq)).rejects.toThrow(InternalServerErrorException);
         });
     });
 

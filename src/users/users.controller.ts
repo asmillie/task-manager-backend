@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Request, Patch, Delete, UseInterceptors, UploadedFile, HttpCode, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Request, Patch, Delete, UseInterceptors, UploadedFile, HttpCode, BadRequestException, Header } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -72,6 +72,17 @@ export class UsersController {
             throw new BadRequestException('Missing Avatar Image');
         }
         return this.usersService.addAvatar(req.user._id, avatar.buffer);
+    }
+
+    /**
+     * Returns user avatar in .png format
+     * @param req Request object
+     */
+    @Get('me/avatar')
+    @HttpCode(200)
+    @Header('Content-Type', 'image/png')
+    async getAvatar(@Request() req) {
+        return await this.usersService.getAvatar(req.user._id);
     }
 
     /**

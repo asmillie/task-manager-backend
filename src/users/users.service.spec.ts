@@ -262,6 +262,28 @@ describe('UsersService', () => {
         });
     });
 
+    describe('getAvatar', () => {
+        it('should get avatar by user id', async () => {
+            const mockUserData = {
+                avatar: 'image',
+            };
+            const mockImageBuffer = Buffer.from(mockUserData.avatar);
+            userModel.findById.mockResolvedValue(mockUserData);
+
+            expect(userModel.findById).not.toHaveBeenCalled();
+            const result = await usersService.getAvatar('id');
+            expect(userModel.findById).toHaveBeenCalledWith('id', 'avatar');
+            expect(result).toEqual(mockImageBuffer);
+        });
+
+        it('should throw on error during find operation', async () => {
+            userModel.findById.mockRejectedValue('error');
+
+            expect(userModel.findById).not.toHaveBeenCalled();
+            expect(usersService.getAvatar('id')).rejects.toThrow(InternalServerErrorException);
+        });
+    });
+
     describe('deleteAvatarByUserId', () => {
         it('should delete a avatar for user id', async () => {
             jest.spyOn(usersService, 'updateUser').mockResolvedValue(mockUser);

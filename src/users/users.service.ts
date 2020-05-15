@@ -203,6 +203,23 @@ export class UsersService {
     }
 
     /**
+     * Retrieves user avatar and returns as a Buffer
+     * @param userId Id of user to get avatar for
+     * @throws {InternalServerErrorException} if an error occurs during find operation
+     */
+    async getAvatar(userId: string): Promise<Buffer> {
+        try {
+            return await this.userModel.findById(userId, 'avatar')
+                .then(user => {
+                    return Buffer.from(user.avatar);
+                });
+        } catch (e) {
+            this.logger.error(`Failed to find avatar for user id ${userId}. Error: ${e}`);
+            throw new InternalServerErrorException();
+        }
+    }
+
+    /**
      * Deletes user avatar
      * @param userId Id of user to delete avatar from
      * @throws {InternalServerErrorException} if an error occurs while deleting image
