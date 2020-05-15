@@ -4,8 +4,12 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { TasksService } from './tasks.service';
 import { TaskQueryOptions } from './classes/task-query-options';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { TokenOwnershipGuard } from '../auth/token-ownership.guard';
 
-@UseGuards(AuthGuard())
+@UseGuards(
+    AuthGuard(),
+    TokenOwnershipGuard,
+)
 @Controller('tasks')
 export class TasksController {
 

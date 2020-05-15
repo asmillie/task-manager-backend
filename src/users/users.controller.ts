@@ -3,8 +3,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { TokenOwnershipGuard } from '../auth/token-ownership.guard';
 
-@UseGuards(AuthGuard())
+@UseGuards(
+    AuthGuard(),
+    TokenOwnershipGuard,
+)
 @Controller('users')
 export class UsersController {
 

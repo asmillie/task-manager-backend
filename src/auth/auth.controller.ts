@@ -1,6 +1,7 @@
 import { Controller, Request, Post, UseGuards, HttpCode, Get, Body } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
+import { TokenOwnershipGuard } from './token-ownership.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -27,7 +28,10 @@ export class AuthController {
      * in the response.
      * @param req Request object
      */
-    @UseGuards(AuthGuard())
+    @UseGuards(
+        AuthGuard(),
+        TokenOwnershipGuard,
+    )
     @HttpCode(200)
     @Post('logout')
     async logout(@Request() req) {
