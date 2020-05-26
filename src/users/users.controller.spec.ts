@@ -14,6 +14,7 @@ const mockUsersService = () => ({
     addAvatar: jest.fn(),
     deleteAvatarByUserId: jest.fn(),
     getAvatar: jest.fn(),
+    emailExists: jest.fn(),
 });
 
 const mockUser: any = {

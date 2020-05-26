@@ -8,6 +8,7 @@ const mockSignupService = () => ({
   signup: jest.fn(),
   verifyEmail: jest.fn(),
   resendEmail: jest.fn(),
+  emailExists: jest.fn(),
 });
 
 const mockUser: any = {
@@ -41,7 +42,7 @@ describe('Signup Controller', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('POST /', () => {
+  describe('signup', () => {
 
     const userDto: CreateUserDto = {
       ...mockUser,
@@ -63,4 +64,35 @@ describe('Signup Controller', () => {
       expect(controller.signup(userDto)).rejects.toThrow(InternalServerErrorException);
     });
   });
+
+  describe('emailExists', () => {
+    it('should return true if email exists', async () => {
+        signupService.emailExists.mockResolvedValue(true);
+
+        expect(signupService.emailExists).not.toHaveBeenCalled();
+        const result = await controller.emailExists('email');
+        expect(signupService.emailExists).toHaveBeenLastCalledWith('email');
+        expect(result).toEqual({
+          emailExists: true,
+        });
+    });
+
+    it('should return false if email does not exist', async () => {
+        signupService.emailExists.mockResolvedValue(false);
+
+        expect(signupService.emailExists).not.toHaveBeenCalled();
+        const result = await controller.emailExists('email');
+        expect(signupService.emailExists).toHaveBeenLastCalledWith('email');
+        expect(result).toEqual({
+          emailExists: false,
+        });
+    });
+
+    it('should return error thrown by usersService', async () => {
+        signupService.emailExists.mockRejectedValue(new InternalServerErrorException());
+
+        expect(signupService.emailExists).not.toHaveBeenCalled();
+        expect(controller.emailExists('email')).rejects.toThrow(InternalServerErrorException);
+    });
+});
 });

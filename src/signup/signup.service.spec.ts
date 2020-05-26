@@ -8,6 +8,7 @@ const mockUsersService = () => ({
   create: jest.fn(),
   findUserById: jest.fn(),
   updateUser: jest.fn(),
+  findUserByEmail: jest.fn(),
 });
 
 const mockVerificationCode = 'valid-code';
@@ -71,5 +72,33 @@ describe('SignupService', () => {
       expect(signupService.signup(mockUserDto)).rejects.toThrow(InternalServerErrorException);
     });
   });
+
+  describe('emailExists', () => {
+    it('should return true if an account exists for provided email address', async () => {
+        usersService.findUserByEmail.mockResolvedValue(mockUser);
+
+        expect(usersService.findUserByEmail).not.toHaveBeenCalled();
+        const result = await signupService.emailExists(mockUser.email.address);
+        expect(usersService.findUserByEmail).toHaveBeenCalledWith(mockUser.email.address);
+        expect(result).toEqual(true);
+
+    });
+
+    it('should return false if an account does not exists for provided email address', async () => {
+        usersService.findUserByEmail.mockResolvedValue(undefined);
+
+        expect(usersService.findUserByEmail).not.toHaveBeenCalled();
+        const result = await signupService.emailExists('email');
+        expect(usersService.findUserByEmail).toHaveBeenCalledWith('email');
+        expect(result).toEqual(false);
+    });
+
+    it('should throw on error during find operation', async () => {
+        usersService.findUserByEmail.mockRejectedValue('error');
+
+        expect(usersService.findUserByEmail).not.toHaveBeenCalled();
+        expect(signupService.emailExists('email')).rejects.toThrow(InternalServerErrorException);
+    });
+});
 
 });

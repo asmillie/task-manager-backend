@@ -78,7 +78,7 @@ export class UsersController {
      * Returns user avatar in .png format
      * @param req Request object
      */
-    @Get('me/avatar')
+    @Get('me/avatar.png')
     @HttpCode(200)
     @Header('Content-Type', 'image/png')
     async getAvatar(@Request() req) {

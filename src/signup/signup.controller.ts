@@ -17,4 +17,17 @@ export class SignupController {
     async signup(@Body() createUserDto: CreateUserDto) {
         return await this.signupService.signup(createUserDto);
     }
+
+    /**
+     * Checks if an email address is in use
+     * @param email Address to check
+     */
+    @Post('/emailExists')
+    @HttpCode(200)
+    async emailExists(@Body('email') email: string) {
+        const emailExists = await this.signupService.emailExists(email);
+        return {
+            emailExists,
+        };
+    }
 }

@@ -7,9 +7,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 import { Token } from './interfaces/token.interface';
 import * as sharp from 'sharp';
-import * as generatePassword from 'password-generator';
-import * as sgMail from '@sendgrid/mail';
-import * as config from 'config';
 
 @Injectable()
 export class UsersService {

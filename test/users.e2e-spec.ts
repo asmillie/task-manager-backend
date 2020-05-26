@@ -1,13 +1,11 @@
 import { Test } from '@nestjs/testing';
 import * as request from 'supertest';
-import { INestApplication, ValidationPipe, ExecutionContext } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { UsersModule } from '../src/users/users.module';
-import { AuthGuard } from '@nestjs/passport';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongoExceptionFilter } from '../src/mongo-exception-filter';
 import { MockMongooseService } from './mocks/mock-mongoose-service';
 import { UsersService } from '../src/users/users.service';
-import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from '../src/auth/auth.module';
 import { AuthService } from '../src/auth/auth.service';
 
@@ -176,6 +174,18 @@ describe('/users', () => {
                 .expect(200);
         });
     });
+    // TODO: Move to signup
+    // describe('POST /user/emailExists', () => {
+    //     it('should return true when provided email is already in use', () => {
+    //         return request(app.getHttpServer())
+    //             .post('/user/emailExists')
+    //             .send({ email: user.email.address })
+    //             .expect(200)
+    //             .then((res) => {
+    //                 expect(res).toEqual(true);
+    //             });
+    //     });
+    // });
 
     afterEach(async () => {
         await app.close();

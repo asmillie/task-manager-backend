@@ -37,4 +37,25 @@ export class SignupService {
 
         return user;
     }
+
+    /**
+     * Checks if an email address is already in use
+     * @param email Address to check
+     * @throws { InternalServerErrorException } on error during find operation
+     */
+    async emailExists(email: string): Promise<boolean> {
+        let user: User;
+        try {
+            user = await this.usersService.findUserByEmail(email);
+        } catch (e) {
+            this.logger.error(`Failed to find user for email ${email}`);
+            throw new InternalServerErrorException();
+        }
+
+        if (user) {
+            return true;
+        }
+
+        return false;
+    }
 }
