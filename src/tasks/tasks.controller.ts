@@ -32,7 +32,7 @@ export class TasksController {
      * @param req Request object
      * @param id Id of task to find
      */
-    @Get(':id')
+    @Post('/search/:id')
     async findTask(@Req() req, @Param('id') id: string) {
         const task = await this.tasksService.findTask(req.user._id, id);
         return task;
@@ -44,7 +44,7 @@ export class TasksController {
      * @param completed Filter tasks by completion status
      * @param taskQueryOptions Optional search criteria for task fields
      */
-    @Get()
+    @Post('/search')
     async findAllTasks(
         @Req() req,
         @Query('completed') completed?: boolean,
