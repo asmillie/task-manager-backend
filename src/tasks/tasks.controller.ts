@@ -1,4 +1,4 @@
-import { Controller, UseGuards, Post, Body, Req, Get, Param, Query, Patch, Delete } from '@nestjs/common';
+import { Controller, UseGuards, Post, Body, Req, Get, Param, Query, Patch, Delete, HttpCode } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TasksService } from './tasks.service';
@@ -32,6 +32,7 @@ export class TasksController {
      * @param req Request object
      * @param id Id of task to find
      */
+    @HttpCode(200)
     @Post('/search/:id')
     async findTask(@Req() req, @Param('id') id: string) {
         const task = await this.tasksService.findTask(req.user._id, id);
@@ -44,6 +45,7 @@ export class TasksController {
      * @param completed Filter tasks by completion status
      * @param taskQueryOptions Optional search criteria for task fields
      */
+    @HttpCode(200)
     @Post('/search')
     async findAllTasks(
         @Req() req,
