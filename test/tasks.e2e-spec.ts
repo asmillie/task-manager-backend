@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { INestApplication, ValidationPipe, ExecutionContext } from '@nestjs/common';
+import { INestApplication, ValidationPipe, ExecutionContext, InternalServerErrorException } from '@nestjs/common';
 import { MockMongooseService } from './mocks/mock-mongoose-service';
 import { TasksModule } from '../src/tasks/tasks.module';
 import { AuthGuard } from '@nestjs/passport';
@@ -8,6 +8,7 @@ import { MongoExceptionFilter } from '../src/mongo-exception-filter';
 import { Model } from 'mongoose';
 import { Task } from '../src/tasks/interfaces/task.interface';
 import * as request from 'supertest';
+import { mockTasks } from '../test/mocks/mock-tasks';
 
 const mockAuthToken = 'valid-jwt';
 
@@ -102,12 +103,12 @@ describe('/tasks', () => {
         });
     });
 
-    describe('GET /tasks/id', () => {
+    describe('POST /tasks/search/id', () => {
         it('should return task belonging to user for provided id', () => {
             taskModel.findOne.mockResolvedValue(mockTask);
 
             return request(app.getHttpServer())
-                .get(`/tasks/${mockTask._id}`)
+                .post(`/tasks/search/${mockTask._id}`)
                 .set('Authorization', `Bearer ${mockAuthToken}`)
                 .expect(200)
                 .then(response => {
@@ -122,7 +123,30 @@ describe('/tasks', () => {
             taskModel.findOne.mockRejectedValue(undefined);
 
             return request(app.getHttpServer())
-                .get(`/tasks/${mockTask._id}`)
+                .post(`/tasks/search/${mockTask._id}`)
+                .set('Authorization', `Bearer ${mockAuthToken}`)
+                .expect(500);
+        });
+    });
+
+    describe('POST /tasks/search', () => {
+        it('should return all tasks belonging to user', () => {
+            taskModel.find.mockResolvedValue(mockTasks);
+
+            return request(app.getHttpServer())
+                .post(`/tasks/search`)
+                .set('Authorization', `Bearer ${mockAuthToken}`)
+                .expect(200)
+                .then(({body}) => {
+                    expect(body).toEqual(mockTasks);
+                });
+        });
+
+        it('should return error on failure during search', () => {
+            taskModel.find.mockRejectedValue(new InternalServerErrorException());
+
+            return request(app.getHttpServer())
+                .post('/tasks/search')
                 .set('Authorization', `Bearer ${mockAuthToken}`)
                 .expect(500);
         });
