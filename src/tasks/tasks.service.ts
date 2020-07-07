@@ -6,6 +6,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskQueryOptions } from './classes/task-query-options';
 import { TaskSortOption } from './classes/task-sort-option';
+import { TaskSearchOptions } from './classes/task-search-options';
 
 @Injectable()
 export class TasksService {
@@ -44,20 +45,35 @@ export class TasksService {
      */
     async findAllTasksByUserId(
         userId: string,
-        completed?: boolean,
-        taskQueryOptions?: TaskQueryOptions): Promise<Task[]> {
+        taskSearchOptions: TaskSearchOptions): Promise<Task[]> {
 
         const conditions = {
             owner: userId,
         };
 
-        if (completed !== undefined) {
-            conditions['completed'] = completed;
+        if (taskSearchOptions.startCreatedAt && taskSearchOptions.endCreatedAt) {
+            conditions['createdAt'] = { $gte: taskSearchOptions.startCreatedAt, $lte: taskSearchOptions.endCreatedAt };
+        } else if (taskSearchOptions.startCreatedAt) {
+            conditions['createdAt'] = { $gte: taskSearchOptions.startCreatedAt };
+        } else if (taskSearchOptions.endCreatedAt) {
+            conditions['createdAt'] = { $lte: taskSearchOptions.endCreatedAt };
+        }
+
+        if (taskSearchOptions.startUpdatedAt && taskSearchOptions.endUpdatedAt) {
+            conditions['updatedAt'] = { $gte: taskSearchOptions.startUpdatedAt, $lte: taskSearchOptions.endUpdatedAt };
+        } else if (taskSearchOptions.startUpdatedAt) {
+            conditions['updatedAt'] = { $gte: taskSearchOptions.startUpdatedAt };
+        } else if (taskSearchOptions.endUpdatedAt) {
+            conditions['updatedAt'] = { $lte: taskSearchOptions.endUpdatedAt };
+        }
+
+        if (taskSearchOptions.completed !== undefined) {
+            conditions['completed'] = taskSearchOptions.completed;
         }
 
         let sort = '';
-        if (taskQueryOptions.sort) {
-            taskQueryOptions.sort.forEach((tso: TaskSortOption) => {
+        if (taskSearchOptions.tqo.sort) {
+            taskSearchOptions.tqo.sort.forEach((tso: TaskSortOption) => {
                 if (tso.direction === 'asc') {
                     sort += `'-${tso.field}', `;
                 } else {
@@ -69,7 +85,7 @@ export class TasksService {
         }
 
         try {
-            return await this.taskModel.find(conditions, null, { ...taskQueryOptions, sort });
+            return await this.taskModel.find(conditions, null, { ...taskSearchOptions.tqo, sort });
         } catch (e) {
             this.logger.error(
                 `Failed to find all tasks for user id ${userId}. Conditions: ${JSON.stringify(conditions)}, Sort: ${JSON.stringify(sort)}`,
