@@ -9,6 +9,7 @@ import { Model } from 'mongoose';
 import { Task } from '../src/tasks/interfaces/task.interface';
 import * as request from 'supertest';
 import { mockTasks } from '../test/mocks/mock-tasks';
+import { TaskQueryOptions } from '../src/tasks/classes/task-query-options';
 
 const mockAuthToken = 'valid-jwt';
 
@@ -139,6 +140,29 @@ describe('/tasks', () => {
                 .expect(200)
                 .then(({body}) => {
                     expect(body).toEqual(mockTasks);
+                });
+        });
+
+        it('should return search results on user tasks', () => {
+            taskModel.find.mockResolvedValue(mockTasks);
+            const tqo: TaskQueryOptions = {
+                completed: true,
+                startCreatedAt: new Date('01-01-2019'),
+                endCreatedAt: new Date('03-01-2020'),
+                limit: 50,
+                sort: [
+                    { field: 'completed', direction: 'desc' },
+                    { field: 'createdAt', direction: 'desc' },
+                ],
+            };
+
+            return request(app.getHttpServer())
+                .post('/tasks/search')
+                .set('Authorization', `Bearer ${mockAuthToken}`)
+                .send(tqo)
+                .expect(200)
+                .then((res) => {
+                    expect(res.body).toEqual(mockTasks);
                 });
         });
 

@@ -2,9 +2,9 @@ import { Controller, UseGuards, Post, Body, Req, Get, Param, Query, Patch, Delet
 import { AuthGuard } from '@nestjs/passport';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TasksService } from './tasks.service';
-import { TaskQueryOptions } from './classes/task-query-options';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TokenOwnershipGuard } from '../auth/token-ownership.guard';
+import { TaskQueryOptions } from './classes/task-query-options';
 
 @UseGuards(
     AuthGuard(),
@@ -49,9 +49,8 @@ export class TasksController {
     @Post('/search')
     async findAllTasks(
         @Req() req,
-        @Query('completed') completed?: boolean,
-        @Body() taskQueryOptions?: TaskQueryOptions) {
-        return await this.tasksService.findAllTasksByUserId(req.user._id, completed, taskQueryOptions);
+        @Body() tqo?: TaskQueryOptions) {
+        return await this.tasksService.findAllTasksByUserId(req.user._id, tqo);
     }
 
     /**

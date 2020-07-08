@@ -6,6 +6,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { InternalServerErrorException } from '@nestjs/common';
 import { TokenOwnershipGuard } from '../auth/token-ownership.guard';
+import { TaskSearchOptions } from './classes/task-search-options';
+import { TaskQueryOptions } from './classes/task-query-options';
 
 const mockTasksService = () => ({
     create: jest.fn(),
@@ -90,9 +92,9 @@ describe('TasksController', () => {
     });
 
     describe('findAllTasks', () => {
-        it('should find all tasks by user id and provided query options', async () => {
+        it('should call tasksService to find tasks by user id and search options', async () => {
             tasksService.findAllTasksByUserId.mockResolvedValue('list of tasks');
-            const taskQueryOptions = {
+            const taskQueryOptions: TaskQueryOptions = {
                 limit: 3,
                 skip: 2,
                 sort: [
@@ -100,17 +102,21 @@ describe('TasksController', () => {
                     { field: 'completed', direction: 'asc' },
                 ],
             };
+            const taskSearch: TaskSearchOptions = {
+                completed: true,
+                startUpdatedAt: new Date('03-03-2020'),
+                endUpdatedAt: new Date('03-28-2020'),
+                tqo: taskQueryOptions,
+            };
 
             expect(tasksService.findAllTasksByUserId).not.toHaveBeenCalled();
             const result = await tasksController.findAllTasks(
                 mockReq,
-                undefined,
-                taskQueryOptions,
+                taskSearch,
             );
             expect(tasksService.findAllTasksByUserId).toHaveBeenCalledWith(
                 mockReq.user._id,
-                undefined,
-                taskQueryOptions,
+                taskSearch,
             );
             expect(result).toEqual('list of tasks');
         });
@@ -119,7 +125,7 @@ describe('TasksController', () => {
             tasksService.findAllTasksByUserId.mockRejectedValue(new InternalServerErrorException());
 
             expect(tasksService.findAllTasksByUserId).not.toHaveBeenCalled();
-            expect(tasksController.findAllTasks(mockReq, undefined, undefined))
+            expect(tasksController.findAllTasks(mockReq, undefined))
                 .rejects.toThrow(InternalServerErrorException);
         });
     });

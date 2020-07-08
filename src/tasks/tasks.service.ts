@@ -4,9 +4,8 @@ import { Model } from 'mongoose';
 import { Task } from './interfaces/task.interface';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { TaskQueryOptions } from './classes/task-query-options';
 import { TaskSortOption } from './classes/task-sort-option';
-import { TaskSearchOptions } from './classes/task-search-options';
+import { TaskQueryOptions } from './classes/task-query-options';
 
 @Injectable()
 export class TasksService {
@@ -45,47 +44,53 @@ export class TasksService {
      */
     async findAllTasksByUserId(
         userId: string,
-        taskSearchOptions: TaskSearchOptions): Promise<Task[]> {
+        tqo?: TaskQueryOptions): Promise<Task[]> {
 
         const conditions = {
             owner: userId,
         };
 
-        if (taskSearchOptions.startCreatedAt && taskSearchOptions.endCreatedAt) {
-            conditions['createdAt'] = { $gte: taskSearchOptions.startCreatedAt, $lte: taskSearchOptions.endCreatedAt };
-        } else if (taskSearchOptions.startCreatedAt) {
-            conditions['createdAt'] = { $gte: taskSearchOptions.startCreatedAt };
-        } else if (taskSearchOptions.endCreatedAt) {
-            conditions['createdAt'] = { $lte: taskSearchOptions.endCreatedAt };
+        if (tqo.startCreatedAt && tqo.endCreatedAt) {
+            conditions['createdAt'] = { $gte: tqo.startCreatedAt, $lte: tqo.endCreatedAt };
+        } else if (tqo.startCreatedAt) {
+            conditions['createdAt'] = { $gte: tqo.startCreatedAt };
+        } else if (tqo.endCreatedAt) {
+            conditions['createdAt'] = { $lte: tqo.endCreatedAt };
         }
 
-        if (taskSearchOptions.startUpdatedAt && taskSearchOptions.endUpdatedAt) {
-            conditions['updatedAt'] = { $gte: taskSearchOptions.startUpdatedAt, $lte: taskSearchOptions.endUpdatedAt };
-        } else if (taskSearchOptions.startUpdatedAt) {
-            conditions['updatedAt'] = { $gte: taskSearchOptions.startUpdatedAt };
-        } else if (taskSearchOptions.endUpdatedAt) {
-            conditions['updatedAt'] = { $lte: taskSearchOptions.endUpdatedAt };
+        if (tqo.startUpdatedAt && tqo.endUpdatedAt) {
+            conditions['updatedAt'] = { $gte: tqo.startUpdatedAt, $lte: tqo.endUpdatedAt };
+        } else if (tqo.startUpdatedAt) {
+            conditions['updatedAt'] = { $gte: tqo.startUpdatedAt };
+        } else if (tqo.endUpdatedAt) {
+            conditions['updatedAt'] = { $lte: tqo.endUpdatedAt };
         }
 
-        if (taskSearchOptions.completed !== undefined) {
-            conditions['completed'] = taskSearchOptions.completed;
+        if (tqo.completed !== undefined) {
+            conditions['completed'] = tqo.completed;
         }
 
         let sort = '';
-        if (taskSearchOptions.tqo.sort) {
-            taskSearchOptions.tqo.sort.forEach((tso: TaskSortOption) => {
-                if (tso.direction === 'asc') {
-                    sort += `'-${tso.field}', `;
+        if (tqo.sort) {
+            tqo.sort.forEach((sortOpt: TaskSortOption) => {
+                if (sortOpt.direction === 'asc') {
+                    sort += `'-${sortOpt.field}', `;
                 } else {
-                    sort += `'${tso.field}', `;
+                    sort += `'${sortOpt.field}', `;
                 }
             });
         } else {
             sort = 'createdAt';
         }
 
+        const opts = {
+            limit: tqo.limit ? tqo.limit : null,
+            skip: tqo.skip ? tqo.skip : null,
+            sort,
+        };
+
         try {
-            return await this.taskModel.find(conditions, null, { ...taskSearchOptions.tqo, sort });
+            return await this.taskModel.find(conditions, null, opts);
         } catch (e) {
             this.logger.error(
                 `Failed to find all tasks for user id ${userId}. Conditions: ${JSON.stringify(conditions)}, Sort: ${JSON.stringify(sort)}`,
