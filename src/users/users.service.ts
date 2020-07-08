@@ -107,9 +107,9 @@ export class UsersService {
      * @param newToken Authentication token (JWT) to save
      * @throws {InternalServerErrorException} if an error occurs while updating user
      */
-    async addToken(user: User, newToken: string): Promise<User> {
+    async addToken(user: User, newToken: string, tokenExpiry: Date): Promise<User> {
         const userTokens: Token[] = (user.tokens === undefined) ? [] : user.tokens;
-        userTokens.push({ token: newToken });
+        userTokens.push({ token: newToken, expiry: tokenExpiry });
 
         try {
             return await this.userModel.findByIdAndUpdate(user._id, { tokens: userTokens }, { new: true });

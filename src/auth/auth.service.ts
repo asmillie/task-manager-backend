@@ -3,6 +3,7 @@ import { UsersService } from '../users/users.service';
 import { User } from '../users/interfaces/user.interface';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import * as config from 'config';
 
 @Injectable()
 export class AuthService {
@@ -54,6 +55,7 @@ export class AuthService {
         };
 
         const authToken = this.jwtService.sign(payload);
+        const tokenExpiry = this.getTokenExpiry(authToken);
         try {
             const updatedUser = await this.usersService.addToken(user, authToken);
             return {
@@ -83,5 +85,12 @@ export class AuthService {
             );
             throw new InternalServerErrorException();
         }
+    }
+
+    private getTokenExpiry(authToken): Date {
+        const jwt = this.jwtService.decode(authToken);
+        const date = new Date();
+        date.setTime(jwt['exp'] * 1000);
+        return date;
     }
 }
