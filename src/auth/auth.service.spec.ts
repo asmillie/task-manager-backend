@@ -19,10 +19,13 @@ const mockUsersService = () => ({
     removeToken: jest.fn(),
 });
 
-const mockJwt = 'JWT';
+const tokenExpiry = new Date();
+tokenExpiry.setDate(tokenExpiry.getDate() + 3);
+const mockJwt = 'valid-jwt';
 
 const mockJwtService = () => ({
     sign: jest.fn().mockReturnValue(mockJwt),
+    decode: jest.fn().mockReturnValue({ exp: tokenExpiry.getTime() / 1000 }),
 });
 
 const mockUser: any = {
@@ -96,14 +99,15 @@ describe('AuthService', () => {
         it('should call usersService.addToken to save authToken', async () => {
             expect(usersService.addToken).not.toHaveBeenCalled();
             await authService.loginUser(mockUser);
-            expect(usersService.addToken).toHaveBeenCalledWith(mockUser, mockJwt);
+            expect(usersService.addToken).toHaveBeenCalledWith(mockUser, mockJwt, tokenExpiry);
         });
 
-        it('should return new authToken and updated user', async () => {
+        it('should return auth token, token expiry and updated user', async () => {
             usersService.addToken.mockResolvedValue(mockUser);
 
             await expect(authService.loginUser(mockUser)).resolves.toEqual({
                 auth_token: mockJwt,
+                token_expiry: tokenExpiry,
                 updatedUser: mockUser,
             });
         });

@@ -189,12 +189,14 @@ describe('UsersService', () => {
     describe('addToken', () => {
         it('should add a token to user', async () => {
             userModel.findByIdAndUpdate.mockResolvedValue('User');
+            const tokenExpiry = new Date();
+            tokenExpiry.setDate(tokenExpiry.getDate() + 3);
 
             expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
-            const result = await usersService.addToken(mockUser, 'newToken');
+            const result = await usersService.addToken(mockUser, 'newToken', tokenExpiry);
             expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
                 mockUser._id,
-                { tokens: [{ token: 'newToken' }] },
+                { tokens: [{ token: 'newToken', expiry: tokenExpiry }] },
                 { new: true },
             );
             expect(result).toEqual('User');
@@ -204,7 +206,7 @@ describe('UsersService', () => {
             userModel.findByIdAndUpdate.mockRejectedValue(undefined);
 
             expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
-            expect(usersService.addToken(mockUser, 'newToken')).rejects.toThrow(InternalServerErrorException);
+            expect(usersService.addToken(mockUser, 'newToken', new Date())).rejects.toThrow(InternalServerErrorException);
         });
     });
 
@@ -213,6 +215,7 @@ describe('UsersService', () => {
             userModel.findByIdAndUpdate.mockResolvedValue('User');
             const mockToken: Token = {
                 token: 'tokenToRemove',
+                expiry: new Date(),
             };
             // Empty tokens array
             mockUser.tokens = [];
