@@ -56,15 +56,23 @@ export class AuthService {
 
         const authToken = this.jwtService.sign(payload);
         const tokenExpiry = this.getTokenExpiry(authToken);
+        if (!tokenExpiry || !(tokenExpiry instanceof Date)) {
+            this.logger.error(
+                `Failed to get token expiry date for payload: ${JSON.stringify(payload)}, Auth Token: ${authToken}, Expiry: ${tokenExpiry.toDateString()}, ${tokenExpiry.toTimeString()}`,
+            );
+            throw new InternalServerErrorException();
+        }
+
         try {
-            const updatedUser = await this.usersService.addToken(user, authToken);
+            const updatedUser = await this.usersService.addToken(user, authToken, tokenExpiry);
             return {
                 auth_token: authToken,
+                token_expiry: tokenExpiry,
                 updatedUser,
             };
         } catch (e) {
             this.logger.error(
-                `Failed to save token for user id ${user._id}. Payload: ${JSON.stringify(payload)}, Auth Token: ${authToken}`,
+                `Failed to save token for user id ${user._id}. Payload: ${JSON.stringify(payload)}, Auth Token: ${authToken}, Expiry: ${tokenExpiry.toDateString()}, ${tokenExpiry.toTimeString()}`,
             );
             throw new InternalServerErrorException();
         }
@@ -89,6 +97,9 @@ export class AuthService {
 
     private getTokenExpiry(authToken): Date {
         const jwt = this.jwtService.decode(authToken);
+        if (!jwt['exp']) {
+            return;
+        }
         const date = new Date();
         date.setTime(jwt['exp'] * 1000);
         return date;
