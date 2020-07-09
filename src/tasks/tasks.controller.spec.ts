@@ -5,8 +5,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { InternalServerErrorException } from '@nestjs/common';
-import { TokenOwnershipGuard } from '../auth/token-ownership.guard';
-import { TaskSearchOptions } from './classes/task-search-options';
+import { ValidTokenGuard } from '../auth/valid-token.guard';
 import { TaskQueryOptions } from './classes/task-query-options';
 
 const mockTasksService = () => ({
@@ -38,7 +37,7 @@ describe('TasksController', () => {
         })
         .overrideGuard(AuthGuard())
         .useValue({ canActivate: () => true })
-        .overrideGuard(TokenOwnershipGuard)
+        .overrideGuard(ValidTokenGuard)
         .useValue({ canActivate: () => true })
         .compile();
 

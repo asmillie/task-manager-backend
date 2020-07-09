@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
-import { TokenOwnershipGuard } from './token-ownership.guard';
+import { ValidTokenGuard } from './valid-token.guard';
 
 const mockAuthService = () => ({
     loginUser: jest.fn(),
@@ -47,7 +47,7 @@ describe('AuthController', () => {
         .useValue({ canActivate: () => true })
         .overrideGuard(AuthGuard('local'))
         .useValue({ canActivate: () => true })
-        .overrideGuard(TokenOwnershipGuard)
+        .overrideGuard(ValidTokenGuard)
         .useValue({ canActivate: () => true })
         .compile();
 

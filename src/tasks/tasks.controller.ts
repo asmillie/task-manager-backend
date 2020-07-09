@@ -3,12 +3,12 @@ import { AuthGuard } from '@nestjs/passport';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TasksService } from './tasks.service';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { TokenOwnershipGuard } from '../auth/token-ownership.guard';
+import { ValidTokenGuard } from '../auth/valid-token.guard';
 import { TaskQueryOptions } from './classes/task-query-options';
 
 @UseGuards(
     AuthGuard(),
-    TokenOwnershipGuard,
+    ValidTokenGuard,
 )
 @Controller('tasks')
 export class TasksController {

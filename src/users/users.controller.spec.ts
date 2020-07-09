@@ -4,7 +4,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InternalServerErrorException } from '@nestjs/common';
-import { TokenOwnershipGuard } from '../auth/token-ownership.guard';
+import { ValidTokenGuard } from '../auth/valid-token.guard';
 
 const mockUsersService = () => ({
     create: jest.fn(),
@@ -50,7 +50,7 @@ describe('UsersController', () => {
         })
         .overrideGuard(AuthGuard())
         .useValue({ canActivate: () => true })
-        .overrideGuard(TokenOwnershipGuard)
+        .overrideGuard(ValidTokenGuard)
         .useValue({ canActivate: () => true })
         .compile();
 

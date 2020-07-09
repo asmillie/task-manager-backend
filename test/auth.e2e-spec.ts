@@ -62,7 +62,7 @@ describe('/auth', () => {
 
     describe('POST /auth/login', () => {
 
-        it('should validate user credentials and return an authentication token', async () => {
+        it('should validate user credentials and return an authentication token and expiry date', async () => {
 
             return request(app.getHttpServer())
                 .post('/auth/login')
@@ -73,6 +73,7 @@ describe('/auth', () => {
                 .expect(200)
                 .then((response) => {
                     expect(response.body.auth_token).toBeDefined();
+                    expect(response.body.token_expiry).toBeDefined();
                 });
         });
 

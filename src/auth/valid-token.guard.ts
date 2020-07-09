@@ -3,10 +3,11 @@ import { Observable } from 'rxjs';
 
 /**
  * Verifies that the JWT included in the request
- * belongs to the User making the request.
+ * belongs to the User making the request and that
+ * it has not expired.
  */
 @Injectable()
-export class TokenOwnershipGuard implements CanActivate {
+export class ValidTokenGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
@@ -18,6 +19,8 @@ export class TokenOwnershipGuard implements CanActivate {
       return false;
     }
 
-    return user.tokens.some(({ token }) => token === authToken);
+    return user.tokens.some(
+      ({ token, expiry }) => token === authToken && expiry.getTime() > new Date().getTime(),
+    );
   }
 }
