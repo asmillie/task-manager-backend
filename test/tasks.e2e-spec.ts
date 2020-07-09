@@ -12,6 +12,8 @@ import { mockTasks } from '../test/mocks/mock-tasks';
 import { TaskQueryOptions } from '../src/tasks/classes/task-query-options';
 
 const mockAuthToken = 'valid-jwt';
+const mockTokenExpiry = new Date();
+mockTokenExpiry.setDate(mockTokenExpiry.getDate() + 3);
 
 const mockUser: any = {
     _id : '5e286b8940b3a61cacd8667d',
@@ -20,7 +22,7 @@ const mockUser: any = {
         address: 'jenny.email@emailsite.com',
     },
     tokens: [
-        { token: mockAuthToken },
+        { token: mockAuthToken, expiry: mockTokenExpiry },
     ],
     toJSON: jest.fn().mockReturnValue('User JSON'),
 };
