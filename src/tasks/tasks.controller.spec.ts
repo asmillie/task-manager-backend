@@ -100,22 +100,19 @@ describe('TasksController', () => {
                     { field: 'updatedAt', direction: 'desc' },
                     { field: 'completed', direction: 'asc' },
                 ],
-            };
-            const taskSearch: TaskSearchOptions = {
                 completed: true,
                 startUpdatedAt: new Date('03-03-2020'),
                 endUpdatedAt: new Date('03-28-2020'),
-                tqo: taskQueryOptions,
             };
 
             expect(tasksService.findAllTasksByUserId).not.toHaveBeenCalled();
             const result = await tasksController.findAllTasks(
                 mockReq,
-                taskSearch,
+                taskQueryOptions,
             );
             expect(tasksService.findAllTasksByUserId).toHaveBeenCalledWith(
                 mockReq.user._id,
-                taskSearch,
+                taskQueryOptions,
             );
             expect(result).toEqual('list of tasks');
         });
