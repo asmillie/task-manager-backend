@@ -7,7 +7,6 @@ import { TaskQueryOptions } from './classes/task-query-options';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { InternalServerErrorException } from '@nestjs/common';
-import { TaskSearchOptions } from './classes/task-search-options';
 
 const mockUser = {
     _id : '5e286b8940b3a61cacd8667d',
@@ -46,11 +45,6 @@ const mockTaskQueryOptions: TaskQueryOptions = {
     ],
 };
 
-const mockTaskSearch: TaskSearchOptions = {
-    startCreatedAt: new Date('01-01-2020'),
-    tqo: mockTaskQueryOptions,
-};
-
 const mockTaskModel = () => ({
     create: jest.fn(),
     find: jest.fn(),
@@ -84,7 +78,7 @@ describe('TasksService', () => {
             taskModel.find.mockResolvedValue('value');
 
             expect(taskModel.find).not.toHaveBeenCalled();
-            const result = await tasksService.findAllTasksByUserId(mockUser._id, mockTaskSearch);
+            const result = await tasksService.findAllTasksByUserId(mockUser._id, mockTaskQueryOptions);
             expect(result).toEqual('value');
         });
 
@@ -92,7 +86,7 @@ describe('TasksService', () => {
             taskModel.find.mockRejectedValue(undefined);
 
             expect(taskModel.find).not.toHaveBeenCalled();
-            expect(tasksService.findAllTasksByUserId('id', mockTaskSearch))
+            expect(tasksService.findAllTasksByUserId('id', mockTaskQueryOptions))
                 .rejects.toThrow(InternalServerErrorException);
         });
     });
