@@ -6,7 +6,7 @@ Built in NestJS + Express connecting to a MongoDB database. Uses the SendGrid Ap
 
 ## Requirements
 
-Requires Node.js and a MongoDB database to connect to. SendGrid API is used for sending emails and requires an api key. To sign up for a free SendGrid account and get an Api key go [here](https://sendgrid.com/).
+Requires Node.js and a MongoDB database to connect to. SendGrid API is used for sending emails and requires an API key. To sign up for a free SendGrid account and get an API key go [here](https://sendgrid.com/).
 
 ## Installation
 
