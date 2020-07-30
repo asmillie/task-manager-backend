@@ -37,6 +37,7 @@ build/config\.gypi
 
 # environment variables
 environments
+config/
 
 # documentation
 documentation
