@@ -87,7 +87,7 @@ export class TasksService {
             limit: tqo.limit ? tqo.limit : null,
             skip: tqo.skip ? tqo.skip : null,
         };
-        console.log(`Query Opts: ${JSON.stringify(opts)}`);
+
         try {
             return await this.taskModel.find(conditions, null, opts).sort(sort);
         } catch (e) {
