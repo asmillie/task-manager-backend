@@ -70,27 +70,26 @@ export class TasksService {
             conditions['completed'] = tqo.completed;
         }
 
-        let sort = '';
+        const sort = {};
         if (tqo.sort) {
             tqo.sort.forEach((sortOpt: TaskSortOption) => {
                 if (sortOpt.direction === 'asc') {
-                    sort += `'-${sortOpt.field}', `;
+                    sort[sortOpt.field] = -1;
                 } else {
-                    sort += `'${sortOpt.field}', `;
+                    sort[sortOpt.field] = 1;
                 }
             });
         } else {
-            sort = 'createdAt';
+            sort['createdAt'] = 1;
         }
 
         const opts = {
             limit: tqo.limit ? tqo.limit : null,
             skip: tqo.skip ? tqo.skip : null,
-            sort,
         };
-
+        console.log(`Query Opts: ${JSON.stringify(opts)}`);
         try {
-            return await this.taskModel.find(conditions, null, opts);
+            return await this.taskModel.find(conditions, null, opts).sort(sort);
         } catch (e) {
             this.logger.error(
                 `Failed to find all tasks for user id ${userId}. Conditions: ${JSON.stringify(conditions)}, Sort: ${JSON.stringify(sort)}`,
