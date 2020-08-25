@@ -7,6 +7,8 @@ import { TaskQueryOptions } from './classes/task-query-options';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { InternalServerErrorException } from '@nestjs/common';
+import { TaskPaginationData } from './interfaces/task-paginate.interface';
+import { mockTasks } from '../../test/mocks/mock-tasks';
 
 const mockUser = {
     _id : '5e286b8940b3a61cacd8667d',
@@ -36,22 +38,15 @@ const mockUpdatedTask = {
     description: 'Complete Task Service Tests',
 };
 
-const mockTaskQueryOptions: TaskQueryOptions = {
-    limit: 5,
-    skip: 1,
-    sort: [
-        { field: 'completed', direction: 'desc' },
-        { field: 'updatedAt', direction: 'asc' },
-    ],
-};
-
 const mockTaskModel = () => ({
     create: jest.fn(),
-    find: jest.fn(),
+    find: jest.fn().mockReturnThis(),
     findOne: jest.fn(),
     findOneAndUpdate: jest.fn(),
     findOneAndDelete: jest.fn(),
     deleteMany: jest.fn(),
+    countDocuments: jest.fn(),
+    sort: jest.fn().mockReturnThis(),
 });
 
 describe('TasksService', () => {
@@ -73,20 +68,41 @@ describe('TasksService', () => {
         taskModel = module.get<Model<Task>>(getModelToken('Task'));
     });
 
-    describe('findAllTasksByUserId', () => {
-        it('finds all tasks for a user id', async () => {
-            taskModel.find.mockResolvedValue('value');
+    describe('paginateTasksByUserId', () => {
+        const limit = 100;
+        const page = 2;
+        const mockCount = 1000;
+        const mockTaskQueryOptions = {
+            limit,
+            page,
+            sort: [
+                { field: 'completed', direction: 'desc' },
+                { field: 'updatedAt', direction: 'asc' },
+            ],
+        };
+
+        it('finds second page of tasks for a user id', async () => {
+            taskModel.sort.mockResolvedValueOnce(mockTasks);
+            taskModel.countDocuments.mockResolvedValueOnce(mockCount);
+            const expectedResult: TaskPaginationData = {
+                totalResults: mockCount,
+                totalPages: mockCount / limit,
+                currentPage: page,
+                pageSize: limit,
+                tasks: mockTasks,
+            };
 
             expect(taskModel.find).not.toHaveBeenCalled();
-            const result = await tasksService.findAllTasksByUserId(mockUser._id, mockTaskQueryOptions);
-            expect(result).toEqual('value');
+            const result = await tasksService.paginateTasksByUserId(mockUser._id, mockTaskQueryOptions);
+            expect(result).toEqual(expectedResult);
         });
 
         it('throws on error during find operation', async () => {
-            taskModel.find.mockRejectedValue(undefined);
+            taskModel.sort.mockRejectedValue(undefined);
+            taskModel.countDocuments.mockRejectedValue(undefined);
 
             expect(taskModel.find).not.toHaveBeenCalled();
-            expect(tasksService.findAllTasksByUserId('id', mockTaskQueryOptions))
+            expect(tasksService.paginateTasksByUserId('id', mockTaskQueryOptions))
                 .rejects.toThrow(InternalServerErrorException);
         });
     });

@@ -11,7 +11,7 @@ import { TaskQueryOptions } from './classes/task-query-options';
 const mockTasksService = () => ({
     create: jest.fn(),
     findTask: jest.fn(),
-    findAllTasksByUserId: jest.fn(),
+    paginateTasksByUserId: jest.fn(),
     updateTask: jest.fn(),
     deleteTask: jest.fn(),
     deleteAllTasksByUserId: jest.fn(),
@@ -90,12 +90,12 @@ describe('TasksController', () => {
         });
     });
 
-    describe('findAllTasks', () => {
-        it('should call tasksService to find tasks by user id and search options', async () => {
-            tasksService.findAllTasksByUserId.mockResolvedValue('list of tasks');
+    describe('paginateTasks', () => {
+        it('should call tasksService to paginate tasks by user id and search options', async () => {
+            tasksService.paginateTasksByUserId.mockResolvedValue('list of tasks');
             const taskQueryOptions: TaskQueryOptions = {
                 limit: 3,
-                skip: 2,
+                page: 2,
                 sort: [
                     { field: 'updatedAt', direction: 'desc' },
                     { field: 'completed', direction: 'asc' },
@@ -105,12 +105,12 @@ describe('TasksController', () => {
                 endUpdatedAt: new Date('03-28-2020'),
             };
 
-            expect(tasksService.findAllTasksByUserId).not.toHaveBeenCalled();
-            const result = await tasksController.findAllTasks(
+            expect(tasksService.paginateTasksByUserId).not.toHaveBeenCalled();
+            const result = await tasksController.paginateTasks(
                 mockReq,
                 taskQueryOptions,
             );
-            expect(tasksService.findAllTasksByUserId).toHaveBeenCalledWith(
+            expect(tasksService.paginateTasksByUserId).toHaveBeenCalledWith(
                 mockReq.user._id,
                 taskQueryOptions,
             );
@@ -118,10 +118,10 @@ describe('TasksController', () => {
         });
 
         it('should return error thrown by tasksService', async () => {
-            tasksService.findAllTasksByUserId.mockRejectedValue(new InternalServerErrorException());
+            tasksService.paginateTasksByUserId.mockRejectedValue(new InternalServerErrorException());
 
-            expect(tasksService.findAllTasksByUserId).not.toHaveBeenCalled();
-            expect(tasksController.findAllTasks(mockReq, undefined))
+            expect(tasksService.paginateTasksByUserId).not.toHaveBeenCalled();
+            expect(tasksController.paginateTasks(mockReq, undefined))
                 .rejects.toThrow(InternalServerErrorException);
         });
     });

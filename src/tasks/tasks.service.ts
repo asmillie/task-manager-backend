@@ -41,12 +41,12 @@ export class TasksService {
      * pagination data.
      * @param userId Id of user that owns tasks
      * @param completed Filter tasks by completion status
-     * @param taskQueryOptions Task fields search criteria
+     * @param taskQueryOptions Search and pagination criteria
      * @throws {InternalServerErrorException} if an error occurs while finding tasks
      */
     async paginateTasksByUserId(
         userId: string,
-        tqo?: TaskQueryOptions): Promise<TaskPaginationData> {
+        tqo: TaskQueryOptions): Promise<TaskPaginationData> {
 
         const conditions = {
             owner: userId,
@@ -86,16 +86,16 @@ export class TasksService {
         }
 
         const opts = {
-            limit: tqo.limit ? tqo.limit : null,
-            skip: tqo.skip ? tqo.skip : null,
+            limit: tqo.limit,
+            skip: (tqo.page - 1) * tqo.limit,
         };
 
         let totalResults = 0;
         try {
-            totalResults = await this.taskModel.countDocuments(conditions).sort(sort);
+            totalResults = await this.taskModel.countDocuments(conditions);
         } catch (e) {
             this.logger.error(
-                `Failed to retrieve document count. Conditions: ${JSON.stringify(conditions)}, Sort: ${JSON.stringify(sort)}`,
+                `Failed to retrieve document count. Conditions: ${JSON.stringify(conditions)}`,
             );
             throw new InternalServerErrorException();
         }
@@ -104,6 +104,7 @@ export class TasksService {
         try {
             tasks = await this.taskModel.find(conditions, null, opts).sort(sort);
         } catch (e) {
+            console.log(e);
             this.logger.error(
                 `Failed to find all tasks for user id ${userId}. Conditions: ${JSON.stringify(conditions)}, Sort: ${JSON.stringify(sort)}`,
             );
@@ -112,8 +113,7 @@ export class TasksService {
 
         const pageSize = tqo.limit;
         const totalPages = Math.ceil(totalResults / pageSize);
-        const skip = (typeof tqo.skip === 'number') ? tqo.skip : 0;
-        const currentPage = (skip / tqo.limit) + 1;
+        const currentPage = tqo.page;
 
         const data: TaskPaginationData = {
             totalResults,

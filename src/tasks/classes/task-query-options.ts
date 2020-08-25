@@ -1,16 +1,16 @@
-import { IsOptional, IsInt, IsPositive, ValidateNested, IsBoolean, IsDate, IsDateString } from 'class-validator';
+import { IsOptional, IsInt, IsPositive, ValidateNested, IsBoolean, IsDate, IsDateString, Min, Max } from 'class-validator';
 import { TaskSortOption } from './task-sort-option';
 import { Type } from 'class-transformer';
 
 export class TaskQueryOptions {
-    @IsOptional()
     @IsInt()
     @IsPositive()
-    readonly limit?: number;
+    @Max(100)
+    readonly limit: number;
 
-    @IsOptional()
     @IsInt()
-    readonly skip?: number;
+    @Min(1)
+    readonly page: number;
 
     @IsOptional()
     @Type(() => TaskSortOption)
