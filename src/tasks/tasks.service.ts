@@ -6,6 +6,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskSortOption } from './classes/task-sort-option';
 import { TaskQueryOptions } from './classes/task-query-options';
+import { TaskPaginationData } from './interfaces/task-paginate.interface';
 
 @Injectable()
 export class TasksService {
@@ -35,16 +36,17 @@ export class TasksService {
     }
 
     /**
-     * Finds all tasks for a user based on submitted
-     * search criteria
+     * Finds a slice of user tasks based on submitted
+     * search criteria. Tasks are returned along with
+     * pagination data.
      * @param userId Id of user that owns tasks
      * @param completed Filter tasks by completion status
      * @param taskQueryOptions Task fields search criteria
      * @throws {InternalServerErrorException} if an error occurs while finding tasks
      */
-    async findAllTasksByUserId(
+    async paginateTasksByUserId(
         userId: string,
-        tqo?: TaskQueryOptions): Promise<Task[]> {
+        tqo?: TaskQueryOptions): Promise<TaskPaginationData> {
 
         const conditions = {
             owner: userId,
@@ -88,14 +90,42 @@ export class TasksService {
             skip: tqo.skip ? tqo.skip : null,
         };
 
+        let totalResults = 0;
         try {
-            return await this.taskModel.find(conditions, null, opts).sort(sort);
+            totalResults = await this.taskModel.countDocuments(conditions).sort(sort);
+        } catch (e) {
+            this.logger.error(
+                `Failed to retrieve document count. Conditions: ${JSON.stringify(conditions)}, Sort: ${JSON.stringify(sort)}`,
+            );
+            throw new InternalServerErrorException();
+        }
+
+        let tasks;
+        try {
+            tasks = await this.taskModel.find(conditions, null, opts).sort(sort);
         } catch (e) {
             this.logger.error(
                 `Failed to find all tasks for user id ${userId}. Conditions: ${JSON.stringify(conditions)}, Sort: ${JSON.stringify(sort)}`,
             );
             throw new InternalServerErrorException();
         }
+
+        const pageSize = tqo.limit;
+        const totalPages = Math.ceil(totalResults / pageSize);
+        const skip = (typeof tqo.skip === 'number') ? tqo.skip : 0;
+        const currentPage = (skip / tqo.limit) + 1;
+
+        const data: TaskPaginationData = {
+            totalResults,
+            totalPages,
+            currentPage,
+            pageSize,
+            tasks,
+        };
+
+        return new Promise((resolve, reject) => {
+            resolve(data);
+        });
     }
 
     /**

@@ -40,17 +40,17 @@ export class TasksController {
     }
 
     /**
-     * Finds and returns all tasks owned by logged-in user
+     * Finds and returns a slice of tasks owned by logged-in user
      * @param req Request object
      * @param completed Filter tasks by completion status
-     * @param taskQueryOptions Optional search criteria for task fields
+     * @param taskQueryOptions Search and pagination criteria for tasks
      */
     @HttpCode(200)
     @Post('/search')
-    async findAllTasks(
+    async paginateTasks(
         @Req() req,
-        @Body() tqo?: TaskQueryOptions) {
-        return await this.tasksService.findAllTasksByUserId(req.user._id, tqo);
+        @Body() tqo: TaskQueryOptions) {
+        return await this.tasksService.paginateTasksByUserId(req.user._id, tqo);
     }
 
     /**
