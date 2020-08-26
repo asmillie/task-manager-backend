@@ -3,12 +3,12 @@ import { TasksService } from './tasks.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Task } from './interfaces/task.interface';
-import { TaskQueryOptions } from './classes/task-query-options';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { InternalServerErrorException } from '@nestjs/common';
 import { TaskPaginationData } from './interfaces/task-paginate.interface';
 import { mockTasks } from '../../test/mocks/mock-tasks';
+import { mockTaskModel } from '../../test/mocks/mock-task-model';
 
 const mockUser = {
     _id : '5e286b8940b3a61cacd8667d',
@@ -37,17 +37,6 @@ const mockUpdatedTask = {
     ...mockTask,
     description: 'Complete Task Service Tests',
 };
-
-const mockTaskModel = () => ({
-    create: jest.fn(),
-    find: jest.fn().mockReturnThis(),
-    findOne: jest.fn(),
-    findOneAndUpdate: jest.fn(),
-    findOneAndDelete: jest.fn(),
-    deleteMany: jest.fn(),
-    countDocuments: jest.fn(),
-    sort: jest.fn().mockReturnThis(),
-});
 
 describe('TasksService', () => {
     let tasksService: TasksService;

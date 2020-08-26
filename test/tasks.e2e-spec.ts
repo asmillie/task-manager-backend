@@ -10,6 +10,7 @@ import { Task } from '../src/tasks/interfaces/task.interface';
 import * as request from 'supertest';
 import { mockTasks } from '../test/mocks/mock-tasks';
 import { TaskQueryOptions } from '../src/tasks/classes/task-query-options';
+import { TaskPaginationData } from '../src/tasks/interfaces/task-paginate.interface';
 
 const mockAuthToken = 'valid-jwt';
 const mockTokenExpiry = new Date();
@@ -44,11 +45,13 @@ const mockJwtGuard = {
 
 const mockTaskModel = {
     create: jest.fn(),
-    find: jest.fn(),
+    find: jest.fn().mockReturnThis(),
     findOne: jest.fn(),
     findOneAndUpdate: jest.fn(),
     findOneAndDelete: jest.fn(),
     deleteMany: jest.fn(),
+    sort: jest.fn(),
+    countDocuments: jest.fn().mockResolvedValue(mockTasks.length),
 };
 
 describe('/tasks', () => {
@@ -133,29 +136,26 @@ describe('/tasks', () => {
     });
 
     describe('POST /tasks/search', () => {
-        it('should return all tasks belonging to user', () => {
-            taskModel.find.mockResolvedValue(mockTasks);
-
-            return request(app.getHttpServer())
-                .post(`/tasks/search`)
-                .set('Authorization', `Bearer ${mockAuthToken}`)
-                .expect(200)
-                .then(({body}) => {
-                    expect(body).toEqual(mockTasks);
-                });
-        });
-
-        it('should return search results on user tasks', () => {
-            taskModel.find.mockResolvedValue(mockTasks);
+        it('should return first page of search results on user tasks', () => {
+            taskModel.sort.mockResolvedValue(mockTasks);
             const tqo: TaskQueryOptions = {
                 completed: true,
                 startCreatedAt: new Date('01-01-2019'),
                 endCreatedAt: new Date('03-01-2020'),
                 limit: 50,
+                page: 1,
                 sort: [
                     { field: 'completed', direction: 'desc' },
                     { field: 'createdAt', direction: 'desc' },
                 ],
+            };
+
+            const expectedResult: TaskPaginationData = {
+                totalResults: mockTasks.length,
+                totalPages: 1,
+                currentPage: 1,
+                pageSize: 50,
+                tasks: mockTasks,
             };
 
             return request(app.getHttpServer())
@@ -163,17 +163,22 @@ describe('/tasks', () => {
                 .set('Authorization', `Bearer ${mockAuthToken}`)
                 .send(tqo)
                 .expect(200)
-                .then((res) => {
-                    expect(res.body).toEqual(mockTasks);
+                .then(({body}) => {
+                    expect(body).toEqual(expectedResult);
                 });
         });
 
         it('should return error on failure during search', () => {
-            taskModel.find.mockRejectedValue(new InternalServerErrorException());
+            taskModel.sort.mockRejectedValue(new InternalServerErrorException());
+            const tqo: TaskQueryOptions = {
+                limit: 100,
+                page: 1,
+            };
 
             return request(app.getHttpServer())
                 .post('/tasks/search')
                 .set('Authorization', `Bearer ${mockAuthToken}`)
+                .send(tqo)
                 .expect(500);
         });
     });

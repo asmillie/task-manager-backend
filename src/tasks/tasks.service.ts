@@ -104,7 +104,6 @@ export class TasksService {
         try {
             tasks = await this.taskModel.find(conditions, null, opts).sort(sort);
         } catch (e) {
-            console.log(e);
             this.logger.error(
                 `Failed to find all tasks for user id ${userId}. Conditions: ${JSON.stringify(conditions)}, Sort: ${JSON.stringify(sort)}`,
             );
