@@ -30,7 +30,7 @@
     "@nestjs/passport": "^6.2.0",
     "@nestjs/platform-express": "^6.11.11",
     "@sendgrid/mail": "^6.5.5",
-    "bcrypt": "^3.0.8",
+    "bcrypt": "^5.0.0",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.12.2",
     "config": "^3.3.1",
