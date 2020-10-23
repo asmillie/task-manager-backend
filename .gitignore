@@ -35,9 +35,5 @@ yarn-error.log
 /benchmarks/memory
 build/config\.gypi
 
-# environment variables
-environments
-config/
-
 # documentation
 documentation
