@@ -35,6 +35,31 @@ export class TasksService {
         }
     }
 
+    async createDemoTasks(owner: string): Promise<Task[]> {
+        const tasks = [
+            { owner, description: 'Brew Coffee', completed: true },
+            { owner, description: 'Check Email Messages', completed: true },
+            { owner, description: 'Review file backups', completed: true },
+            { owner, description: 'Plan App Feature', completed: true },
+            { owner, description: 'Build App Feature', completed: true },
+            { owner, description: 'Test App Feature', completed: false },
+            { owner, description: 'Fix bugs', completed: false },
+            { owner, description: 'Deploy App Feature', completed: false },
+            { owner, description: 'Pickup Groceries', completed: true },
+            { owner, description: 'Plant tree', completed: false },
+            { owner, description: 'Mow Lawn', completed: true },
+            { owner, description: 'Do Laundry', completed: true },
+            { owner, description: 'Empty wastebasket', completed: false },
+        ];
+
+        try {
+            return await this.taskModel.insertMany(tasks);
+        } catch (e) {
+            this.logger.error(`Failed to create tasks for demo account ${owner}`);
+            throw new InternalServerErrorException();
+        }
+    }
+
     /**
      * Finds a slice of user tasks based on submitted
      * search criteria. Tasks are returned along with
