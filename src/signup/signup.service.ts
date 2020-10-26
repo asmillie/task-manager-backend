@@ -3,14 +3,19 @@ import { UsersService } from '../users/users.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import * as config from 'config';
 import * as sgMail from '@sendgrid/mail';
+import * as randToken from 'rand-token';
 import { User } from '../users/interfaces/user.interface';
+import { TasksService } from '../tasks/tasks.service';
+import { Task } from '../tasks/interfaces/task.interface';
 
 @Injectable()
 export class SignupService {
 
     private logger = new Logger('SignupService');
 
-    constructor(private readonly usersService: UsersService) {
+    constructor(
+        private readonly usersService: UsersService,
+        private readonly tasksService: TasksService) {
         sgMail.setApiKey(config.get<string>('sendgrid.key'));
     }
 
@@ -36,6 +41,27 @@ export class SignupService {
         }
 
         return user;
+    }
+
+    async createDemoAccount(): Promise<{ user: User, tasks: Task[] }> {
+        const name = `demo-${randToken.generate(8)}`;
+        const email = `${name}@example.com`;
+        const password = randToken.generate(16);
+
+        const user = await this.usersService.create({
+            name,
+            password,
+            email: {
+                address: email,
+            },
+        });
+
+        const tasks = await this.tasksService.createDemoTasks(user.id);
+
+        return {
+            user,
+            tasks,
+        };
     }
 
     /**
