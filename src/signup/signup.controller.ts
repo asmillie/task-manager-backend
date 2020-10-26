@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, Get } from '@nestjs/common';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { SignupService } from './signup.service';
 
@@ -19,7 +19,7 @@ export class SignupController {
         return await this.signupService.signup(createUserDto);
     }
 
-    @Post('demo')
+    @Get('demo')
     async createDemoAccount() {
         return await this.signupService.createDemoAccount();
     }
