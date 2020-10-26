@@ -25,5 +25,6 @@ import * as config from 'config';
     LocalStrategy,
   ],
   controllers: [AuthController],
+  exports: [AuthService],
 })
 export class AuthModule {}
