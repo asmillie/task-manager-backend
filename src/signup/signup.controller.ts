@@ -11,11 +11,17 @@ export class SignupController {
      * Calls {@link SignupService#signup} to create a new user
      * and send an email to verify the user's email address.
      * @param createUserDto User data
+     * @param demo Optional query indicates a demo account
      * @returns {User}
      */
     @Post()
     async signup(@Body() createUserDto: CreateUserDto) {
         return await this.signupService.signup(createUserDto);
+    }
+
+    @Post('demo')
+    async createDemoAccount() {
+        return await this.signupService.createDemoAccount();
     }
 
     /**
