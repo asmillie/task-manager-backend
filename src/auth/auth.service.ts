@@ -125,8 +125,11 @@ export class AuthService {
         )
         .pipe(
             take(1),
-            tap(res => console.log(res)),
             map(res => {
+                if (res.data.errorCodes) {
+                    const errors = JSON.stringify(res.data.errorCodes);
+                    this.logger.error(`Error(s) returned during recaptcha verification:\n ${errors}`);
+                }
                 return res.data;
             }),
         );
