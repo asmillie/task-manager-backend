@@ -11,4 +11,7 @@ export default {
     sendgrid: {
         key: 'sendgrid-key',
     },
+    recaptcha: {
+        private_key: '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe',
+    },
 };

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { HttpModule, Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
 import { PassportModule } from '@nestjs/passport';
@@ -18,6 +18,7 @@ import * as config from 'config';
         expiresIn: config.get<number>('jwt.expiresIn'),
       },
     }),
+    HttpModule,
   ],
   providers: [
     AuthService,

@@ -1,6 +1,7 @@
 import { Controller, Request, Post, UseGuards, HttpCode, Get, Body } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
+import { RecaptchaTokenDto } from './dto/recaptcha-token.dto';
 import { ValidTokenGuard } from './valid-token.guard';
 
 @Controller('auth')
@@ -37,5 +38,11 @@ export class AuthController {
     async logout(@Request() req) {
         const authToken = req.headers.authorization.replace('Bearer ', '');
         return await this.authService.logoutUser(authToken, req.user);
+    }
+
+    @HttpCode(200)
+    @Post('verifyRecaptcha')
+    async verifyRecaptcha(@Body() token: RecaptchaTokenDto) {
+        return this.authService.verifyRecaptcha(token);
     }
 }

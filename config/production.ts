@@ -11,4 +11,7 @@ export default {
     sendgrid: {
         key: process.env.SENDGRID_API_KEY,
     },
+    recaptcha: {
+        private_key: process.env.RECAPTCHA_PRIVATE_KEY,
+    },
 };

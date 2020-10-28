@@ -1,18 +1,32 @@
-import { Injectable, UnauthorizedException, NotFoundException, Logger, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Logger, InternalServerErrorException, HttpService } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/interfaces/user.interface';
 import { JwtService } from '@nestjs/jwt';
+import { map, take, tap } from 'rxjs/operators';
 import * as bcrypt from 'bcrypt';
 import * as config from 'config';
+import { RecaptchaTokenDto } from './dto/recaptcha-token.dto';
+
+export interface RecaptchaResponse {
+    success: boolean;
+    challenge_ts: string;
+    hostname: string;
+    errorCodes?: [
+        { error: string; description: string; }
+    ];
+}
 
 @Injectable()
 export class AuthService {
 
+    private readonly RECAPTCHA_API_URL = 'https://www.google.com/recaptcha/api/siteverify';
+    private readonly RECAPTCHA_PRIVATE_KEY = config.get<string>('recaptcha.private_key');
     private logger = new Logger('AuthService');
 
     constructor(
         private readonly usersService: UsersService,
-        private readonly jwtService: JwtService) {}
+        private readonly jwtService: JwtService,
+        private readonly httpService: HttpService) {}
 
     /**
      * Find user by email address and validate password
@@ -93,6 +107,29 @@ export class AuthService {
             );
             throw new InternalServerErrorException();
         }
+    }
+
+    verifyRecaptcha(tokenDto: RecaptchaTokenDto) {
+        if (!tokenDto.token) {
+            this.logger.error('No token provided for recaptcha verification');
+            throw new InternalServerErrorException();
+        }
+
+        if (!this.RECAPTCHA_PRIVATE_KEY) {
+            this.logger.error('No private key found for recaptcha verification');
+            throw new InternalServerErrorException();
+        }
+
+        return this.httpService.post(
+            `${this.RECAPTCHA_API_URL}?secret=${this.RECAPTCHA_PRIVATE_KEY}&response=${tokenDto.token}`,
+        )
+        .pipe(
+            take(1),
+            tap(res => console.log(res)),
+            map(res => {
+                return res.data;
+            }),
+        );
     }
 
     private getTokenExpiry(authToken): Date {
