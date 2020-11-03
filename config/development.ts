@@ -12,6 +12,6 @@ export default {
         key: 'sendgrid-key',
     },
     recaptcha: {
-        private_key: '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe',
+        private_key: '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe', // Google Test Key, Always Passes
     },
 };
