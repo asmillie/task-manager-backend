@@ -8,9 +8,6 @@ export default {
         secret: 'developmentsecret32',
         expiresIn: 3600,
     },
-    sendgrid: {
-        key: 'sendgrid-key',
-    },
     recaptcha: {
         private_key: '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe', // Google Test Key, Always Passes
     },
