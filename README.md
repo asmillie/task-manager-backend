@@ -4,8 +4,6 @@ Create a user account and manage a personal list of tasks to be completed.
 
 Built in NestJS + Express connecting to a MongoDB database. Uses the SendGrid Api for sending emails.
 
-View a live demo running on [Heroku](https://asmillie-task-manager.herokuapp.com/)
-
 ## Requirements
 
 Requires Node.js and a MongoDB database to connect to. SendGrid API is used for sending emails and requires an API key. To sign up for a free SendGrid account and get an API key go [here](https://sendgrid.com/).
