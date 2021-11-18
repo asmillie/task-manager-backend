@@ -1,8 +1,6 @@
 import { Injectable, Logger, InternalServerErrorException, ForbiddenException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-import * as config from 'config';
-import * as sgMail from '@sendgrid/mail';
 import * as randToken from 'rand-token';
 import { User } from '../users/interfaces/user.interface';
 import { TasksService } from '../tasks/tasks.service';
@@ -24,9 +22,7 @@ export class SignupService {
     constructor(
         private readonly usersService: UsersService,
         private readonly tasksService: TasksService,
-        private readonly authService: AuthService) {
-        sgMail.setApiKey(config.get<string>('sendgrid.key'));
-    }
+        private readonly authService: AuthService) { }
 
     /**
      * Creates a new User account.
