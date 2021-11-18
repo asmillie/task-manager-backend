@@ -19,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
                 jwksUri: 'https://dev-x4xgby3m.us.auth0.com/.well-known/jwks.json'
             }),
             algorithms: ['RS256'],
-            audience: 'task-manager-api',
+            audience: 'task-manager',
             issuer: 'https://dev-x4xgby3m.us.auth0.com/'
         });
     }
@@ -30,6 +30,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
      * @throws {UnauthorizedException} if user is not found
      */
     async validate(payload: any): Promise<User> {
+        console.log(`JWT Data: ${JSON.stringify(payload)}`);
         const user = await this.usersService.findUserById(payload.sub);
         if (user) {
             return user;
