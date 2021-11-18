@@ -31,12 +31,13 @@ export const UserSchema = new mongoose.Schema({
     }],
 }, {
     timestamps: true,
-}).method('toJSON', function() {
-    // Remove sensitive fields
-    const user = this.toObject();
-    delete user.password;
-    delete user.tokens;
-    delete user.avatar;
-
-    return user;
+}).set('toJSON', {
+    transform: function(doc, ret, options) {
+        // Remove sensitive fields    
+        delete ret.password;
+        delete ret.tokens;
+        delete ret.avatar;
+    
+        return ret;
+    }
 });
