@@ -48,7 +48,7 @@ export class AuthService {
         if (user) {
             const passwordMatch = await bcrypt.compare(password, user.password);
             if (passwordMatch) {
-                return user.toJSON();
+                return user;
             }
         }
         // User not found, unauthorized request
