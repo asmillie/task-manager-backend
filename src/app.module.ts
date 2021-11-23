@@ -7,7 +7,6 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { TasksModule } from './tasks/tasks.module';
-import { SignupModule } from './signup/signup.module';
 
 @Module({
   imports: [
@@ -21,7 +20,6 @@ import { SignupModule } from './signup/signup.module';
     AuthModule,
     UsersModule,
     TasksModule,
-    SignupModule,
   ],
   controllers: [AppController],
   providers: [AppService],
