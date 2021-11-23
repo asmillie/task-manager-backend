@@ -39,10 +39,4 @@ export class AuthController {
         const authToken = req.headers.authorization.replace('Bearer ', '');
         return await this.authService.logoutUser(authToken, req.user);
     }
-
-    @HttpCode(200)
-    @Post('verifyRecaptcha')
-    async verifyRecaptcha(@Body() token: RecaptchaTokenDto) {
-        return this.authService.verifyRecaptcha(token);
-    }
 }

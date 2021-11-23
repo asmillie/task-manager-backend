@@ -15,12 +15,10 @@ export interface RecaptchaResponse {
         { error: string; description: string; }
     ];
 }
-
+// TODO: Remove Recaptcha and old login, get Auth0 authentication working
 @Injectable()
 export class AuthService {
 
-    private readonly RECAPTCHA_API_URL = 'https://www.google.com/recaptcha/api/siteverify';
-    private readonly RECAPTCHA_PRIVATE_KEY = config.get<string>('recaptcha.private_key');
     private logger = new Logger('AuthService');
 
     constructor(
@@ -107,32 +105,6 @@ export class AuthService {
             );
             throw new InternalServerErrorException();
         }
-    }
-
-    verifyRecaptcha(tokenDto: RecaptchaTokenDto) {
-        if (!tokenDto.token) {
-            this.logger.error('No token provided for recaptcha verification');
-            throw new InternalServerErrorException();
-        }
-
-        if (!this.RECAPTCHA_PRIVATE_KEY) {
-            this.logger.error('No private key found for recaptcha verification');
-            throw new InternalServerErrorException();
-        }
-
-        return this.httpService.post(
-            `${this.RECAPTCHA_API_URL}?secret=${this.RECAPTCHA_PRIVATE_KEY}&response=${tokenDto.token}`,
-        )
-        .pipe(
-            take(1),
-            map(res => {
-                if (res.data.errorCodes) {
-                    const errors = JSON.stringify(res.data.errorCodes);
-                    this.logger.error(`Error(s) returned during recaptcha verification:\n ${errors}`);
-                }
-                return res.data;
-            }),
-        );
     }
 
     private getTokenExpiry(authToken): Date {
