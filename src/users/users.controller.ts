@@ -1,29 +1,23 @@
 import { Controller, Get, Post, Body, UseGuards, Request, Patch, Delete, UseInterceptors, UploadedFile, HttpCode, BadRequestException, Header } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
-import { AuthGuard } from '@nestjs/passport';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ValidTokenGuard } from '../auth/valid-token.guard';
 
-@UseGuards(
-    AuthGuard(),
-    ValidTokenGuard,
-)
+const multerOptions = {
+    limits: {
+        fileSize: 1000000,
+    },
+    fileFilter(req, file, cb) {
+        if (!file.originalname.match(/\.(jpg|png|jpeg)$/)) {
+           return cb(new Error('Avatar image must be of the type .jpg, .jpeg or .png'));
+        }
+
+        cb(undefined, true);
+    },
+};
+
 @Controller('users')
 export class UsersController {
-
-    private multerOptions = {
-        limits: {
-            fileSize: 1000000,
-        },
-        fileFilter(req, file, cb) {
-            if (!file.originalname.match(/\.(jpg|png|jpeg)$/)) {
-               return cb(new Error('Avatar image must be of the type .jpg, .jpeg or .png'));
-            }
-
-            cb(undefined, true);
-        },
-    };
 
     constructor(private readonly usersService: UsersService) {}
 
@@ -64,7 +58,7 @@ export class UsersController {
      */
     @Post('me/avatar')
     @HttpCode(200)
-    @UseInterceptors(FileInterceptor('avatar', this.multerOptions))
+    @UseInterceptors(FileInterceptor('avatar', multerOptions))
     async saveAvatar(
         @Request() req,
         @UploadedFile() avatar) {

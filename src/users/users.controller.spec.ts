@@ -69,9 +69,7 @@ describe('UsersController', () => {
         it('should update a user', async () => {
             usersService.updateUser.mockResolvedValue(mockUser);
             const updateUserDto: UpdateUserDto = {
-                email: {
-                    address: 'new.email@addr.co',
-                },
+                email: 'new.email@addr.co',
             };
 
             expect(usersService.updateUser).not.toHaveBeenCalled();
@@ -83,9 +81,7 @@ describe('UsersController', () => {
         it('should return error thrown by usersService', async () => {
             usersService.updateUser.mockRejectedValue(new InternalServerErrorException());
             const updateUserDto: UpdateUserDto = {
-                email: {
-                    address: 'new.email@addr.co',
-                },
+                email: 'new.email@addr.co',
             };
 
             expect(usersService.updateUser).not.toHaveBeenCalled();

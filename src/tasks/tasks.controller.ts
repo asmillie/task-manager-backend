@@ -1,15 +1,9 @@
-import { Controller, UseGuards, Post, Body, Req, Get, Param, Query, Patch, Delete, HttpCode } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { Controller, UseGuards, Post, Body, Req, Param, Patch, Delete, HttpCode } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TasksService } from './tasks.service';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { ValidTokenGuard } from '../auth/valid-token.guard';
 import { TaskQueryOptions } from './classes/task-query-options';
 
-@UseGuards(
-    AuthGuard(),
-    ValidTokenGuard,
-)
 @Controller('tasks')
 export class TasksController {
 

@@ -1,11 +1,9 @@
-import { Injectable, InternalServerErrorException, BadRequestException, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import * as bcrypt from 'bcrypt';
-import { Token } from './interfaces/token.interface';
 import * as sharp from 'sharp';
 
 @Injectable()
@@ -22,12 +20,8 @@ export class UsersService {
      * @throws {InternalServerErrorException} if an error occurs while saving user
      */
     async create(createUserDto: CreateUserDto): Promise<User> {
-        const password = await this.hashPassword(createUserDto.password);
         try {
-            return await this.userModel.create({
-                ...createUserDto,
-                password,
-            });
+            return await this.userModel.create(createUserDto);
         } catch (e) {
             this.logger.error(
                 `Failed to create user. DTO: ${JSON.stringify(createUserDto)}`,
@@ -57,12 +51,12 @@ export class UsersService {
      * @param email Email to search for
      * @throws {InternalServerErrorException} if an error occurs while finding user
      */
-    async findUserByEmail(userEmail: string): Promise<User> {
+    async findUserByEmail(email: string): Promise<User> {
         try {
-            return await this.userModel.findOne({ 'email.address': userEmail });
+            return await this.userModel.findOne({ 'email': email });
         } catch (e) {
             this.logger.error(
-                `Failed to find user by email ${userEmail}.`,
+                `Failed to find user by email ${email}.`,
             );
             throw new InternalServerErrorException();
         }
@@ -96,66 +90,6 @@ export class UsersService {
         } catch (e) {
             this.logger.error(
                 `Failed to delete user for id ${userId}`,
-            );
-            throw new InternalServerErrorException();
-        }
-    }
-
-    /**
-     * Saves authentication token to list of user-owned tokens
-     * @param user User to save token to
-     * @param newToken Authentication token (JWT) to save
-     * @throws {InternalServerErrorException} if an error occurs while updating user
-     */
-    async addToken(user: User, newToken: string, tokenExpiry: Date): Promise<User> {
-        const userTokens: Token[] = (user.tokens === undefined) ? [] : user.tokens;
-        userTokens.push({ token: newToken, expiry: tokenExpiry });
-
-        try {
-            return await this.userModel.findByIdAndUpdate(user._id, { tokens: userTokens }, { new: true });
-        } catch (e) {
-            this.logger.error(
-                `Failed to save token to user. User: ${JSON.stringify(user)},
-                 New Auth Token: ${newToken}, User Tokens: ${JSON.stringify(userTokens)}`,
-            );
-            throw new InternalServerErrorException();
-        }
-    }
-
-    /**
-     * Deletes authentication token from list of user-owned tokens
-     * @param user User to remove token from
-     * @param tokenToRemove Authentication token being removed
-     * @throws {BadRequestException} if list of user tokens is undefined (User has no tokens)
-     * @throws {InternalServerErrorException} if an error occurs while updating user
-     */
-    async removeToken(user: User, tokenToRemove: string): Promise<User> {
-        if (user.tokens === undefined) {
-            throw new BadRequestException('User is already logged out');
-        }
-
-        const userTokens: Token[] = user.tokens.filter(token => token.token !== tokenToRemove);
-        try {
-            return await this.userModel.findByIdAndUpdate(user._id, { tokens: userTokens }, { new: true });
-        } catch (e) {
-            this.logger.error(
-                `Failed to remove token from user. User: ${JSON.stringify(user)}, Auth Token: ${tokenToRemove}`,
-            );
-            throw new InternalServerErrorException();
-        }
-    }
-
-    /**
-     * Takes password string and returns a hash
-     * @param password Password to be hashed
-     * @throws {InternalServerErrorException} if an error occurs while hashing password
-     */
-    async hashPassword(password: string): Promise<string> {
-        try {
-            return await bcrypt.hash(password, 8);
-        } catch (e) {
-            this.logger.error(
-                `Failed to hash password.`,
             );
             throw new InternalServerErrorException();
         }
