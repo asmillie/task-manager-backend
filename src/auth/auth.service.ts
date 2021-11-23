@@ -2,10 +2,7 @@ import { Injectable, UnauthorizedException, Logger, InternalServerErrorException
 import { UsersService } from '../users/users.service';
 import { User } from '../users/interfaces/user.interface';
 import { JwtService } from '@nestjs/jwt';
-import { map, take, tap } from 'rxjs/operators';
 import * as bcrypt from 'bcrypt';
-import * as config from 'config';
-import { RecaptchaTokenDto } from './dto/recaptcha-token.dto';
 
 export interface RecaptchaResponse {
     success: boolean;
