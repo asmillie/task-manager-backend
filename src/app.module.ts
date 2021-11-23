@@ -25,11 +25,11 @@ import { TasksModule } from './tasks/tasks.module';
   ],
   controllers: [AppController],
   providers: [
+    AppService,
     {
       provide: APP_GUARD,
       useClass: AuthGuard()
     },
-    AppService
   ],
 })
 export class AppModule {}
