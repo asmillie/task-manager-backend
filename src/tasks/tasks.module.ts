@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
+import { PassportModule } from '@nestjs/passport';
+import { MongooseModule } from '@nestjs/mongoose';
+
 import { TasksService } from './tasks.service';
 import { TasksController } from './tasks.controller';
-import { MongooseModule } from '@nestjs/mongoose';
-import { PassportModule } from '@nestjs/passport';
 import { TaskSchema } from './schemas/task.schema';
 
 @Module({
-  imports: [
+  imports: [      
       MongooseModule.forFeature([
           { name: 'Task', schema: TaskSchema },
       ]),
