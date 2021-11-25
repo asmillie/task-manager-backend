@@ -32,7 +32,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
      * @param request Request object passed from Passport-JWT
      * @returns Validated JSON Web Token recieved as part of request
      */
-    async validate(request: any): Promise<string> {
-        return request.signature;
+    async validate(request: any): Promise<{ token: string }> {
+        return { token: request.signature };
     }
 }
