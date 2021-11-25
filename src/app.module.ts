@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthGuard } from '@nestjs/passport';
-import { APP_GUARD } from '@nestjs/core';
 
 import * as config from 'config';
 import { AppController } from './app.controller';
@@ -26,10 +24,6 @@ import { TasksModule } from './tasks/tasks.module';
   controllers: [AppController],
   providers: [
     AppService,
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard()
-    },
   ],
 })
 export class AppModule {}

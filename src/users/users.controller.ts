@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, UseGuards, Request, Patch, Delete, UseInte
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 const multerOptions = {
     limits: {
@@ -16,6 +17,7 @@ const multerOptions = {
     },
 };
 
+@UseGuards(AuthGuard())
 @Controller('users')
 export class UsersController {
 
