@@ -1,9 +1,11 @@
-import { Controller, UseGuards, Post, Body, Req, Param, Patch, Delete, HttpCode } from '@nestjs/common';
+import { Controller, Post, Body, Req, Param, Patch, Delete, HttpCode, UseGuards } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TasksService } from './tasks.service';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskQueryOptions } from './classes/task-query-options';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard())
 @Controller('tasks')
 export class TasksController {
 
@@ -17,6 +19,7 @@ export class TasksController {
      */
     @Post()
     async createTask(@Req() req, @Body() createTaskDto: CreateTaskDto) {
+        console.log('Create Task Called');
         createTaskDto.owner = req.user._id;
         return await this.tasksService.create(createTaskDto);
     }
