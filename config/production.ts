@@ -4,11 +4,10 @@ export default {
     database: {
         uri: process.env.DATABASE_URI,
     },
-    jwt: {
-        secret: process.env.JWT_SECRET,
-        expiresIn: process.env.JWT_EXPIRES_IN,
-    },
-    recaptcha: {
-        private_key: process.env.RECAPTCHA_PRIVATE_KEY,
-    },
+    auth0: {
+        domain: process.env.AUTH0_DOMAIN,
+        endpoints: {
+            getUserInfo: 'userinfo'
+        }
+    }
 };
