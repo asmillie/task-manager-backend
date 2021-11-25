@@ -4,10 +4,4 @@ export default {
     database: {
         uri: process.env.DATABASE_URI,
     },
-    auth0: {
-        domain: process.env.AUTH0_DOMAIN,
-        endpoints: {
-            getUserInfo: 'userinfo'
-        }
-    }
 };
