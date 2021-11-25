@@ -4,11 +4,11 @@ import { Strategy, ExtractJwt } from 'passport-jwt';
 import * as jwksClient from 'jwks-rsa';
 import { UsersService } from '../../users/users.service';
 import { User } from 'src/users/interfaces/user.interface';
-import * as config from 'config';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-    constructor(private readonly usersService: UsersService) {
+    constructor(
+        private readonly usersService: UsersService) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: false,
@@ -20,7 +20,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             }),
             algorithms: ['RS256'],
             audience: 'task-manager',
-            issuer: 'https://dev-x4xgby3m.us.auth0.com/'
+            issuer: 'https://dev-x4xgby3m.us.auth0.com/',
+            jsonWebTokenOptions: {
+                complete: true
+            }
         });
     }
 
@@ -29,13 +32,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
      * @param payload User email and id extracted from JWT
      * @throws {UnauthorizedException} if user is not found
      */
-    async validate(payload: any): Promise<User> {
-        console.log(`JWT Data: ${JSON.stringify(payload)}`);
-        const user = await this.usersService.findUserById(payload.sub);
+    async validate(request: any): Promise<User> {
+        // TODO:
+        // Expect user email to be included with request as unique id
+        // Find user by email
+        // Decoded Jwt payload.payload
+        // Jwt payload.signature
+        console.log(`Request: ${JSON.stringify(request)}`);
+        const user = await this.usersService.findUserByEmail(request.payload.sub);
         if (user) {
             return user;
         }
 
-        throw new UnauthorizedException();
+        throw new UnauthorizedException('plops');
     }
 }
