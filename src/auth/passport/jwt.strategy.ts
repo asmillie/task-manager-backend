@@ -1,9 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import * as jwksClient from 'jwks-rsa';
 import { UsersService } from '../../users/users.service';
-import { User } from 'src/users/interfaces/user.interface';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -21,9 +20,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             algorithms: ['RS256'],
             audience: 'task-manager',
             issuer: 'https://dev-x4xgby3m.us.auth0.com/',
-            jsonWebTokenOptions: {
-                complete: true
-            }
         });
     }
 
@@ -32,7 +28,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
      * @param request Request object passed from Passport-JWT
      * @returns Validated JSON Web Token recieved as part of request
      */
-    async validate(request: any): Promise<{ token: string }> {
-        return { token: request.signature };
+    async validate(sub: any): Promise<Boolean> {
+        return true;
     }
 }
