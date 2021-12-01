@@ -1,21 +1,7 @@
-import { Controller, Get, Post, Body, UseGuards, Request, Patch, Delete, UseInterceptors, UploadedFile, HttpCode, BadRequestException, Header } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Controller, Get, Body, UseGuards, Request, Patch, Delete } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '@nestjs/passport';
-
-const multerOptions = {
-    limits: {
-        fileSize: 1000000,
-    },
-    fileFilter(req, file, cb) {
-        if (!file.originalname.match(/\.(jpg|png|jpeg)$/)) {
-           return cb(new Error('Avatar image must be of the type .jpg, .jpeg or .png'));
-        }
-
-        cb(undefined, true);
-    },
-};
 
 @UseGuards(AuthGuard())
 @Controller('users')
@@ -50,43 +36,5 @@ export class UsersController {
     @Delete('me')
     async deleteUser(@Request() req) {
         return await this.usersService.deleteUser(req.user._id);
-    }
-
-    /**
-     * Saves user avatar to database and then returns user profile
-     * @param req Request object
-     * @param avatar Uploaded avatar file
-     * @throws {BadRequestException} if avatar is missing from request
-     */
-    @Post('me/avatar')
-    @HttpCode(200)
-    @UseInterceptors(FileInterceptor('avatar', multerOptions))
-    async saveAvatar(
-        @Request() req,
-        @UploadedFile() avatar) {
-        if (!avatar || !avatar.buffer) {
-            throw new BadRequestException('Missing Avatar Image');
-        }
-        return this.usersService.addAvatar(req.user._id, avatar.buffer);
-    }
-
-    /**
-     * Returns user avatar in .png format
-     * @param req Request object
-     */
-    @Get('me/avatar.png')
-    @HttpCode(200)
-    @Header('Content-Type', 'image/png')
-    async getAvatar(@Request() req) {
-        return await this.usersService.getAvatar(req.user._id);
-    }
-
-    /**
-     * Deletes logged-in user avatar
-     * @param req Request object
-     */
-    @Delete('me/avatar')
-    async deleteAvatar(@Request() req) {
-        return this.usersService.deleteAvatarByUserId(req.user._id);
     }
 }

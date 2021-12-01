@@ -24,11 +24,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     /**
-     * Finds and returns user that matches id contained in JWT payload.
-     * @param request Request object passed from Passport-JWT
-     * @returns Validated JSON Web Token recieved as part of request
+     * Finds and returns user id contained in JWT payload.
+     * @param payload Decoded JWT
+     * @returns Object containing Auth0 Id from JWT payload
      */
-    async validate(sub: any): Promise<Boolean> {
-        return true;
+    async validate(payload: any): Promise<any> {        
+        return { auth0Id: payload.sub };
     }
 }

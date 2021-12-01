@@ -1,10 +1,12 @@
-import { Controller, Post, Body, Req, Param, Patch, Delete, HttpCode, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Req, Param, Patch, Delete, HttpCode, UseInterceptors } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TasksService } from './tasks.service';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskQueryOptions } from './classes/task-query-options';
+import { UserInterceptor } from '../interceptors/user.interceptor';
 
 @Controller('tasks')
+@UseInterceptors(UserInterceptor)
 export class TasksController {
 
     constructor(private readonly tasksService: TasksService) {}
@@ -15,10 +17,10 @@ export class TasksController {
      * @param req Request object
      * @param {CreateTaskDto} createTaskDto Task to be created
      */
-    @Post()
+    @Post()    
     async createTask(@Req() req, @Body() createTaskDto: CreateTaskDto) {
-        console.log('TasksController: ' + JSON.stringify(req.user))
-        createTaskDto.owner = req.user._id;
+        console.log(`TC: ${JSON.stringify(req.user)}`);
+        createTaskDto.owner = req.user.auth0Id;
         return await this.tasksService.create(createTaskDto);
     }
 
@@ -30,7 +32,7 @@ export class TasksController {
     @HttpCode(200)
     @Post('/search/:id')
     async findTask(@Req() req, @Param('id') id: string) {
-        const task = await this.tasksService.findTask(req.user._id, id);
+        const task = await this.tasksService.findTask(req.user.auth0Id, id);
         return task;
     }
 
@@ -44,8 +46,8 @@ export class TasksController {
     @Post('/search')
     async paginateTasks(
         @Req() req,
-        @Body() tqo: TaskQueryOptions) {
-        return await this.tasksService.paginateTasksByUserId(req.user._id, tqo);
+        @Body() tqo: TaskQueryOptions) {        
+        return await this.tasksService.paginateTasksByUserId(req.user.auth0Id, tqo);
     }
 
     /**
@@ -59,7 +61,7 @@ export class TasksController {
         @Req() req,
         @Param('id') id: string,
         @Body() updateTaskDto: UpdateTaskDto) {
-        return await this.tasksService.updateTask(req.user._id, id, updateTaskDto);
+        return await this.tasksService.updateTask(req.user.auth0Id, id, updateTaskDto);
     }
 
     /**
@@ -72,7 +74,7 @@ export class TasksController {
     async deleteTask(
         @Req() req,
         @Param('id') id: string) {
-        return await this.tasksService.deleteTask(req.user._id, id);
+        return await this.tasksService.deleteTask(req.user.auth0Id, id);
     }
 
     /**
@@ -81,6 +83,6 @@ export class TasksController {
      */
     @Delete()
     async deleteAllUserTasks(@Req() req) {
-        return await this.tasksService.deleteAllTasksByUserId(req.user._id);
+        return await this.tasksService.deleteAllTasksByUserId(req.user.auth0Id);
     }
 }

@@ -18,6 +18,8 @@ import { TasksModule } from '../tasks/tasks.module';
     ],
     controllers: [UsersController],
     providers: [UsersService],
-    exports: [UsersService],
+    exports: [
+        UsersService
+    ],
 })
 export class UsersModule {}
