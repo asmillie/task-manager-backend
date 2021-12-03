@@ -19,8 +19,7 @@ export class TasksController {
      */
     @Post()    
     async createTask(@Req() req, @Body() createTaskDto: CreateTaskDto) {
-        console.log(`TC: ${JSON.stringify(req.user)}`);
-        createTaskDto.owner = req.user.auth0Id;
+        createTaskDto.owner = req.user._id;
         return await this.tasksService.create(createTaskDto);
     }
 

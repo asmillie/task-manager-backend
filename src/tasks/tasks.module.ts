@@ -5,9 +5,11 @@ import { TasksService } from './tasks.service';
 import { TasksController } from './tasks.controller';
 import { TaskSchema } from './schemas/task.schema';
 import { Auth0Service } from '../auth/auth0/auth0.service';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [      
+  imports: [ 
+      UsersModule,     
       MongooseModule.forFeature([
           { name: 'Task', schema: TaskSchema },
       ]),

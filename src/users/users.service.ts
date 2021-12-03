@@ -1,9 +1,11 @@
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { Catch, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { from, Observable, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 
 @Injectable()
 export class UsersService {
@@ -43,6 +45,21 @@ export class UsersService {
             );
             throw new InternalServerErrorException();
         }
+    }
+
+    /**
+     * Finds user by Auth0 Id
+     * @param auth0Id Auth0 Id to search for
+     * @throws {InternalServerErrorException} if an error occurs during find operation
+     */
+    findUserByAuth0Id$(auth0Id: string): Observable<User> {
+        return from(this.userModel.findOne({ 'auth0.id': auth0Id }))
+            .pipe(
+                catchError(e => {
+                    this.logger.error(`Error performing find operation: ${e}`);
+                    return throwError(new InternalServerErrorException());
+                })
+            );
     }
 
     /**

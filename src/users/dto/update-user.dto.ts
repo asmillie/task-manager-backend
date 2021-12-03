@@ -1,6 +1,6 @@
-import { IsEmail } from 'class-validator';
+import { Auth0Dto } from "../../auth/dto/auth0.dto";
 
 export class UpdateUserDto {
-    @IsEmail({}, { message: 'Must be a valid email address' })
+    readonly auth0: Auth0Dto;
     readonly email?: string;
 }

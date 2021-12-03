@@ -6,7 +6,10 @@ export const UserSchema = new mongoose.Schema({
             unique: true,
             type: String,
             trim: true
-        }        
+        },
+        lastSyncedAt: {
+            type: Date
+        }     
     },
     email: {        
         unique: true,

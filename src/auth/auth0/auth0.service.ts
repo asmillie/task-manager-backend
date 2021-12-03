@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { AppMetadata, ManagementClient, UserMetadata } from 'auth0';
 import * as config from 'config';
+import { from, Observable } from 'rxjs';
 
 @Injectable()
 export class Auth0Service {
@@ -9,9 +10,9 @@ export class Auth0Service {
     constructor() {
         this.initAuth0Client();
     }
-
-    async getUser(id: string) {
-        return await this.auth0Client.getUser({id});
+ 
+    getUser$(id: string): Observable<any> {
+        return from(this.auth0Client.getUser({id}));
     }
 
     private initAuth0Client(): void {
