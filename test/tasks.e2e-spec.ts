@@ -241,13 +241,13 @@ describe('/tasks', () => {
                 .expect(200);
         });
 
-        it('should return error on failure to delete tasks', () => {
+        it('should return error on failure to delete tasks', (done) => {
             taskModel.deleteMany.mockRejectedValue(undefined);
 
             return request(app.getHttpServer())
                 .delete('/tasks')
                 .set('Authorization', `Bearer ${mockAuthToken}`)
-                .expect(500);
+                .expect(500, done);
         });
     });
 
