@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { INestApplication, ValidationPipe, ExecutionContext, InternalServerErrorException } from '@nestjs/common';
+import { INestApplication, ValidationPipe, ExecutionContext, InternalServerErrorException, CallHandler } from '@nestjs/common';
 import { MockMongooseService } from './mocks/mock-mongoose-service';
 import { TasksModule } from '../src/tasks/tasks.module';
 import { AuthGuard } from '@nestjs/passport';
@@ -9,39 +9,37 @@ import { Model } from 'mongoose';
 import { Task } from '../src/tasks/interfaces/task.interface';
 import * as request from 'supertest';
 import { mockTasks } from '../test/mocks/mock-tasks';
+import { mockUser } from './mocks/mock-user';
 import { TaskQueryOptions } from '../src/tasks/classes/task-query-options';
 import { TaskPaginationData } from '../src/tasks/interfaces/task-paginate.interface';
+import { UserInterceptor } from '../src/interceptors/user.interceptor';
 
 const mockAuthToken = 'valid-jwt';
 const mockTokenExpiry = new Date();
 mockTokenExpiry.setDate(mockTokenExpiry.getDate() + 3);
 
-const mockUser: any = {
-    _id : '5e286b8940b3a61cacd8667d',
-    name : 'Jenny',
-    email : {
-        address: 'jenny.email@emailsite.com',
-    },
-    tokens: [
-        { token: mockAuthToken, expiry: mockTokenExpiry },
-    ],
-    toJSON: jest.fn().mockReturnValue('User JSON'),
-};
-
 const mockTask: any = {
     _id: 'task-id',
-    owner: '5e286b8940b3a61cacd8667d',
+    owner: mockUser._id,
     description: 'Get Groceries',
     completed: false,
 };
 
 const mockJwtGuard = {
     canActivate: jest.fn()
-    .mockImplementation((context: ExecutionContext) => {
-        context.switchToHttp().getRequest().user = mockUser;
+    .mockImplementation((context: ExecutionContext) => {        
         return true;
     }),
 };
+
+const mockUserInterceptor = {
+    intercept: jest.fn().mockImplementation(
+        (context: ExecutionContext, next: CallHandler) => {
+            context.switchToHttp().getRequest().user = mockUser;
+            return next.handle();
+        }
+    )
+}
 
 const mockTaskModel = {
     create: jest.fn(),
@@ -69,6 +67,8 @@ describe('/tasks', () => {
         })
         .overrideGuard(AuthGuard())
         .useValue(mockJwtGuard)
+        .overrideInterceptor(UserInterceptor)
+        .useValue(mockUserInterceptor)
         .overrideProvider(getModelToken('Task'))
         .useValue(mockTaskModel)
         .compile();
