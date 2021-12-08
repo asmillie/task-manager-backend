@@ -1,5 +1,5 @@
-import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor } from '@nestjs/common';
-import { EMPTY, from, iif, Observable, of } from 'rxjs';
+import { CallHandler, ExecutionContext, Injectable, InternalServerErrorException, Logger, NestInterceptor } from '@nestjs/common';
+import { EMPTY, from, iif, Observable, of, throwError } from 'rxjs';
 import { catchError, isEmpty, map, switchMap, switchMapTo, tap } from 'rxjs/operators';
 import { Auth0Service } from '../auth/auth0/auth0.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
@@ -34,14 +34,12 @@ export class UserInterceptor implements NestInterceptor {
       .pipe(
         switchMap(user => {
           if (user) {
-            console.log(`UI: User found in DB being returned`);
             return of(user);
           }
 
           return this.auth0Service.getUser$(auth0Id)
             .pipe(
               map(profile => {
-                console.log(`UI: Request returned from Auth0 for User Profile -> ${JSON.stringify(profile)}`);
                 const createUserDto: CreateUserDto = {
                   auth0: {
                     id: auth0Id,
@@ -52,17 +50,17 @@ export class UserInterceptor implements NestInterceptor {
       
                 return from(this.usersService.create(createUserDto));
               }),
-              catchError(err => {
-                console.log(err);
-                return EMPTY;
+              catchError(e => {
+                this.logger.error(`Error retrieving user profile from Auth0 API: ${e}`)
+                return throwError(new InternalServerErrorException());
               })             
             );
         }),
+        catchError(e => {
+          this.logger.error(`Error attaching user to request: ${e}`);
+          return throwError(new InternalServerErrorException());
+        }),        
         tap(user => req.user = user),
-        catchError(err => {
-          console.log(`UI: Error -> ${err}`);
-          return EMPTY;
-        }),
         switchMapTo(next.handle())
       );
   }
