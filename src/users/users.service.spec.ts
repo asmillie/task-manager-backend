@@ -5,18 +5,8 @@ import { Model } from 'mongoose';
 import { User } from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Token } from './interfaces/token.interface';
-
-import * as sharp from 'sharp';
 import { InternalServerErrorException, BadRequestException } from '@nestjs/common';
-jest.mock('sharp', () => {
-    return () => ({
-        sharp: jest.fn().mockReturnThis(),
-        resize: jest.fn().mockReturnThis(),
-        png: jest.fn().mockReturnThis(),
-        toBuffer: jest.fn().mockReturnThis(),
-    });
-});
+import { Auth0Dto } from '../auth/dto/auth0.dto';
 
 const mockUserModel = () => ({
     create: jest.fn(),
@@ -29,9 +19,7 @@ const mockUserModel = () => ({
 
 const mockUser: any = {
     _id : '5e286b8940b3a61cacd8667d',
-    name : 'Jenny',
     email : 'jenny.email@emailsite.com',
-    avatar: undefined,
 };
 
 describe('UsersService', () => {
@@ -54,34 +42,15 @@ describe('UsersService', () => {
         userModel = module.get<Model<User>>(getModelToken('User'));
     });
 
-    describe('hashPassword', () => {
-        it('should hash password', async () => {
-            const passwordToBeHashed = 'passwordToBeHashed';
-            jest.spyOn(usersService, 'hashPassword').mockResolvedValue('hashedPassword');
-
-            expect(usersService.hashPassword).not.toHaveBeenCalled();
-            await expect(usersService.hashPassword(passwordToBeHashed)).resolves.toEqual('hashedPassword');
-        });
-    });
-
     describe('create', () => {
 
         const createUserDto: CreateUserDto = {
-            name: 'User One',
-            email: {
-                address: 'valid.email@email.com',
-            },
-            password: 'somepassword1',
+            email: 'valid.email@email.com',
+            auth0: {
+                id: 'id',
+                lastSyncedAt: new Date()
+            }
         };
-
-        it('should call hashPassword before creating user', async () => {
-            userModel.create.mockResolvedValue('user');
-            jest.spyOn(usersService, 'hashPassword').mockResolvedValue('hashedPassword');
-
-            expect(usersService.hashPassword).not.toHaveBeenCalled();
-            await usersService.create(createUserDto);
-            expect(usersService.hashPassword).toHaveBeenCalledWith(createUserDto.password);
-        });
 
         it('should create a user', async () => {
             userModel.create.mockResolvedValue('user');
@@ -122,8 +91,8 @@ describe('UsersService', () => {
             userModel.findOne.mockResolvedValue('user');
 
             expect(userModel.findOne).not.toHaveBeenCalled();
-            const result = await usersService.findUserByEmail('email');
-            expect(userModel.findOne).toHaveBeenCalledWith({ 'email.address': 'email' });
+            const result = await usersService.findUserByEmail('useremail@address');
+            expect(userModel.findOne).toHaveBeenCalledWith({ 'email': 'useremail@address' });
             expect(result).toEqual('user');
         });
 
@@ -141,9 +110,7 @@ describe('UsersService', () => {
             userModel.findByIdAndUpdate.mockResolvedValue(updatedUser);
 
             const updateUserDto: UpdateUserDto = {
-                email: {
-                    address: 'new.email@addr.co.uk',
-                },
+                email:  'new.email@addr.co.uk',
             };
 
             expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
@@ -182,122 +149,4 @@ describe('UsersService', () => {
         });
     });
 
-    describe('addToken', () => {
-        it('should add a token to user', async () => {
-            userModel.findByIdAndUpdate.mockResolvedValue('User');
-            const tokenExpiry = new Date();
-            tokenExpiry.setDate(tokenExpiry.getDate() + 3);
-
-            expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
-            const result = await usersService.addToken(mockUser, 'newToken', tokenExpiry);
-            expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
-                mockUser._id,
-                { tokens: [{ token: 'newToken', expiry: tokenExpiry }] },
-                { new: true },
-            );
-            expect(result).toEqual('User');
-        });
-
-        it('should throw on error durinig find operation', async () => {
-            userModel.findByIdAndUpdate.mockRejectedValue(undefined);
-
-            expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
-            expect(usersService.addToken(mockUser, 'newToken', new Date())).rejects.toThrow(InternalServerErrorException);
-        });
-    });
-
-    describe('removeToken', () => {
-        it('should remove a token from user', async () => {
-            userModel.findByIdAndUpdate.mockResolvedValue('User');
-            const mockToken: Token = {
-                token: 'tokenToRemove',
-                expiry: new Date(),
-            };
-            // Empty tokens array
-            mockUser.tokens = [];
-            // Add one token to be removed
-            mockUser.tokens.push(mockToken);
-
-            expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
-            const result = await usersService.removeToken(mockUser, mockToken.token);
-            expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
-                mockUser._id,
-                { tokens: [] },
-                { new: true },
-            );
-            expect(result).toEqual('User');
-        });
-
-        it('should throw on error during find operation', async () => {
-            userModel.findByIdAndUpdate.mockRejectedValue(undefined);
-
-            expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
-            expect(usersService.removeToken(mockUser, 'token')).rejects.toThrow(InternalServerErrorException);
-        });
-    });
-
-    describe('addAvatar', () => {
-        it('should save a user avatar', async () => {
-            jest.spyOn(usersService, 'updateUser').mockResolvedValue(mockUser);
-            const mockBuffer = Buffer.from('image buffer');
-
-            expect(usersService.updateUser).not.toHaveBeenCalled();
-            const result = await usersService.addAvatar('id', mockBuffer);
-            expect(result).toEqual(mockUser);
-        });
-
-        it('should throw on missing avatar image', async () => {
-            jest.spyOn(usersService, 'updateUser').mockRejectedValue(undefined);
-
-            expect(usersService.updateUser).not.toHaveBeenCalled();
-            expect(usersService.addAvatar('id', null)).rejects.toThrow(BadRequestException);
-        });
-
-        it('should throw on error during update operation', async () => {
-            jest.spyOn(usersService, 'updateUser').mockRejectedValue(undefined);
-
-            expect(usersService.updateUser).not.toHaveBeenCalled();
-            expect(usersService.addAvatar('id', Buffer.from('avatar'))).rejects.toThrow(InternalServerErrorException);
-        });
-    });
-
-    describe('getAvatar', () => {
-        it('should get avatar by user id', async () => {
-            const mockUserData = {
-                avatar: 'image',
-            };
-            const mockImageBuffer = Buffer.from(mockUserData.avatar);
-            userModel.findById.mockResolvedValue(mockUserData);
-
-            expect(userModel.findById).not.toHaveBeenCalled();
-            const result = await usersService.getAvatar('id');
-            expect(userModel.findById).toHaveBeenCalledWith('id', 'avatar');
-            expect(result).toEqual(mockImageBuffer);
-        });
-
-        it('should throw on error during find operation', async () => {
-            userModel.findById.mockRejectedValue('error');
-
-            expect(userModel.findById).not.toHaveBeenCalled();
-            expect(usersService.getAvatar('id')).rejects.toThrow(InternalServerErrorException);
-        });
-    });
-
-    describe('deleteAvatarByUserId', () => {
-        it('should delete a avatar for user id', async () => {
-            jest.spyOn(usersService, 'updateUser').mockResolvedValue(mockUser);
-
-            expect(usersService.updateUser).not.toHaveBeenCalled();
-            const result = await usersService.deleteAvatarByUserId('id');
-            expect(usersService.updateUser).toHaveBeenCalledWith('id', { avatar: undefined });
-            expect(result).toEqual(mockUser);
-        });
-
-        it('should throw on error during update operation', async () => {
-            jest.spyOn(usersService, 'updateUser').mockRejectedValue(undefined);
-
-            expect(usersService.updateUser).not.toHaveBeenCalled();
-            expect(usersService.deleteAvatarByUserId('id')).rejects.toThrow(InternalServerErrorException);
-        });
-    });
 });

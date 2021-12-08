@@ -65,23 +65,6 @@ export class UserInterceptor implements NestInterceptor {
         }),
         switchMapTo(next.handle())
       );
-
-    return this.auth0Service.getUser$(auth0Id)
-      .pipe(
-        tap(profile => {
-          console.log(`A0 User Profile: ${JSON.stringify(profile)}`);
-          const user: CreateUserDto = {
-            auth0: {
-              id: auth0Id,
-              lastSyncedAt: new Date()
-            },
-            email: profile.email
-          };
-
-          req.user = user;
-        }),
-        switchMapTo(next.handle())
-      );
   }
 }
 

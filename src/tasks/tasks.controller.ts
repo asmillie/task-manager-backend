@@ -31,7 +31,7 @@ export class TasksController {
     @HttpCode(200)
     @Post('/search/:id')
     async findTask(@Req() req, @Param('id') id: string) {
-        const task = await this.tasksService.findTask(req.user.auth0Id, id);
+        const task = await this.tasksService.findTask(req.user._id, id);
         return task;
     }
 
@@ -46,7 +46,7 @@ export class TasksController {
     async paginateTasks(
         @Req() req,
         @Body() tqo: TaskQueryOptions) {        
-        return await this.tasksService.paginateTasksByUserId(req.user.auth0Id, tqo);
+        return await this.tasksService.paginateTasksByUserId(req.user._id, tqo);
     }
 
     /**
@@ -60,7 +60,7 @@ export class TasksController {
         @Req() req,
         @Param('id') id: string,
         @Body() updateTaskDto: UpdateTaskDto) {
-        return await this.tasksService.updateTask(req.user.auth0Id, id, updateTaskDto);
+        return await this.tasksService.updateTask(req.user._id, id, updateTaskDto);
     }
 
     /**
@@ -73,7 +73,7 @@ export class TasksController {
     async deleteTask(
         @Req() req,
         @Param('id') id: string) {
-        return await this.tasksService.deleteTask(req.user.auth0Id, id);
+        return await this.tasksService.deleteTask(req.user._id, id);
     }
 
     /**
@@ -82,6 +82,6 @@ export class TasksController {
      */
     @Delete()
     async deleteAllUserTasks(@Req() req) {
-        return await this.tasksService.deleteAllTasksByUserId(req.user.auth0Id);
+        return await this.tasksService.deleteAllTasksByUserId(req.user._id);
     }
 }

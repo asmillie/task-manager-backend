@@ -5,8 +5,10 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { InternalServerErrorException } from '@nestjs/common';
-import { ValidTokenGuard } from '../auth/valid-token.guard';
 import { TaskQueryOptions } from './classes/task-query-options';
+import { UserInterceptor } from '../interceptors/user.interceptor';
+import { mockUserInterceptor } from '../../test/mocks/mock-user-interceptor';
+import { mockUser } from '../../test/mocks/mock-user';
 
 const mockTasksService = () => ({
     create: jest.fn(),
@@ -18,7 +20,7 @@ const mockTasksService = () => ({
 });
 
 const mockReq = {
-    user: { _id: '3909ew09asdf09wef' },
+    user: { _id: mockUser._id },
 };
 
 describe('TasksController', () => {
@@ -37,8 +39,8 @@ describe('TasksController', () => {
         })
         .overrideGuard(AuthGuard())
         .useValue({ canActivate: () => true })
-        .overrideGuard(ValidTokenGuard)
-        .useValue({ canActivate: () => true })
+        .overrideInterceptor(UserInterceptor)
+        .useValue(mockUserInterceptor)
         .compile();
 
         tasksController = module.get<TasksController>(TasksController);
