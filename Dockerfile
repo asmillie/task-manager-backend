@@ -3,6 +3,7 @@ FROM node:12.18.3 as builder
 WORKDIR /usr/src/app
 
 COPY dist/ .
+COPY package.json .
 
 RUN npm i --production
 
@@ -15,4 +16,4 @@ COPY --from=builder /usr/src/app .
 
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+CMD ["node", "main.js"]

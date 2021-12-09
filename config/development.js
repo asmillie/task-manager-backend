@@ -1,4 +1,4 @@
-export default {
+module.exports = {
     base_url: 'http://localhost',
     port: 3000,
     database: {

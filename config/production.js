@@ -1,4 +1,4 @@
-export default {
+module.exports = {
     base_url: process.env.BASE_URL,
     port: parseInt(process.env.PORT, 10),
     database: {

@@ -1,4 +1,4 @@
-export default {
+module.exports = {
     base_url: 'http://localhost',
     auth0: {
         domain: 'auth0.domain',
