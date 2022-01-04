@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import * as jwksClient from 'jwks-rsa';
-
+// TODO: Handle Auth0 Rate Limits
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
     constructor() {

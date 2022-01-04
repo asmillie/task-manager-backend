@@ -5,6 +5,8 @@ import { Auth0Service } from '../auth/auth0/auth0.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UsersService } from '../users/users.service';
 
+// TODO: Check User Last Synced Date and fetch updated user profile if more than a week has passed
+
 /**
  * 
  */

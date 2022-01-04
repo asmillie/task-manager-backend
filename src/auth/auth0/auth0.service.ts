@@ -10,7 +10,7 @@ export class Auth0Service {
     constructor() {
         this.initAuth0Client();
     }
- 
+    // TODO: Handle Auth0 Rate Limits
     getUser$(id: string): Observable<any> {
         return from(this.auth0Client.getUser({id}));
     }
