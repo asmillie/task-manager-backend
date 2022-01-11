@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AppMetadata, ManagementClient, UserMetadata } from 'auth0';
-import * as config from 'config';
+import config from 'config';
 import { from, Observable } from 'rxjs';
 
 @Injectable()

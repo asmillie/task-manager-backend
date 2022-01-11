@@ -57,7 +57,7 @@ export class UsersService {
             .pipe(
                 catchError(e => {
                     this.logger.error(`Error performing find operation: ${e}`);
-                    return throwError(new InternalServerErrorException());
+                    return throwError(() => new InternalServerErrorException());
                 })
             );
     }

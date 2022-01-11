@@ -2,9 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { MongoExceptionFilter } from './mongo-exception-filter';
-import * as config from 'config';
-import * as helmet from 'helmet';
-import * as rateLimit from 'express-rate-limit';
+import config from 'config';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 
 async function bootstrap() {
   const logger = new Logger('bootstrap');
