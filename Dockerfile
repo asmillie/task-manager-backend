@@ -1,4 +1,4 @@
-FROM node:12.18.3 as builder
+FROM node:12.22.8 as builder
 
 WORKDIR /usr/src/app
 
@@ -7,7 +7,7 @@ COPY package.json .
 
 RUN npm i --production
 
-FROM node:12.18.3-slim
+FROM node:12.22.8-slim
 ENV NODE_ENV=production
 
 WORKDIR /usr/src/app
