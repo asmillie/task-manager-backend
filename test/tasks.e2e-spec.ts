@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { INestApplication, ValidationPipe, ExecutionContext, InternalServerErrorException } from '@nestjs/common';
+import { INestApplication, ValidationPipe, ExecutionContext, InternalServerErrorException, CallHandler } from '@nestjs/common';
 import { MockMongooseService } from './mocks/mock-mongoose-service';
 import { TasksModule } from '../src/tasks/tasks.module';
 import { AuthGuard } from '@nestjs/passport';
@@ -9,39 +9,37 @@ import { Model } from 'mongoose';
 import { Task } from '../src/tasks/interfaces/task.interface';
 import * as request from 'supertest';
 import { mockTasks } from '../test/mocks/mock-tasks';
+import { mockUser } from './mocks/mock-user';
 import { TaskQueryOptions } from '../src/tasks/classes/task-query-options';
 import { TaskPaginationData } from '../src/tasks/interfaces/task-paginate.interface';
+import { UserInterceptor } from '../src/interceptors/user.interceptor';
 
 const mockAuthToken = 'valid-jwt';
 const mockTokenExpiry = new Date();
 mockTokenExpiry.setDate(mockTokenExpiry.getDate() + 3);
 
-const mockUser: any = {
-    _id : '5e286b8940b3a61cacd8667d',
-    name : 'Jenny',
-    email : {
-        address: 'jenny.email@emailsite.com',
-    },
-    tokens: [
-        { token: mockAuthToken, expiry: mockTokenExpiry },
-    ],
-    toJSON: jest.fn().mockReturnValue('User JSON'),
-};
-
 const mockTask: any = {
     _id: 'task-id',
-    owner: '5e286b8940b3a61cacd8667d',
+    owner: mockUser._id,
     description: 'Get Groceries',
     completed: false,
 };
 
 const mockJwtGuard = {
     canActivate: jest.fn()
-    .mockImplementation((context: ExecutionContext) => {
-        context.switchToHttp().getRequest().user = mockUser;
+    .mockImplementation((context: ExecutionContext) => {        
         return true;
     }),
 };
+
+const mockUserInterceptor = {
+    intercept: jest.fn().mockImplementation(
+        (context: ExecutionContext, next: CallHandler) => {
+            context.switchToHttp().getRequest().user = mockUser;
+            return next.handle();
+        }
+    )
+}
 
 const mockTaskModel = {
     create: jest.fn(),
@@ -69,6 +67,8 @@ describe('/tasks', () => {
         })
         .overrideGuard(AuthGuard())
         .useValue(mockJwtGuard)
+        .overrideInterceptor(UserInterceptor)
+        .useValue(mockUserInterceptor)
         .overrideProvider(getModelToken('Task'))
         .useValue(mockTaskModel)
         .compile();
@@ -85,19 +85,19 @@ describe('/tasks', () => {
     });
 
     describe('POST /tasks', () => {
-        it('should save user task', async () => {
+        it('should save user task', (done) => {
             taskModel.create.mockResolvedValue(mockTask);
 
-            await request(app.getHttpServer())
+            return request(app.getHttpServer())
                 .post('/tasks')
                 .set('Authorization', `Bearer ${mockAuthToken}`)
                 .send({
                     description: mockTask.description,
                 })
-                .expect(201);
+                .expect(201, done);
         });
 
-        it('should reject if invalid fields present', () => {
+        it('should reject if invalid fields present', (done) => {
             return request(app.getHttpServer())
                 .post('/tasks')
                 .send({
@@ -105,12 +105,12 @@ describe('/tasks', () => {
                     _owner: 'attempt to set different owner id',
                 })
                 .set('Authorization', `Bearer ${mockAuthToken}`)
-                .expect(400);
+                .expect(400, done);
         });
     });
 
     describe('POST /tasks/search/id', () => {
-        it('should return task belonging to user for provided id', () => {
+        it('should return task belonging to user for provided id', (done) => {
             taskModel.findOne.mockResolvedValue(mockTask);
 
             return request(app.getHttpServer())
@@ -122,21 +122,22 @@ describe('/tasks', () => {
                     expect(task.owner).toEqual(mockUser._id);
                     expect(task._id).toEqual(mockTask._id);
                     expect(task.description).toEqual(mockTask.description);
+                    done();
                 });
         });
 
-        it('should return error on failure to find task', () => {
+        it('should return error on failure to find task', (done) => {
             taskModel.findOne.mockRejectedValue(undefined);
 
             return request(app.getHttpServer())
                 .post(`/tasks/search/${mockTask._id}`)
                 .set('Authorization', `Bearer ${mockAuthToken}`)
-                .expect(500);
+                .expect(500, done);
         });
     });
 
     describe('POST /tasks/search', () => {
-        it('should return first page of search results on user tasks', () => {
+        it('should return first page of search results on user tasks', (done) => {
             taskModel.sort.mockResolvedValue(mockTasks);
             const tqo: TaskQueryOptions = {
                 completed: true,
@@ -165,10 +166,11 @@ describe('/tasks', () => {
                 .expect(200)
                 .then(({body}) => {
                     expect(body).toEqual(expectedResult);
+                    done();
                 });
         });
 
-        it('should return error on failure during search', () => {
+        it('should return error on failure during search', (done) => {
             taskModel.sort.mockRejectedValue(new InternalServerErrorException());
             const tqo: TaskQueryOptions = {
                 limit: 100,
@@ -179,12 +181,12 @@ describe('/tasks', () => {
                 .post('/tasks/search')
                 .set('Authorization', `Bearer ${mockAuthToken}`)
                 .send(tqo)
-                .expect(500);
+                .expect(500, done);
         });
     });
 
     describe('PATCH /tasks/id', () => {
-        it('should update task belonging to user for provided id', () => {
+        it('should update task belonging to user for provided id', (done) => {
             taskModel.findOneAndUpdate.mockResolvedValue({
                 ...mockTask,
                 completed: true,
@@ -198,56 +200,57 @@ describe('/tasks', () => {
                     const task = response.body;
                     expect(task._id).toEqual(mockTask._id);
                     expect(task.completed).toEqual(true);
+                    done();
                 });
         });
 
-        it('should return error on failure to update task', () => {
+        it('should return error on failure to update task', (done) => {
             taskModel.findOneAndUpdate.mockRejectedValue(undefined);
 
             return request(app.getHttpServer())
                 .patch(`/tasks/${mockTask._id}`)
                 .set('Authorization', `Bearer ${mockAuthToken}`)
-                .expect(500);
+                .expect(500, done);
         });
     });
 
     describe('DELETE /tasks/id', () => {
-        it('should delete task belonging to user for provided id', () => {
+        it('should delete task belonging to user for provided id', (done) => {
             taskModel.findOneAndDelete.mockResolvedValue(mockTask);
 
             return request(app.getHttpServer())
                 .delete(`/tasks/${mockTask._id}`)
                 .set('Authorization', `Bearer ${mockAuthToken}`)
-                .expect(200);
+                .expect(200, done);
         });
 
-        it('should return error on failure to delete task', () => {
+        it('should return error on failure to delete task', (done) => {
             taskModel.findOneAndDelete.mockRejectedValue(undefined);
 
             return request(app.getHttpServer())
                 .delete(`/tasks/${mockTask._id}`)
                 .set('Authorization', `Bearer ${mockAuthToken}`)
-                .expect(500);
+                .expect(500, done);
         });
     });
 
     describe('DELETE /tasks', () => {
-        it('should delete all tasks belonging to user', () => {
+        it('should delete all tasks belonging to user', (done) => {
             taskModel.deleteMany.mockResolvedValue('success');
 
             return request(app.getHttpServer())
                 .delete('/tasks')
                 .set('Authorization', `Bearer ${mockAuthToken}`)
-                .expect(200);
+                .expect(200, done);
         });
 
-        it('should return error on failure to delete tasks', () => {
+        it('should return error on failure to delete tasks', (done) => {
             taskModel.deleteMany.mockRejectedValue(undefined);
 
             return request(app.getHttpServer())
                 .delete('/tasks')
                 .set('Authorization', `Bearer ${mockAuthToken}`)
-                .expect(500);
+                .expect(500, done);
         });
     });
 

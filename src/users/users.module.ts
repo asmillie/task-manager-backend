@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { PassportModule } from '@nestjs/passport';
 
-import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { UserSchema } from './schemas/user.schema';
-import { PassportModule } from '@nestjs/passport';
-import { TasksModule } from '../tasks/tasks.module';
+
 
 @Module({
     imports: [
@@ -13,10 +12,12 @@ import { TasksModule } from '../tasks/tasks.module';
             { name: 'User', schema: UserSchema },
         ]),
         PassportModule.register({ defaultStrategy: 'jwt' }),
-        TasksModule,
     ],
-    controllers: [UsersController],
+    controllers: [],
     providers: [UsersService],
-    exports: [UsersService],
+    exports: [
+        MongooseModule,
+        UsersService
+    ],
 })
 export class UsersModule {}

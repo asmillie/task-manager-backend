@@ -1,16 +1,12 @@
-import { Controller, UseGuards, Post, Body, Req, Get, Param, Query, Patch, Delete, HttpCode } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { Controller, Post, Body, Req, Param, Patch, Delete, HttpCode, UseInterceptors } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TasksService } from './tasks.service';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { ValidTokenGuard } from '../auth/valid-token.guard';
 import { TaskQueryOptions } from './classes/task-query-options';
+import { UserInterceptor } from '../interceptors/user.interceptor';
 
-@UseGuards(
-    AuthGuard(),
-    ValidTokenGuard,
-)
 @Controller('tasks')
+@UseInterceptors(UserInterceptor)
 export class TasksController {
 
     constructor(private readonly tasksService: TasksService) {}
@@ -21,7 +17,7 @@ export class TasksController {
      * @param req Request object
      * @param {CreateTaskDto} createTaskDto Task to be created
      */
-    @Post()
+    @Post()    
     async createTask(@Req() req, @Body() createTaskDto: CreateTaskDto) {
         createTaskDto.owner = req.user._id;
         return await this.tasksService.create(createTaskDto);
@@ -49,7 +45,7 @@ export class TasksController {
     @Post('/search')
     async paginateTasks(
         @Req() req,
-        @Body() tqo: TaskQueryOptions) {
+        @Body() tqo: TaskQueryOptions) {        
         return await this.tasksService.paginateTasksByUserId(req.user._id, tqo);
     }
 

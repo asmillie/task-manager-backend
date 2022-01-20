@@ -9,18 +9,8 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { TaskPaginationData } from './interfaces/task-paginate.interface';
 import { mockTasks } from '../../test/mocks/mock-tasks';
 import { mockTaskModel } from '../../test/mocks/mock-task-model';
+import { mockUser } from '../../test/mocks/mock-user';
 
-const mockUser = {
-    _id : '5e286b8940b3a61cacd8667d',
-    name : 'Jenny',
-    email : {
-        address: 'jenny.email@emailsite.com',
-    },
-    password : '$2b$08$gTuxdD.U26AgUfcDpqIS7unCzyWUV1tQB2681ZFRv95gki5e3TxSS',
-    tokens : [],
-    createdAt : '2020-01-22T15:34:33.356Z',
-    updatedAt : '2020-02-22T15:34:33.356Z',
-};
 
 const mockTaskDto = new CreateTaskDto(
     '5e286b8940b3a61cacd8667d',
