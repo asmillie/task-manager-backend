@@ -7,6 +7,6 @@ module.exports = {
     auth0: {
         domain: 'dev-x4xgby3m.us.auth0.com',
         clientId: 'mjdMD5l2N6ULDkJXry3irrhKeBaoDS0v',
-        clientSecret: 'kP6pVgdcUvHAecR0hBTCH_e1aQMWwsuZl3hV92Vv2kPxj7BYVJ0B8qd4acUV5J9M'
+        clientSecret: process.env.AUTH0_CLIENT_SECRET
     }
 };
