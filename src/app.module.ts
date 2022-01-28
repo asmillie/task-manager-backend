@@ -9,6 +9,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { TasksModule } from './tasks/tasks.module';
 import { AuthGuard, PassportModule } from '@nestjs/passport';
+import { LoggerService } from './logs/logger/logger.service';
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { AuthGuard, PassportModule } from '@nestjs/passport';
     {
       provide: APP_GUARD,
       useClass: AuthGuard()
-    }
+    },
+    LoggerService
   ],
 })
 export class AppModule {}
