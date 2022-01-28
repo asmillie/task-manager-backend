@@ -1,12 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import winston from 'winston';
+import { createLogger, Logger, format, transports } from 'winston';
 import 'winston-mongodb';
+import dayjs from 'dayjs';
+
+const logFormat = format.printf((info) => {
+    const requestId = info.metadata.metadata.requestId;
+    const timestamp = dayjs(info.metadata.metadata.timestamp).format('MM/DD/YYYY, h:mm:ss A');
+    // console.log(JSON.stringify(info));
+    return `${info.level.toUpperCase()}: ${info.message}\nREQUEST ID: ${requestId} \n${timestamp} \n `;
+});
 
 @Injectable()
 export class LoggerService {
-    private logger: winston.Logger;
+    private logger: Logger;
 
     constructor(@InjectConnection() private connection: Connection) {
         this.createLogger();
@@ -17,19 +25,29 @@ export class LoggerService {
     }
 
     private createLogger() {
-        this.logger = winston.createLogger({
+        this.logger = createLogger({
             level: 'info',
-            format: winston.format.json(),
+            format: 
+                format.combine(
+                    format.timestamp(),
+                    format.metadata(),
+                    format.prettyPrint()
+                ),
             transports: [
-                new winston.transports.MongoDB({
-                    db: this.connection.asPromise()
-                })
+                // new winston.transports.MongoDB({
+                //     db: this.connection.asPromise()
+                // })
             ]
         })
 
         if (process.env.NODE_ENV !== 'production') {
-            this.logger.add(new winston.transports.Console({
-                format: winston.format.simple(),
+            this.logger.add(new transports.Console({
+                format: 
+                    format.combine(
+                        format.timestamp(),
+                        format.metadata(),                        
+                        logFormat,
+                    ),
             }))
         }
     }
