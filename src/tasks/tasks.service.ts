@@ -7,55 +7,31 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskSortOption } from './classes/task-sort-option';
 import { TaskQueryOptions } from './classes/task-query-options';
 import { TaskPaginationData } from './interfaces/task-paginate.interface';
+import { LoggerService } from '../logs/logger/logger.service';
 
 @Injectable()
 export class TasksService {
 
-    private logger = new Logger('TasksService');
-
     constructor(
-        @InjectModel('Task') private readonly taskModel: Model<Task>) {}
+        @InjectModel('Task') private readonly taskModel: Model<Task>,
+        private logger: LoggerService) {}
 
     /**
      * Creates a new task
      * @param {CreateTaskDto} createTaskDto Task to be created
      * @throws {InternalServerErrorException} if an error occurs while creating task
      */
-    async create(createTaskDto: CreateTaskDto): Promise<Task> {
+    async create(requestId: string, createTaskDto: CreateTaskDto): Promise<Task> {
         try {
             return await this.taskModel.create({
                 ...createTaskDto,
                 owner: createTaskDto.owner,
             });
         } catch (e) {
-            this.logger.error(
-                `Failed to create task for user id ${createTaskDto.owner}. DTO: ${JSON.stringify(createTaskDto)}`,
-                );
-            throw new InternalServerErrorException();
-        }
-    }
-
-    async createDemoTasks(owner: string): Promise<Task[]> {
-        const tasks = [
-            { owner, description: 'Brew Coffee', completed: true },
-            { owner, description: 'Check Email Messages', completed: true },
-            { owner, description: 'Review file backups', completed: true },
-            { owner, description: 'Plan App Feature', completed: true },
-            { owner, description: 'Build App Feature', completed: true },
-            { owner, description: 'Test App Feature', completed: false },
-            { owner, description: 'Fix bugs', completed: false },
-            { owner, description: 'Deploy App Feature', completed: false },
-            { owner, description: 'Pickup Groceries', completed: true },
-            { owner, description: 'Plant tree', completed: false },
-            { owner, description: 'Mow Lawn', completed: true },
-            { owner, description: 'Do Laundry', completed: true },
-            { owner, description: 'Empty wastebasket', completed: false },
-        ];
-
-        try {
-            return await this.taskModel.insertMany(tasks);
-        } catch (e) {
-            this.logger.error(`Failed to create tasks for demo account ${owner}`);
+            this.logger.getLogger().error({
+                message: `Failed to create task for user id ${createTaskDto.owner}. DTO: ${JSON.stringify(createTaskDto)}`,
+                requestId
+            });
             throw new InternalServerErrorException();
         }
     }
@@ -70,6 +46,7 @@ export class TasksService {
      * @throws {InternalServerErrorException} if an error occurs while finding tasks
      */
     async paginateTasksByUserId(
+        requestId: string,
         userId: string,
         tqo: TaskQueryOptions): Promise<TaskPaginationData> {
 
@@ -119,9 +96,10 @@ export class TasksService {
         try {
             totalResults = await this.taskModel.countDocuments(conditions);
         } catch (e) {
-            this.logger.error(
-                `Failed to retrieve document count. Conditions: ${JSON.stringify(conditions)}`,
-            );
+            this.logger.getLogger().error({
+                message: `Failed to retrieve document count. Conditions: ${JSON.stringify(conditions)}`,
+                requestId
+            });
             throw new InternalServerErrorException();
         }
 
@@ -129,9 +107,10 @@ export class TasksService {
         try {
             tasks = await this.taskModel.find(conditions, null, opts).sort(sort);
         } catch (e) {
-            this.logger.error(
-                `Failed to find all tasks for user id ${userId}. Conditions: ${JSON.stringify(conditions)}, Sort: ${JSON.stringify(sort)}`,
-            );
+            this.logger.getLogger().error({
+                message: `Failed to find all tasks for user id ${userId}. Conditions: ${JSON.stringify(conditions)}, Sort: ${JSON.stringify(sort)}`,
+                requestId
+            });
             throw new InternalServerErrorException();
         }
 
@@ -158,16 +137,17 @@ export class TasksService {
      * @param taskId Id of task to find
      * @throws {InternalServerErrorException} if an error occurs while finding task
      */
-    async findTask(userId: string, taskId: string): Promise<Task> {
+    async findTask(requestId: string, userId: string, taskId: string): Promise<Task> {
         try {
             return await this.taskModel.findOne({
                 _id: taskId,
                 owner: userId,
             });
         } catch (e) {
-            this.logger.error(
-                `Failed to find task id ${taskId} for user id ${userId}.`,
-            );
+            this.logger.getLogger().error({
+                message: `Failed to find task id ${taskId} for user id ${userId}.`,
+                requestId
+            });
             throw new InternalServerErrorException();
         }
     }
@@ -179,7 +159,11 @@ export class TasksService {
      * @param {UpdateTaskDto} updateTaskDto Task fields to update
      * @throws {InternalServerErrorException} if an error occurs while updating task
      */
-    async updateTask(userId: string, taskId: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
+    async updateTask(
+        requestId: string,
+        userId: string,
+        taskId: string,
+        updateTaskDto: UpdateTaskDto): Promise<Task> {
         const conditions =  {
             owner: userId,
             _id: taskId,
@@ -188,9 +172,10 @@ export class TasksService {
         try {
             return await this.taskModel.findOneAndUpdate(conditions, updateTaskDto, { new: true });
         } catch (e) {
-            this.logger.error(
-                `Failed to update task id ${taskId} for user id ${userId}. DTO: ${JSON.stringify(updateTaskDto)}`,
-            );
+            this.logger.getLogger().error({
+                message: `Failed to update task id ${taskId} for user id ${userId}. DTO: ${JSON.stringify(updateTaskDto)}`,
+                requestId
+            });
             throw new InternalServerErrorException();
         }
     }
@@ -201,7 +186,7 @@ export class TasksService {
      * @param taskId Id of task to delete
      * @throws {InternalServerErrorException} if an error occurs while deleting task
      */
-    async deleteTask(userId: string, taskId: string): Promise<Task> {
+    async deleteTask(requestId: string, userId: string, taskId: string): Promise<Task> {
         const conditions = {
             owner: userId,
             _id: taskId,
@@ -210,9 +195,10 @@ export class TasksService {
         try {
             return await this.taskModel.findOneAndDelete(conditions);
         } catch (e) {
-            this.logger.error(
-                `Failed to delete task id ${taskId} for user id ${userId}. Conditions: ${JSON.stringify(conditions)}`,
-            );
+            this.logger.getLogger().error({
+                message: `Failed to delete task id ${taskId} for user id ${userId}. Conditions: ${JSON.stringify(conditions)}`,
+                requestId
+            });
             throw new InternalServerErrorException();
         }
     }
@@ -222,13 +208,14 @@ export class TasksService {
      * @param userId Id of user that owns tasks
      * @throws {InternalServerErrorException} if an error occurs while deleting tasks
      */
-    async deleteAllTasksByUserId(userId: string) {
+    async deleteAllTasksByUserId(requestId: string, userId: string) {
         try {
             return await this.taskModel.deleteMany({ owner: userId });
         } catch (e) {
-            this.logger.error(
-                `Failed to delete all tasks for user id ${userId}`,
-            );
+            this.logger.getLogger().error({
+                message: `Failed to delete all tasks for user id ${userId}`,
+                requestId
+            });
             throw new InternalServerErrorException();
         }
     }
