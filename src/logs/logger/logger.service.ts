@@ -4,11 +4,11 @@ import { Connection } from 'mongoose';
 import { createLogger, Logger, format, transports } from 'winston';
 import 'winston-mongodb';
 import dayjs from 'dayjs';
+import config from 'config';
 
-const logFormat = format.printf((info) => {
+const consoleLogFormat = format.printf((info) => {
     const requestId = info.metadata.metadata.requestId;
     const timestamp = dayjs(info.metadata.metadata.timestamp).format('MM/DD/YYYY, h:mm:ss A');
-    // console.log(JSON.stringify(info));
     return `${info.level.toUpperCase()}: ${info.message}\nREQUEST ID: ${requestId} \n${timestamp} \n `;
 });
 
@@ -49,18 +49,20 @@ export class LoggerService {
     }
 
     private createLogger() {
+        const db = config.get<string>('database.uri');
+
         this.logger = createLogger({
             level: 'info',
             format: 
                 format.combine(
                     format.timestamp(),
                     format.metadata(),
-                    format.prettyPrint()
                 ),
             transports: [
-                // new winston.transports.MongoDB({
-                //     db: this.connection.asPromise()
-                // })
+                new transports.MongoDB({
+                    db,
+                    tryReconnect: true,
+                })
             ]
         })
 
@@ -69,8 +71,9 @@ export class LoggerService {
                 format: 
                     format.combine(
                         format.timestamp(),
-                        format.metadata(),                        
-                        logFormat,
+                        format.metadata(), 
+                        format.prettyPrint(),                       
+                        consoleLogFormat,
                     ),
             }))
         }
