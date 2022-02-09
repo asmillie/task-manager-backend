@@ -18,11 +18,6 @@ export class LogRequestInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       tap(() => {
-        this.logger.getLogger().info({
-          message: 'End Request',
-          requestId
-        });
-
         const timeElapsed = Date.now() - now;
         this.logger.getLogger().info({
           message: `Request Completed in ${timeElapsed} ms.`,
