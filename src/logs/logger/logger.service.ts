@@ -24,6 +24,30 @@ export class LoggerService {
         return this.logger;
     }
 
+    logDbOperationStart(
+        requestId: string,
+        serviceName: string,
+        operationType: string): number {
+            this.logger.info({
+                message: `{${serviceName}} ${operationType} Operation Started`,
+                requestId
+            });
+
+            return Date.now();
+        }
+
+    logDbOperationEnd(
+        requestId: string,
+        serviceName: string,
+        operationType: string,
+        startTimeInMs: number
+    ) {
+        this.logger.info({
+            message: `{${serviceName}} ${operationType} Operation Completed in ${Date.now() - startTimeInMs} ms.`,
+            requestId
+        });
+    }
+
     private createLogger() {
         this.logger = createLogger({
             level: 'info',

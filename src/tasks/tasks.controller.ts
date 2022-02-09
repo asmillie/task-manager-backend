@@ -4,6 +4,7 @@ import { TasksService } from './tasks.service';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskQueryOptions } from './classes/task-query-options';
 import { UserInterceptor } from '../interceptors/user.interceptor';
+import { RequestId } from '../decorators/request-id.decorator';
 
 @Controller('tasks')
 @UseInterceptors(UserInterceptor)
@@ -18,9 +19,12 @@ export class TasksController {
      * @param {CreateTaskDto} createTaskDto Task to be created
      */
     @Post()    
-    async createTask(@Req() req, @Body() createTaskDto: CreateTaskDto) {
+    async createTask(
+        @Req() req,
+        @RequestId() requestId: string,
+        @Body() createTaskDto: CreateTaskDto) {
         createTaskDto.owner = req.user._id;
-        return await this.tasksService.create(createTaskDto);
+        return await this.tasksService.create(requestId, createTaskDto);
     }
 
     /**
@@ -30,8 +34,11 @@ export class TasksController {
      */
     @HttpCode(200)
     @Post('/search/:id')
-    async findTask(@Req() req, @Param('id') id: string) {
-        const task = await this.tasksService.findTask(req.user._id, id);
+    async findTask(
+        @Req() req,
+        @RequestId() requestId: string,
+        @Param('id') id: string) {
+        const task = await this.tasksService.findTask(requestId, req.user._id, id);
         return task;
     }
 
@@ -45,8 +52,9 @@ export class TasksController {
     @Post('/search')
     async paginateTasks(
         @Req() req,
+        @RequestId() requestId: string,
         @Body() tqo: TaskQueryOptions) {        
-        return await this.tasksService.paginateTasksByUserId(req.user._id, tqo);
+        return await this.tasksService.paginateTasksByUserId(requestId, req.user._id, tqo);
     }
 
     /**
@@ -58,9 +66,10 @@ export class TasksController {
     @Patch(':id')
     async updateTask(
         @Req() req,
+        @RequestId() requestId: string,
         @Param('id') id: string,
         @Body() updateTaskDto: UpdateTaskDto) {
-        return await this.tasksService.updateTask(req.user._id, id, updateTaskDto);
+        return await this.tasksService.updateTask(requestId, req.user._id, id, updateTaskDto);
     }
 
     /**
@@ -72,8 +81,9 @@ export class TasksController {
     @Delete(':id')
     async deleteTask(
         @Req() req,
+        @RequestId() requestId: string,
         @Param('id') id: string) {
-        return await this.tasksService.deleteTask(req.user._id, id);
+        return await this.tasksService.deleteTask(requestId, req.user._id, id);
     }
 
     /**
@@ -81,7 +91,7 @@ export class TasksController {
      * @param req Request object
      */
     @Delete()
-    async deleteAllUserTasks(@Req() req) {
-        return await this.tasksService.deleteAllTasksByUserId(req.user._id);
+    async deleteAllUserTasks(@Req() req, @RequestId() requestId: string) {
+        return await this.tasksService.deleteAllTasksByUserId(requestId, req.user._id);
     }
 }
