@@ -23,6 +23,8 @@ const mockReq = {
     user: { _id: mockUser._id },
 };
 
+const mockRequestId = 'requestId';
+
 describe('TasksController', () => {
     let tasksController: TasksController;
     let tasksService;
@@ -61,8 +63,8 @@ describe('TasksController', () => {
             tasksService.create.mockResolvedValue('Created Task');
 
             expect(tasksService.create).not.toHaveBeenCalled();
-            const result = await tasksController.createTask(mockReq, mockTaskDto);
-            expect(tasksService.create).toHaveBeenCalledWith(mockTaskDto);
+            const result = await tasksController.createTask(mockReq, mockRequestId, mockTaskDto);
+            expect(tasksService.create).toHaveBeenCalledWith(mockRequestId, mockTaskDto);
             expect(result).toEqual('Created Task');
         });
 
@@ -70,7 +72,7 @@ describe('TasksController', () => {
             tasksService.create.mockRejectedValue(new InternalServerErrorException());
 
             expect(tasksService.create).not.toHaveBeenCalled();
-            expect(tasksController.createTask(mockReq, mockTaskDto)).rejects.toThrow(InternalServerErrorException);
+            expect(tasksController.createTask(mockReq, mockRequestId, mockTaskDto)).rejects.toThrow(InternalServerErrorException);
         });
     });
 
@@ -79,8 +81,8 @@ describe('TasksController', () => {
             tasksService.findTask.mockResolvedValue('Found Task');
 
             expect(tasksService.findTask).not.toHaveBeenCalled();
-            const result = await tasksController.findTask(mockReq, 'id string');
-            expect(tasksService.findTask).toHaveBeenCalledWith(mockReq.user._id, 'id string');
+            const result = await tasksController.findTask(mockReq, mockRequestId, 'id string');
+            expect(tasksService.findTask).toHaveBeenCalledWith(mockRequestId, mockReq.user._id, 'id string');
             expect(result).toEqual('Found Task');
         });
 
@@ -88,7 +90,7 @@ describe('TasksController', () => {
             tasksService.findTask.mockRejectedValue(new InternalServerErrorException());
 
             expect(tasksService.findTask).not.toHaveBeenCalled();
-            expect(tasksController.findTask(mockReq, 'id string')).rejects.toThrow(InternalServerErrorException);
+            expect(tasksController.findTask(mockReq, mockRequestId, 'id string')).rejects.toThrow(InternalServerErrorException);
         });
     });
 
@@ -110,9 +112,11 @@ describe('TasksController', () => {
             expect(tasksService.paginateTasksByUserId).not.toHaveBeenCalled();
             const result = await tasksController.paginateTasks(
                 mockReq,
+                mockRequestId, 
                 taskQueryOptions,
             );
             expect(tasksService.paginateTasksByUserId).toHaveBeenCalledWith(
+                mockRequestId,
                 mockReq.user._id,
                 taskQueryOptions,
             );
@@ -123,7 +127,7 @@ describe('TasksController', () => {
             tasksService.paginateTasksByUserId.mockRejectedValue(new InternalServerErrorException());
 
             expect(tasksService.paginateTasksByUserId).not.toHaveBeenCalled();
-            expect(tasksController.paginateTasks(mockReq, undefined))
+            expect(tasksController.paginateTasks(mockReq, mockRequestId, undefined))
                 .rejects.toThrow(InternalServerErrorException);
         });
     });
@@ -136,8 +140,9 @@ describe('TasksController', () => {
             };
 
             expect(tasksService.updateTask).not.toHaveBeenCalled();
-            const result = await tasksController.updateTask(mockReq, 'id', updateTaskDto);
+            const result = await tasksController.updateTask(mockReq, mockRequestId, 'id', updateTaskDto);
             expect(tasksService.updateTask).toHaveBeenCalledWith(
+                mockRequestId,
                 mockReq.user._id,
                 'id',
                 updateTaskDto,
@@ -149,7 +154,7 @@ describe('TasksController', () => {
             tasksService.updateTask.mockRejectedValue(new InternalServerErrorException());
 
             expect(tasksService.updateTask).not.toHaveBeenCalled();
-            expect(tasksController.updateTask(mockReq, 'id', null))
+            expect(tasksController.updateTask(mockReq, mockRequestId, 'id', null))
                 .rejects.toThrow(InternalServerErrorException);
 
         });
@@ -160,8 +165,8 @@ describe('TasksController', () => {
             tasksService.deleteTask.mockResolvedValue(true);
 
             expect(tasksService.deleteTask).not.toHaveBeenCalled();
-            const result = await tasksController.deleteTask(mockReq, 'id');
-            expect(tasksService.deleteTask).toHaveBeenCalledWith(mockReq.user._id, 'id');
+            const result = await tasksController.deleteTask(mockReq, mockRequestId, 'id');
+            expect(tasksService.deleteTask).toHaveBeenCalledWith(mockRequestId ,mockReq.user._id, 'id');
             expect(result).toEqual(true);
         });
 
@@ -169,7 +174,7 @@ describe('TasksController', () => {
             tasksService.deleteTask.mockRejectedValue(new InternalServerErrorException());
 
             expect(tasksService.deleteTask).not.toHaveBeenCalled();
-            expect(tasksController.deleteTask(mockReq, 'invalid id'))
+            expect(tasksController.deleteTask(mockReq, mockRequestId, 'invalid id'))
                 .rejects.toThrow(InternalServerErrorException);
         });
     });
@@ -179,8 +184,8 @@ describe('TasksController', () => {
             tasksService.deleteAllTasksByUserId.mockResolvedValue(true);
 
             expect(tasksService.deleteAllTasksByUserId).not.toHaveBeenCalled();
-            const result = await tasksController.deleteAllUserTasks(mockReq);
-            expect(tasksService.deleteAllTasksByUserId).toHaveBeenCalledWith(mockReq.user._id);
+            const result = await tasksController.deleteAllUserTasks(mockReq, mockRequestId);
+            expect(tasksService.deleteAllTasksByUserId).toHaveBeenCalledWith(mockRequestId, mockReq.user._id);
             expect(result).toEqual(true);
         });
 
@@ -188,7 +193,7 @@ describe('TasksController', () => {
             tasksService.deleteAllTasksByUserId.mockRejectedValue(new InternalServerErrorException());
 
             expect(tasksService.deleteAllTasksByUserId).not.toHaveBeenCalled();
-            expect(tasksController.deleteAllUserTasks(mockReq)).rejects.toThrow(InternalServerErrorException);
+            expect(tasksController.deleteAllUserTasks(mockReq, mockRequestId)).rejects.toThrow(InternalServerErrorException);
         });
     });
 });

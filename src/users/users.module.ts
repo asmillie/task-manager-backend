@@ -4,6 +4,7 @@ import { PassportModule } from '@nestjs/passport';
 
 import { UsersService } from './users.service';
 import { UserSchema } from './schemas/user.schema';
+import { LoggerService } from '../logs/logger/logger.service';
 
 
 @Module({
@@ -14,7 +15,10 @@ import { UserSchema } from './schemas/user.schema';
         PassportModule.register({ defaultStrategy: 'jwt' }),
     ],
     controllers: [],
-    providers: [UsersService],
+    providers: [
+        UsersService,
+        LoggerService
+    ],
     exports: [
         MongooseModule,
         UsersService

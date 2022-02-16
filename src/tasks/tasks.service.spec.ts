@@ -10,6 +10,8 @@ import { TaskPaginationData } from './interfaces/task-paginate.interface';
 import { mockTasks } from '../../test/mocks/mock-tasks';
 import { mockTaskModel } from '../../test/mocks/mock-task-model';
 import { mockUser } from '../../test/mocks/mock-user';
+import { LoggerService } from '../logs/logger/logger.service';
+import { mockLoggerService } from '../../test/mocks/mockLoggerService';
 
 
 const mockTaskDto = new CreateTaskDto(
@@ -40,6 +42,10 @@ describe('TasksService', () => {
                     provide: getModelToken('Task'),
                     useFactory: mockTaskModel,
                 },
+                {
+                    provide: LoggerService,
+                    useFactory: mockLoggerService
+                }
             ],
         }).compile();
 
@@ -72,7 +78,7 @@ describe('TasksService', () => {
             };
 
             expect(taskModel.find).not.toHaveBeenCalled();
-            const result = await tasksService.paginateTasksByUserId(mockUser._id, mockTaskQueryOptions);
+            const result = await tasksService.paginateTasksByUserId('requestId', mockUser._id, mockTaskQueryOptions);
             expect(result).toEqual(expectedResult);
         });
 
@@ -81,7 +87,7 @@ describe('TasksService', () => {
             taskModel.countDocuments.mockRejectedValue(undefined);
 
             expect(taskModel.find).not.toHaveBeenCalled();
-            expect(tasksService.paginateTasksByUserId('id', mockTaskQueryOptions))
+            expect(tasksService.paginateTasksByUserId('requestId','id', mockTaskQueryOptions))
                 .rejects.toThrow(InternalServerErrorException);
         });
     });
@@ -91,7 +97,7 @@ describe('TasksService', () => {
             taskModel.findOne.mockResolvedValue(mockTask);
 
             expect(taskModel.findOne).not.toHaveBeenCalled();
-            const result = await tasksService.findTask(mockUser._id, mockTaskDto.owner);
+            const result = await tasksService.findTask('requestId',mockUser._id, mockTaskDto.owner);
             expect(taskModel.findOne).toHaveBeenCalledTimes(1);
             expect(result).toEqual(mockTask);
         });
@@ -100,7 +106,7 @@ describe('TasksService', () => {
             taskModel.findOne.mockRejectedValue(undefined);
 
             expect(taskModel.findOne).not.toHaveBeenCalled();
-            expect(tasksService.findTask(mockUser._id, mockTaskDto.owner))
+            expect(tasksService.findTask('requestId',mockUser._id, mockTaskDto.owner))
                 .rejects.toThrow(InternalServerErrorException);
         });
     });
@@ -110,7 +116,7 @@ describe('TasksService', () => {
             taskModel.create.mockResolvedValue('task');
 
             expect(taskModel.create).not.toHaveBeenCalled();
-            const result = await tasksService.create(mockTaskDto);
+            const result = await tasksService.create('requestId',mockTaskDto);
             expect(taskModel.create).toHaveBeenCalledWith({
                 ...mockTaskDto,
                 owner: mockTaskDto.owner,
@@ -122,7 +128,7 @@ describe('TasksService', () => {
             taskModel.create.mockRejectedValue(undefined);
 
             expect(taskModel.create).not.toHaveBeenCalled();
-            expect(tasksService.create(mockTaskDto)).rejects.toThrow(InternalServerErrorException);
+            expect(tasksService.create('requestId',mockTaskDto)).rejects.toThrow(InternalServerErrorException);
         });
     });
 
@@ -131,7 +137,7 @@ describe('TasksService', () => {
             taskModel.findOneAndDelete.mockResolvedValue({ affected: 1 });
 
             expect(taskModel.findOneAndDelete).not.toHaveBeenCalled();
-            const result = await tasksService.deleteTask(mockUser._id, mockTaskDto.owner);
+            const result = await tasksService.deleteTask('requestId',mockUser._id, mockTaskDto.owner);
             expect(taskModel.findOneAndDelete).toHaveBeenCalledWith({
                 owner: mockUser._id,
                 _id: mockTaskDto.owner,
@@ -143,7 +149,7 @@ describe('TasksService', () => {
             taskModel.findOneAndDelete.mockRejectedValue(undefined);
 
             expect(taskModel.findOneAndDelete).not.toHaveBeenCalled();
-            expect(tasksService.deleteTask(mockUser._id, mockTaskDto.owner))
+            expect(tasksService.deleteTask('requestId',mockUser._id, mockTaskDto.owner))
                 .rejects.toThrow(InternalServerErrorException);
         });
     });
@@ -153,7 +159,7 @@ describe('TasksService', () => {
             taskModel.deleteMany.mockResolvedValue({ affected: 1 });
 
             expect(taskModel.deleteMany).not.toHaveBeenCalled();
-            const result = await tasksService.deleteAllTasksByUserId(mockUser._id);
+            const result = await tasksService.deleteAllTasksByUserId('requestId',mockUser._id);
             expect(taskModel.deleteMany).toHaveBeenCalledWith({ owner: mockUser._id });
             expect(result).toEqual({ affected: 1 });
         });
@@ -162,7 +168,7 @@ describe('TasksService', () => {
             taskModel.deleteMany.mockRejectedValue(undefined);
 
             expect(taskModel.deleteMany).not.toHaveBeenCalled();
-            expect(tasksService.deleteAllTasksByUserId(mockUser._id)).rejects.toThrow(InternalServerErrorException);
+            expect(tasksService.deleteAllTasksByUserId('requestId',mockUser._id)).rejects.toThrow(InternalServerErrorException);
         });
     });
 
@@ -174,7 +180,7 @@ describe('TasksService', () => {
             };
 
             expect(taskModel.findOneAndUpdate).not.toHaveBeenCalled();
-            const result = await tasksService.updateTask(mockUser._id, mockTask._id, updateTaskDto);
+            const result = await tasksService.updateTask('requestId',mockUser._id, mockTask._id, updateTaskDto);
             expect(taskModel.findOneAndUpdate).toHaveBeenCalledWith(
                 { owner: mockUser._id, _id: mockTask._id },
                 updateTaskDto,
@@ -187,7 +193,7 @@ describe('TasksService', () => {
             taskModel.findOneAndUpdate.mockRejectedValue(undefined);
 
             expect(taskModel.findOneAndUpdate).not.toHaveBeenCalled();
-            expect(tasksService.updateTask(mockUser._id, mockTask._id, null))
+            expect(tasksService.updateTask('requestId',mockUser._id, mockTask._id, null))
                 .rejects.toThrow(InternalServerErrorException);
         });
     });

@@ -5,8 +5,9 @@ import { Model } from 'mongoose';
 import { User } from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { InternalServerErrorException, BadRequestException } from '@nestjs/common';
-import { Auth0Dto } from '../auth/dto/auth0.dto';
+import { InternalServerErrorException } from '@nestjs/common';
+import { LoggerService } from '../logs/logger/logger.service';
+import { mockLoggerService } from '../../test/mocks/mockLoggerService';
 
 const mockUserModel = () => ({
     create: jest.fn(),
@@ -22,6 +23,8 @@ const mockUser: any = {
     email : 'jenny.email@emailsite.com',
 };
 
+const mockRequestId = 'request-id';
+
 describe('UsersService', () => {
 
     let usersService: UsersService;
@@ -35,6 +38,10 @@ describe('UsersService', () => {
                     provide: getModelToken('User'),
                     useFactory: mockUserModel,
                 },
+                {
+                    provide: LoggerService,
+                    useFactory: mockLoggerService
+                }
             ],
         }).compile();
 
@@ -56,7 +63,7 @@ describe('UsersService', () => {
             userModel.create.mockResolvedValue('user');
 
             expect(userModel.create).not.toHaveBeenCalled();
-            const result = await usersService.create(createUserDto);
+            const result = await usersService.create(mockRequestId, createUserDto);
             expect(result).toEqual('user');
         });
 
@@ -64,7 +71,7 @@ describe('UsersService', () => {
             userModel.create.mockRejectedValue(undefined);
 
             expect(userModel.create).not.toHaveBeenCalled();
-            expect(usersService.create(createUserDto)).rejects.toThrow(InternalServerErrorException);
+            expect(usersService.create(mockRequestId, createUserDto)).rejects.toThrow(InternalServerErrorException);
         });
     });
 
@@ -73,7 +80,7 @@ describe('UsersService', () => {
             userModel.findById.mockResolvedValue('user');
 
             expect(userModel.findById).not.toHaveBeenCalled();
-            const result = await usersService.findUserById('id');
+            const result = await usersService.findUserById(mockRequestId, 'id');
             expect(userModel.findById).toHaveBeenCalledWith('id');
             expect(result).toEqual('user');
         });
@@ -82,17 +89,18 @@ describe('UsersService', () => {
             userModel.findById.mockRejectedValue(undefined);
 
             expect(userModel.findById).not.toHaveBeenCalled();
-            expect(usersService.findUserById('id')).rejects.toThrow(InternalServerErrorException);
+            expect(usersService.findUserById(mockRequestId, 'id')).rejects.toThrow(InternalServerErrorException);
         });
     });
 
     describe('findUserByEmail', () => {
         it('should find user by email address', async () => {
             userModel.findOne.mockResolvedValue('user');
+            const mockEmail = 'useremail@address';
 
             expect(userModel.findOne).not.toHaveBeenCalled();
-            const result = await usersService.findUserByEmail('useremail@address');
-            expect(userModel.findOne).toHaveBeenCalledWith({ 'email': 'useremail@address' });
+            const result = await usersService.findUserByEmail(mockRequestId, mockEmail);
+            expect(userModel.findOne).toHaveBeenCalledWith({ email: mockEmail });
             expect(result).toEqual('user');
         });
 
@@ -100,7 +108,7 @@ describe('UsersService', () => {
             userModel.findOne.mockRejectedValue(undefined);
 
             expect(userModel.findOne).not.toHaveBeenCalled();
-            expect(usersService.findUserByEmail('email')).rejects.toThrow(InternalServerErrorException);
+            expect(usersService.findUserByEmail(mockRequestId, 'email')).rejects.toThrow(InternalServerErrorException);
         });
     });
 
@@ -114,7 +122,7 @@ describe('UsersService', () => {
             };
 
             expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
-            const result = await usersService.updateUser('id', updateUserDto);
+            const result = await usersService.updateUser(mockRequestId, 'id', updateUserDto);
             expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith(
                 'id',
                 updateUserDto,
@@ -127,7 +135,7 @@ describe('UsersService', () => {
             userModel.findByIdAndUpdate.mockRejectedValue(undefined);
 
             expect(userModel.findByIdAndUpdate).not.toHaveBeenCalled();
-            expect(usersService.updateUser('id', null)).rejects.toThrow(InternalServerErrorException);
+            expect(usersService.updateUser(mockRequestId, 'id', null)).rejects.toThrow(InternalServerErrorException);
         });
     });
 
@@ -136,7 +144,7 @@ describe('UsersService', () => {
             userModel.findByIdAndDelete.mockResolvedValue('success');
 
             expect(userModel.findByIdAndDelete).not.toHaveBeenCalled();
-            const result = await usersService.deleteUser('id');
+            const result = await usersService.deleteUser(mockRequestId, 'id');
             expect(userModel.findByIdAndDelete).toHaveBeenCalledWith('id');
             expect(result).toEqual('success');
         });
@@ -145,7 +153,7 @@ describe('UsersService', () => {
             userModel.findByIdAndDelete.mockRejectedValue(undefined);
 
             expect(userModel.findByIdAndDelete).not.toHaveBeenCalled();
-            expect(usersService.deleteUser('id')).rejects.toThrow(InternalServerErrorException);
+            expect(usersService.deleteUser(mockRequestId, 'id')).rejects.toThrow(InternalServerErrorException);
         });
     });
 
