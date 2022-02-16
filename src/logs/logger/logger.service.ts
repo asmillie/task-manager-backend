@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { InjectConnection } from '@nestjs/mongoose';
-import { Connection } from 'mongoose';
 import { createLogger, Logger, format, transports } from 'winston';
 import 'winston-mongodb';
 import dayjs from 'dayjs';
@@ -16,7 +14,7 @@ const consoleLogFormat = format.printf((info) => {
 export class LoggerService {
     private logger: Logger;
 
-    constructor(@InjectConnection() private connection: Connection) {
+    constructor() {
         this.createLogger();
     }
 
@@ -50,6 +48,10 @@ export class LoggerService {
 
     private createLogger() {
         const db = config.get<string>('database.uri');
+        const mongoTransport = new transports.MongoDB({
+                db,
+                tryReconnect: true,
+            });
 
         this.logger = createLogger({
             level: 'info',
@@ -59,10 +61,10 @@ export class LoggerService {
                     format.metadata(),
                 ),
             transports: [
-                new transports.MongoDB({
-                    db,
-                    tryReconnect: true,
-                })
+                mongoTransport
+            ],
+            exceptionHandlers: [
+                mongoTransport
             ]
         })
 
@@ -77,5 +79,9 @@ export class LoggerService {
                     ),
             }))
         }
+
+        this.logger.on('error', (err) => {
+            console.log(`An error occurred during logging: ${err}`);
+        });
     }
 }
