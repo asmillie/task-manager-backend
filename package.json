@@ -51,6 +51,7 @@
   },
   "devDependencies": {
     "@compodoc/compodoc": "^1.1.16",
+    "@golevelup/ts-jest": "^0.3.2",
     "@nestjs/cli": "^8.2.0",
     "@nestjs/schematics": "^8.0.5",
     "@nestjs/testing": "^8.2.4",
