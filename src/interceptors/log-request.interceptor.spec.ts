@@ -1,7 +1,19 @@
 import { Test } from '@nestjs/testing';
+import { createMock } from '@golevelup/ts-jest';
 import { mockLoggerService } from '../../test/mocks/mockLoggerService';
 import { LoggerService } from '../logs/logger/logger.service';
 import { LogRequestInterceptor } from './log-request.interceptor';
+import { CallHandler, ExecutionContext } from '@nestjs/common';
+
+const requestId = 'requestId';
+const mockExecutionCtx = createMock<ExecutionContext>({
+  switchToHttp: () => ({
+    getRequest: () => ({
+      requestId
+    })
+  })
+});
+const mockCallHandler = createMock<CallHandler>();
 
 describe('LogRequestInterceptor', () => {
   let interceptor: LogRequestInterceptor;
