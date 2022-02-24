@@ -12,6 +12,7 @@ import { AuthGuard, PassportModule } from '@nestjs/passport';
 import { LoggerService } from './logs/logger/logger.service';
 import { RequestIdInterceptor } from './interceptors/request-id.interceptor';
 import { LogRequestInterceptor } from './interceptors/log-request.interceptor';
+import { EmailVerifiedGuard } from './auth/email-verified.guard';
 
 @Module({
   imports: [
@@ -29,6 +30,10 @@ import { LogRequestInterceptor } from './interceptors/log-request.interceptor';
     {
       provide: APP_GUARD,
       useClass: AuthGuard()
+    },
+    {
+      provide: APP_GUARD,
+      useClass: EmailVerifiedGuard
     },
     {
       provide: APP_INTERCEPTOR,
