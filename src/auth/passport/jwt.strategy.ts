@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import * as jwksClient from 'jwks-rsa';
-// TODO: Handle Auth0 Rate Limits
+import config from 'config';
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
     constructor() {
@@ -22,11 +23,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     /**
-     * Finds and returns user id contained in JWT payload.
+     * Finds and returns user email and verification status contained in JWT payload.
      * @param payload Decoded JWT
-     * @returns Object containing Auth0 Id from JWT payload
+     * @returns Object containing User data from JWT payload
      */
-    async validate(payload: any): Promise<any> {        
-        return { auth0Id: payload.sub };
+    async validate(payload: any): Promise<any> {
+        const namespace = config.get<string>('auth0.namespace');
+        const emailProp = `${namespace}/email`;
+        const emailVerifiedProp = `${namespace}/email_verified`;
+
+        return {
+            email: payload[emailProp],
+            emailVerified: payload[emailVerifiedProp]
+        };
     }
 }

@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { JwtStrategy } from './jwt.strategy';
-
+import config from 'config';
 
 describe('JwtStrategy', () => {
     let jwtStrategy: JwtStrategy;
@@ -20,13 +20,18 @@ describe('JwtStrategy', () => {
     });
 
     describe('validate', () => {
-        it('should return Auth0 Id', async () => {
-            const id = 'id';
-            const payload = { sub: id };
+        it('should return email and email verified fields', async () => {
+            const namespace = config.get<string>('auth0.namespace');
+            const email = 'email';
+            const emailVerified = true;
+            const payload = {};
+            payload[`${namespace}/email`] = email;
+            payload[`${namespace}/email_verified`] = emailVerified;
 
             const result = await jwtStrategy.validate(payload);
             expect(result).toEqual({
-                auth0Id: id
+                email,
+                emailVerified
             });
         });
     });
