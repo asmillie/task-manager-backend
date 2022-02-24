@@ -4,7 +4,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { TasksService } from './tasks.service';
 import { TasksController } from './tasks.controller';
 import { TaskSchema } from './schemas/task.schema';
-import { Auth0Service } from '../auth/auth0/auth0.service';
 import { UsersModule } from '../users/users.module';
 import { LoggerService } from '../logs/logger/logger.service';
 
@@ -17,7 +16,6 @@ import { LoggerService } from '../logs/logger/logger.service';
   ],
   providers: [
     TasksService,
-    Auth0Service,
     LoggerService
   ],
   controllers: [TasksController],
