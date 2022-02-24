@@ -59,29 +59,6 @@ export class UsersService {
     }
 
     /**
-     * Finds user by Auth0 Id
-     * @param {string} requestId ID of Request for logging
-     * @param auth0Id Auth0 Id to search for
-     * @throws {InternalServerErrorException} if an error occurs during find operation
-     */
-    findUserByAuth0Id$(requestId: string, auth0Id: string): Observable<User> {
-        const startTime = this.logger.logDbOperationStart(requestId, UsersService.name, DBOperation.Find);
-        return from(this.userModel.findOne({ 'auth0.id': auth0Id }))
-            .pipe(
-                catchError(e => {
-                    this.logger.getLogger().error({
-                        message: `Error performing find operation: ${e}`,
-                        requestId
-                    });
-                    return throwError(() => new InternalServerErrorException());
-                }),
-                tap(() => {
-                    this.logger.logDbOperationEnd(requestId, UsersService.name, DBOperation.Find, startTime);
-                })
-            );
-    }
-
-    /**
      * Finds user by email address
      * @param {string} requestId ID of Request for logging
      * @param email Email to search for

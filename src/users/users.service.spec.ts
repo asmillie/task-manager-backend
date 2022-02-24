@@ -53,10 +53,6 @@ describe('UsersService', () => {
 
         const createUserDto: CreateUserDto = {
             email: 'valid.email@email.com',
-            auth0: {
-                id: 'id',
-                lastSyncedAt: new Date()
-            }
         };
 
         it('should create a user', async () => {
