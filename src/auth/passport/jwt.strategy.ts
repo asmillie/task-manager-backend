@@ -4,8 +4,10 @@ import { Strategy, ExtractJwt } from 'passport-jwt';
 import * as jwksClient from 'jwks-rsa';
 import config from 'config';
 
+const AUTH0_DOMAIN = config.get<string>('auth0.domain');
+
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtStrategy extends PassportStrategy(Strategy) {   
     constructor() {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -14,11 +16,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
                 cache: true,
                 rateLimit: true,
                 jwksRequestsPerMinute: 5,
-                jwksUri: 'https://dev-x4xgby3m.us.auth0.com/.well-known/jwks.json'
+                jwksUri: `https://${AUTH0_DOMAIN}/.well-known/jwks.json`
             }),
             algorithms: ['RS256'],
             audience: 'task-manager',
-            issuer: 'https://dev-x4xgby3m.us.auth0.com/',
+            issuer: `https://${AUTH0_DOMAIN}/`,
         });
     }
 
