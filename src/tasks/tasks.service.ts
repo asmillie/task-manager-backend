@@ -46,9 +46,8 @@ export class TasksService {
      * search criteria. Tasks are returned along with
      * pagination data.
      * @param {string} requestId ID of Request for logging
-     * @param userId Id of user that owns tasks
-     * @param completed Filter tasks by completion status
-     * @param taskQueryOptions Search and pagination criteria
+     * @param {string} userId Id of user that owns tasks
+     * @param {TaskQueryOptions} tqo Search and pagination criteria
      * @throws {InternalServerErrorException} if an error occurs while finding tasks
      */
     async paginateTasksByUserId(
@@ -146,8 +145,8 @@ export class TasksService {
     /**
      * Finds a task by id
      * @param {string} requestId ID of Request for logging
-     * @param userId Id of user that owns task
-     * @param taskId Id of task to find
+     * @param {string} userId Id of user that owns task
+     * @param {string} taskId Id of task to find
      * @throws {InternalServerErrorException} if an error occurs while finding task
      */
     async findTask(requestId: string, userId: string, taskId: string): Promise<Task> {
@@ -171,8 +170,8 @@ export class TasksService {
     /**
      * Updates a task
      * @param {string} requestId ID of Request for logging
-     * @param userId Id of user that owns task
-     * @param taskId Id of task to update
+     * @param {string} userId Id of user that owns task
+     * @param {string} taskId Id of task to update
      * @param {UpdateTaskDto} updateTaskDto Task fields to update
      * @throws {InternalServerErrorException} if an error occurs while updating task
      */
@@ -203,8 +202,8 @@ export class TasksService {
     /**
      * Deletes a task
      * @param {string} requestId ID of Request for logging
-     * @param userId Id of user that owns task
-     * @param taskId Id of task to delete
+     * @param {string} userId Id of user that owns task
+     * @param {string} taskId Id of task to delete
      * @throws {InternalServerErrorException} if an error occurs while deleting task
      */
     async deleteTask(requestId: string, userId: string, taskId: string): Promise<Task> {
@@ -230,7 +229,7 @@ export class TasksService {
     /**
      * Delete all tasks belonging to a user
      * @param {string} requestId ID of Request for logging
-     * @param userId Id of user that owns tasks
+     * @param {string} userId Id of user that owns tasks
      * @throws {InternalServerErrorException} if an error occurs while deleting tasks
      */
     async deleteAllTasksByUserId(requestId: string, userId: string) {

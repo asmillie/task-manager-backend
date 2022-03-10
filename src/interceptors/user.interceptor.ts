@@ -5,10 +5,6 @@ import { LoggerService } from '../logs/logger/logger.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UsersService } from '../users/users.service';
 
-
-/**
- * 
- */
 @Injectable()
 export class UserInterceptor implements NestInterceptor {
 
@@ -22,10 +18,10 @@ export class UserInterceptor implements NestInterceptor {
     const email = req.user.email;
 
     /**
-     * Searches DB for User by their Email, returning the User if found. If no User 
-     * is found then a new one is created in the database.
+     * Searches for User by their Email address. If no User 
+     * is found then a new one is created.
      * 
-     * The returned User is then added to the request object before returning the
+     * The User is then added to the request object before returning the
      * Call Handler.
      */
     return from(this.usersService.findUserByEmail(requestId, email))

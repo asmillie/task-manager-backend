@@ -1,4 +1,4 @@
-import { IsOptional, IsInt, IsPositive, ValidateNested, IsBoolean, IsDate, IsDateString, Min, Max } from 'class-validator';
+import { IsOptional, IsInt, IsPositive, ValidateNested, IsBoolean, IsDateString, Min, Max } from 'class-validator';
 import { TaskSortOption } from './task-sort-option';
 import { Type } from 'class-transformer';
 

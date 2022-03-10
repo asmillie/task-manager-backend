@@ -40,7 +40,7 @@ export class UsersService {
     /**
      * Finds user by id
      * @param {string} requestId ID of Request for logging
-     * @param userId Id to search for
+     * @param {string} userId Id to search for
      * @throws {InternalServerErrorException} if an error occurs while finding user
      */
     async findUserById(requestId: string, userId: string): Promise<User> {
@@ -61,7 +61,7 @@ export class UsersService {
     /**
      * Finds user by email address
      * @param {string} requestId ID of Request for logging
-     * @param email Email to search for
+     * @param {string} email Email to search for
      * @throws {InternalServerErrorException} if an error occurs while finding user
      */
     async findUserByEmail(requestId: string, email: string): Promise<User> {
@@ -82,7 +82,7 @@ export class UsersService {
     /**
      * Updates user fields
      * @param {string} requestId ID of Request for logging
-     * @param userId Id of user being updated
+     * @param {string} userId Id of user being updated
      * @param {UpdateUserDto} updateUserDto Object containing updated fields
      * @throws {InternalServerErrorException} if an error occurs during update
      */
@@ -100,11 +100,11 @@ export class UsersService {
             this.logger.logDbOperationEnd(requestId, UsersService.name, DBOperation.Update, startTime);
         }
     }
-    // TODO: Test cascade deletion of tasks owned by user
+
     /**
      * Deletes a user by id
      * @param {string} requestId ID of Request for logging
-     * @param userId Id of user to be deleted
+     * @param {string} userId Id of user to be deleted
      * @throws {InternalServerErrorException} if an error occurs during deletion
      */
     async deleteUser(requestId:string, userId: string): Promise<User> {

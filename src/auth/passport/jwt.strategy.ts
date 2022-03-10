@@ -25,7 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     /**
-     * Finds and returns user email and verification status contained in JWT payload.
+     * Returns user email and verification status contained in JWT payload.
      * @param payload Decoded JWT
      * @returns Object containing User data from JWT payload
      */
