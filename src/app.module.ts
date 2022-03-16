@@ -8,11 +8,12 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { TasksModule } from './tasks/tasks.module';
-import { AuthGuard, PassportModule } from '@nestjs/passport';
+import { PassportModule } from '@nestjs/passport';
 import { LoggerService } from './logs/logger/logger.service';
 import { RequestIdInterceptor } from './interceptors/request-id.interceptor';
 import { LogRequestInterceptor } from './interceptors/log-request.interceptor';
 import { EmailVerifiedGuard } from './auth/email-verified.guard';
+import { AuthGuard } from './auth/auth.guard';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { EmailVerifiedGuard } from './auth/email-verified.guard';
     AppService,
     {
       provide: APP_GUARD,
-      useClass: AuthGuard()
+      useClass: AuthGuard
     },
     {
       provide: APP_GUARD,
