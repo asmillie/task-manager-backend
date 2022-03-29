@@ -19,7 +19,8 @@ import { AuthGuard } from './auth/auth.guard';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true
+      isGlobal: true,
+      envFilePath: 'dev.env'
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
