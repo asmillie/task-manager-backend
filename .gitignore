@@ -38,3 +38,6 @@ build/config\.gypi
 
 # documentation
 documentation
+
+# env var
+*.env
