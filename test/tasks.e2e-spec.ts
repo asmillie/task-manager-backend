@@ -50,90 +50,79 @@ beforeAll(async () => {
     dbUri = mongod.getUri();
 
     // Set as env var
-    process.env.ALLOW_CONFIG_MUTATIONS = "true";
-    process.env.NODE_CONFIG = JSON.stringify({
-        database: {
-            uri: dbUri
-        } 
-    });
     process.env.DATABASE_URI = dbUri;
-    importFresh('config');
 });
 
 afterAll(async () => {
     await mongod.stop();
 });
 
-test('env var should be set', () => {
-    expect(process.env.DATABASE_URI).toEqual(dbUri);
+describe('/tasks', () => { 
+
+    let app: INestApplication;    
+    let taskModel;    
+
+    beforeEach(async () => {
+        const module = await Test.createTestingModule({
+            imports: [
+                AppModule
+            ]
+        })
+        .overrideGuard(AuthGuard)
+        .useValue(mockAuthGuard)
+        .overrideInterceptor(UserInterceptor)
+        .useValue(mockUserInterceptor)
+        .overrideProvider(LoggerService)
+        .useValue(mockLogger)
+        .overrideProvider(getModelToken('Task'))
+        .useValue(mockTaskModel)
+        .compile();
+
+        app = module.createNestApplication();
+
+        taskModel = module.get<Model<Task>>(getModelToken('Task'));
+
+        app.useGlobalPipes(new ValidationPipe({
+            whitelist: true,
+            forbidNonWhitelisted: true
+        }));
+
+        await app.init();
+    });
+
+    afterEach(async () => {
+        if (app) {
+            await app.close();
+        }
+    });
+
+    it('should be instantiated', () => {
+        expect(app).toBeDefined();
+    });
+
+    describe('POST /tasks', () => {
+        it('should return status 201', (done) => {
+            taskModel.create.mockResolvedValue(mockTasks[0]);
+            const postData = {
+                description: mockTasks[0].description
+            };
+
+            request(app.getHttpServer())
+                .post('/tasks')
+                .send(postData)
+                .expect(201, done);
+        });
+
+        it('should return status 400', (done) => {
+            const invalidPostData = {
+                _id: mockTasks[0]._id,
+                _owner: 'invalid field'
+            };
+
+            request(app.getHttpServer())
+                .post('/tasks')
+                .send(invalidPostData)
+                .expect(400, done);
+        })
+    });
 });
-
-// describe('/tasks', () => { 
-
-//     let app: INestApplication;    
-//     let taskModel;    
-
-//     beforeEach(async () => {
-//         const module = await Test.createTestingModule({
-//             imports: [
-//                 AppModule
-//             ]
-//         })
-//         .overrideGuard(AuthGuard)
-//         .useValue(mockAuthGuard)
-//         .overrideInterceptor(UserInterceptor)
-//         .useValue(mockUserInterceptor)
-//         .overrideProvider(LoggerService)
-//         .useValue(mockLogger)
-//         .overrideProvider(getModelToken('Task'))
-//         .useValue(mockTaskModel)
-//         .compile();
-
-//         app = module.createNestApplication();
-
-//         taskModel = module.get<Model<Task>>(getModelToken('Task'));
-
-//         app.useGlobalPipes(new ValidationPipe({
-//             whitelist: true,
-//             forbidNonWhitelisted: true
-//         }));
-
-//         await app.init();
-//     });
-
-//     afterEach(async () => {
-//         if (app) {
-//             await app.close();
-//         }
-//     });
-
-//     it('should be instantiated', () => {
-//         expect(app).toBeDefined();
-//     });
-
-//     describe('POST /tasks', () => {
-//         it('should return status 201', (done) => {
-//             taskModel.create.mockResolvedValue(mockTasks[0]);
-//             const postData = {
-//                 description: mockTasks[0].description
-//             };
-
-//             request(app.getHttpServer())
-//                 .post('/tasks')
-//                 .send(postData)
-//                 .expect(201, done);
-//         });
-
-//         it('should return status 400', (done) => {
-//             const invalidPostData = {
-//                 _id: mockTasks[0]._id,
-//                 _owner: 'invalid field'
-//             };
-
-//             request(app.getHttpServer())
-//                 .post('/tasks')
-//                 .send(invalidPostData)
-//                 .expect(400, done);
-//         })
-//     });
-// });
