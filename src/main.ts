@@ -2,19 +2,21 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { MongoExceptionFilter } from './mongo-exception-filter';
-import config from 'config';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const logger = new Logger('bootstrap');
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+
   app.use(helmet());
   app.enableCors();
   app.use(
     rateLimit({
-      windowMs: config.get<number>('rateLimit.windowMs'),
-      max: config.get<number>('rateLimit.maxRequestsPerWMS'),
+      windowMs: configService.get<number>('API_RATE_LIMIT_WINDOW_MS'),
+      max: configService.get<number>('API_RATE_LIMIT_MAX_REQ_PER_WMS'),
     }),
   );
   app.useGlobalPipes(new ValidationPipe({
@@ -24,7 +26,7 @@ async function bootstrap() {
   }));
   app.useGlobalFilters(new MongoExceptionFilter());
 
-  const port = config.get<number>('port');
+  const port = configService.get<number>('PORT');
   await app.listen(port);
   logger.log(`Application listening on port ${port}`);
 }

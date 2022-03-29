@@ -1,11 +1,9 @@
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { from, Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
 import { LoggerService } from '../logs/logger/logger.service';
 import { DBOperation } from '../constants';
 

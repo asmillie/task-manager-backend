@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { createLogger, Logger, format, transports } from 'winston';
 import 'winston-mongodb';
 import dayjs from 'dayjs';
-import config from 'config';
+import { ConfigService } from '@nestjs/config';
 
 const consoleLogFormat = format.printf((info) => {
     const requestId = info.metadata.metadata.requestId;
@@ -14,7 +14,7 @@ const consoleLogFormat = format.printf((info) => {
 export class LoggerService {
     private logger: Logger;
 
-    constructor() {
+    constructor(private configService: ConfigService) {
         this.createLogger();
     }
 
@@ -47,7 +47,7 @@ export class LoggerService {
     }
 
     private createLogger() {
-        const db = config.get<string>('database.uri');
+        const db = this.configService.get<string>('DATABASE_URI');
         const mongoTransport = new transports.MongoDB({
                 db,
                 tryReconnect: true,

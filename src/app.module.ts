@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
-import config from 'config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -15,11 +15,19 @@ import { LogRequestInterceptor } from './interceptors/log-request.interceptor';
 import { EmailVerifiedGuard } from './auth/email-verified.guard';
 import { AuthGuard } from './auth/auth.guard';
 
+
 @Module({
   imports: [
-    MongooseModule.forRoot(
-      config.get<string>('database.uri')
-    ),
+    ConfigModule.forRoot({
+      isGlobal: true
+    }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('DATABASE_URI')
+      }),
+      inject: [ConfigService]
+    }),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     AuthModule,
     UsersModule,

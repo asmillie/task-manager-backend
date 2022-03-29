@@ -1,14 +1,30 @@
-# Task Manager API
+# Task Manager - Backend API
 
-Create a user account and manage a personal list of tasks to be completed.
+Backend API for a Todo List App
 
-Built in NestJS + Express connecting to a MongoDB database. Uses the SendGrid Api for sending emails.
+Built in NestJS + Express connecting to a MongoDB database. Authentication managed through [Auth0](https://auth0.com/).
 
-View a live demo running on [Heroku](https://asmillie-task-manager.herokuapp.com/)
+View a live demo running on [Azure](https://task-manager-frontend-dev.azurewebsites.net/)
 
 ## Requirements
 
-Requires Node.js and a MongoDB database to connect to. SendGrid API is used for sending emails and requires an API key. To sign up for a free SendGrid account and get an API key go [here](https://sendgrid.com/).
+Run in a docker container or locally on your machine:
+
+### **Docker**
+
+Docker Build:
+```
+docker build -t task-manager-api:latest .
+```
+Docker Run:
+```
+docker run -e BASE_URL -e PORT -e DATABASE_URI -e AUTH0_DOMAIN -e AUTH0_CLIENT_ID -e AUTH0_CLIENT_SECRET -p 3000:3000 --name "task_manager-backend" -d task-manager-api:latest
+```
+
+### **Local**
+
+- NodeJS 12.22.8
+- MongoDB 5.0.4
 
 ## Installation
 

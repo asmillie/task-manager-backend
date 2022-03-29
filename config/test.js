@@ -7,6 +7,6 @@ module.exports = {
         namespace: 'https://example.com'
     },
     database: {
-        uri: 'db-uri'
+        uri: process.env.DATABASE_URI
     }
 };

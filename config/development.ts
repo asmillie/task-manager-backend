@@ -1,4 +1,4 @@
-module.exports = {
+export default () => ({
     base_url: 'http://localhost',
     port: 3000,
     database: {
@@ -10,4 +10,4 @@ module.exports = {
         clientSecret: process.env.AUTH0_CLIENT_SECRET,
         namespace: 'https://task-manager-dev.azurewebsites.net'
     }
-};
+});
