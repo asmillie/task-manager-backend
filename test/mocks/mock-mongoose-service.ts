@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { MongooseOptionsFactory, MongooseModuleOptions } from '@nestjs/mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
@@ -6,23 +6,24 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 export class MockMongooseService implements MongooseOptionsFactory {
 
     private readonly DB_NAME = 'task-manager-api-test';
-    private readonly db: MongoMemoryServer;
+    private db: MongoMemoryServer;
 
-    constructor() {
-        this.db = new MongoMemoryServer();
-    }
+    constructor() {}
 
     async createMongooseOptions(): Promise<MongooseModuleOptions> {
-        return await this.db.getUri(this.DB_NAME).then(uri => {
-            return {
-                uri,
-                useNewUrlParser: true,
-                useCreateIndex: true,
-                useFindAndModify: false,
-                useUnifiedTopology: true,
-            };
-        }).catch(() => {
-            throw new InternalServerErrorException();
+        this.db = await this.createMongoMemoryServer();
+ 
+        const uri = this.db.getUri();
+        return {
+            uri
+        };
+    }
+
+    private async createMongoMemoryServer() {
+        return await MongoMemoryServer.create({
+            instance: {
+                dbName: this.DB_NAME
+            }
         });
     }
 }
