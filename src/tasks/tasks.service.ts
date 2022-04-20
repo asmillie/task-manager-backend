@@ -124,7 +124,7 @@ export class TasksService {
         } finally {
             this.logger.logDbOperationEnd(requestId, TasksService.name, DBOperation.Find, startTimeFind);
         }
-
+    
         const pageSize = tqo.limit;
         const totalPages = Math.ceil(totalResults / pageSize);
         const currentPage = tqo.page;
