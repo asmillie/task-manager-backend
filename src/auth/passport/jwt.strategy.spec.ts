@@ -1,18 +1,23 @@
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { JwtStrategy } from './jwt.strategy';
-import config from 'config';
 
 describe('JwtStrategy', () => {
     let jwtStrategy: JwtStrategy;
+    let config: ConfigService;
 
     beforeEach(async () => {
         const module = await Test.createTestingModule({
+            imports: [
+                ConfigModule
+            ],
             providers: [
                 JwtStrategy,
             ],
         }).compile();
 
         jwtStrategy = module.get<JwtStrategy>(JwtStrategy);
+        config = module.get<ConfigService>(ConfigService);
     });
 
     it('should be defined', () => {
