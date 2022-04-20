@@ -20,7 +20,6 @@ import { LoggerService } from '../logs/logger/logger.service';
         LoggerService
     ],
     exports: [
-        MongooseModule,
         UsersService
     ],
 })
