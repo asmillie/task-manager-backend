@@ -37,9 +37,10 @@ import { AuthGuard } from './auth/auth.guard';
   controllers: [AppController],
   providers: [
     AppService,
+    AuthGuard,
     {
       provide: APP_GUARD,
-      useClass: AuthGuard
+      useExisting: AuthGuard
     },
     {
       provide: APP_GUARD,
@@ -52,7 +53,7 @@ import { AuthGuard } from './auth/auth.guard';
     {
       provide: APP_INTERCEPTOR,
       useClass: LogRequestInterceptor
-    },
+    },    
     LoggerService
   ],
 })
