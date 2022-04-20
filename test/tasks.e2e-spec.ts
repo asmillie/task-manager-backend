@@ -1,5 +1,5 @@
 import { createMock } from '@golevelup/ts-jest';
-import { CallHandler, ExecutionContext, INestApplication, InternalServerErrorException, ValidationPipe } from '@nestjs/common';
+import { ExecutionContext, INestApplication, InternalServerErrorException, ValidationPipe } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
@@ -8,7 +8,6 @@ import { Model } from 'mongoose';
 import { LoggerService } from '../src/logs/logger/logger.service';
 import { Task } from '../src/tasks/interfaces/task.interface';
 import { mockTasks } from './mocks/mock-tasks';
-import { UserInterceptor } from '../src/interceptors/user.interceptor';
 import { mockUser } from './mocks/mock-user';
 import { AppModule } from '../src/app.module';
 import { AuthGuard } from '../src/auth/auth.guard';
@@ -16,34 +15,11 @@ import { User } from '../src/users/interfaces/user.interface';
 import { TaskQueryOptions } from '../src/tasks/classes/task-query-options';
 import { TaskPaginationData } from '../src/tasks/interfaces/task-paginate.interface';
 
-const mockAuthGuard = createMock<AuthGuard>({
-    canActivate: jest.fn().mockImplementation(
-        (context: ExecutionContext) => {
-            console.log('Mock Auth Guard');
-            context.switchToHttp().getRequest().user = {
-                email: mockUser.email,
-                emailVerified: true
-            };
-
-            return true;
-        }
-    )
-});
-
 const mockLogger = createMock<LoggerService>();
 const mockTaskModel = createMock<Model<Task>>();
 const mockUserModel = createMock<Model<User>>({
     create: jest.fn().mockResolvedValue(mockUser),
     findOne: jest.fn().mockResolvedValue(mockUser)
-});
-
-const mockUserInterceptor = createMock<UserInterceptor>({
-    intercept: jest.fn().mockImplementation(
-        (context: ExecutionContext, next: CallHandler) => {
-            context.switchToHttp().getRequest().user = mockUser;
-            return next.handle();
-        }
-    )
 });
 
 const mockAuthToken = 'valid-jwt';
