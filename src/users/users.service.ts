@@ -6,12 +6,14 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoggerService } from '../logs/logger/logger.service';
 import { DBOperation } from '../constants';
+import { TasksService } from '../tasks/tasks.service';
 
 @Injectable()
 export class UsersService {
 
     constructor(
         @InjectModel('User') private readonly userModel: Model<User>,
+        private tasksService: TasksService,
         private logger: LoggerService) {}
 
     /**
@@ -100,15 +102,19 @@ export class UsersService {
     }
 
     /**
-     * Deletes a user by id
+     * Deletes a user by id, user tasks also deleted
      * @param {string} requestId ID of Request for logging
      * @param {string} userId Id of user to be deleted
      * @throws {InternalServerErrorException} if an error occurs during deletion
      */
     async deleteUser(requestId:string, userId: string): Promise<User> {
         const startTime = this.logger.logDbOperationStart(requestId, UsersService.name, DBOperation.Delete);
+        
+        await this.tasksService.deleteAllTasksByUserId(requestId, userId);
+        
+        let user: User;
         try {
-            return await this.userModel.findByIdAndDelete(userId);
+            user = await this.userModel.findByIdAndDelete(userId);
         } catch (e) {
             this.logger.getLogger().error({
                 message: `Failed to delete user for id ${userId}`,
@@ -117,6 +123,8 @@ export class UsersService {
             throw new InternalServerErrorException();
         } finally {
             this.logger.logDbOperationEnd(requestId, UsersService.name, DBOperation.Delete, startTime);
-        }
+        }       
+        
+        return user;
     }
 }

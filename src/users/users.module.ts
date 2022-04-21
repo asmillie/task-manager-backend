@@ -5,6 +5,7 @@ import { PassportModule } from '@nestjs/passport';
 import { UsersService } from './users.service';
 import { UserSchema } from './schemas/user.schema';
 import { LoggerService } from '../logs/logger/logger.service';
+import { TasksModule } from '../tasks/tasks.module';
 
 
 @Module({
@@ -13,6 +14,7 @@ import { LoggerService } from '../logs/logger/logger.service';
             { name: 'User', schema: UserSchema },
         ]),
         PassportModule.register({ defaultStrategy: 'jwt' }),
+        TasksModule
     ],
     controllers: [],
     providers: [

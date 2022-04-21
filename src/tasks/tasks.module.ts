@@ -17,6 +17,8 @@ import { LoggerService } from '../logs/logger/logger.service';
     LoggerService
   ],
   controllers: [TasksController],
-  exports: [TasksService],
+  exports: [
+    TasksService,
+  ],
 })
 export class TasksModule {}
