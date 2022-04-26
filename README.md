@@ -1,14 +1,19 @@
 # Task Manager - Backend API
 
-Backend API for a Todo List App
+Allows a user to login (via [Auth0](https://auth0.com/)) and manage a list of tasks to be completed.
 
-Built in NestJS + Express connecting to a MongoDB database. Authentication managed through [Auth0](https://auth0.com/).
+This repository contains the backend API for the app which is built on NestJS and connects to a MongoDB database. Authentication is managed through [Auth0](https://auth0.com/).
 
-View a live demo running on [Azure](https://task-manager-frontend-dev.azurewebsites.net/)
+To view the frontend repository you can follow this [link](https://github.com/asmillie/task-manager-frontend).
+
+View a live demo running @ [https://task-manager-frontend-dev.azurewebsites.net/](https://task-manager-frontend-dev.azurewebsites.net/)
 
 ## Requirements
 
-Run in a docker container or locally on your machine:
+The project can be run via [Docker](https://www.docker.com/) or in a NodeJs 12 environment. You must provide a MongoDB database to connect to and will also need an [Auth0](https://auth0.com/) account. 
+
+- MongoDB 5.0.4
+- NodeJS 12.22.8
 
 ### **Docker**
 
@@ -24,7 +29,6 @@ docker run -e BASE_URL -e PORT -e DATABASE_URI -e AUTH0_DOMAIN -e AUTH0_CLIENT_I
 ### **Local**
 
 - NodeJS 12.22.8
-- MongoDB 5.0.4
 
 ## Installation
 
