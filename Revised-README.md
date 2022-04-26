@@ -10,6 +10,8 @@ To view the frontend repository you can follow this [link](https://github.com/as
 
 View a live demo running @ [https://task-manager-frontend-dev.azurewebsites.net/](https://task-manager-frontend-dev.azurewebsites.net/)
 
+<br>
+
 ## Requirements
 
 Build the project as a docker image through the included `Dockerfile` or run it in a NodeJS **v12.22.8** environment.
@@ -20,11 +22,54 @@ You will also need an [Auth0](https://auth0.com/) account as the app uses [Auth0
 
 *Please see the **Configuration** and **Run the Project** sections below for detailed instructions on setup and deployment.* 
 
+<br>
+
 ## Installation
 
 ```bash
 $ git clone https://github.com/asmillie/task-manager
 ```
+<br>
+
+## Configuration
+### **Docker / Production**
+When running in a docker container or in production mode you will need to provide the following environment variables:
+
+```bash
+export BASE_URL=http://localhost
+export PORT=3000
+
+# API Rate Limits
+export API_RATE_LIMIT_WINDOW_MS=900000
+export API_RATE_LIMIT_MAX_REQ_PER_WMS=100
+
+# MongoDB Connection URI
+export DATABASE_URI=<Insert MongoDB URI>
+
+# Auth0 Connection Information
+export AUTH0_DOMAIN=
+export AUTH0_CLIENT_ID=
+export AUTH0_CLIENT_SECRET=
+export AUTH0_NAMESPACE=
+```
+
+### **Development**
+In development mode you can provide environment variables by creating a `dev.env` file in the root directory.
+
+`dev.env`
+```
+BASE_URL=http://localhost
+PORT=3000
+API_RATE_LIMIT_WINDOW_MS=900000
+API_RATE_LIMIT_MAX_REQ_PER_WMS=100
+DATABASE_URI=
+AUTH0_DOMAIN=
+AUTH0_CLIENT_ID=
+AUTH0_CLIENT_SECRET=
+AUTH0_NAMESPACE=
+```
+
+<br>
 
 ## Run the Project
 
@@ -51,4 +96,6 @@ npm run start:dev
 # Run in Production Mode
 npm run start:prod
 ```
+
+<br>
 
