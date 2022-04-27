@@ -18,9 +18,27 @@ Build the project as a docker image through the included `Dockerfile` or run it 
 
 A MongoDB database is required to connect to, **v5.0.4** is the latest version used during development.
 
-You will also need an [Auth0](https://auth0.com/) account as the app uses [Auth0](https://auth0.com/) for authenticating requests to the api.
+You will also need an [Auth0](https://auth0.com/) account as the app uses [Auth0](https://auth0.com/) for authenticating requests to the api. The basic free account is enough for testing or development purposes. 
 
 *Please see the **Configuration** and **Run the Project** sections below for detailed instructions on setup and deployment.* 
+
+<br>
+
+## Auth0 Setup
+As stated in the requirements an [Auth0](https://auth0.com/) account is required to run the project. The basic free account should be enough for testing or development purposes. For official documentation please see [https://auth0.com/docs](https://auth0.com/docs).
+
+The following section will outline the steps to complete setup within the Auth0 dashboard before running the project:
+
+1. Add an API to Applications
+2. Add Custom Action to Actions Library
+3. Attach Custom Action to Login Flow
+4. Copy Auth0 Domain & Namespace to use in Configuration
+
+### Add an API to Applications
+
+In the Auth0 Dashboard under Applications -> APIs, click **Create API**. Enter a name for the API and set the **Identifier** as **task-manager** (all lowercase). Leave the **Signing Algorithm** as **RS256** and click **Create**.
+
+
 
 <br>
 
@@ -46,10 +64,8 @@ export API_RATE_LIMIT_MAX_REQ_PER_WMS=100
 # MongoDB Connection URI
 export DATABASE_URI=<Insert MongoDB URI>
 
-# Auth0 Connection Information
+# Auth0 
 export AUTH0_DOMAIN=
-export AUTH0_CLIENT_ID=
-export AUTH0_CLIENT_SECRET=
 export AUTH0_NAMESPACE=
 ```
 
@@ -64,8 +80,6 @@ API_RATE_LIMIT_WINDOW_MS=900000
 API_RATE_LIMIT_MAX_REQ_PER_WMS=100
 DATABASE_URI=
 AUTH0_DOMAIN=
-AUTH0_CLIENT_ID=
-AUTH0_CLIENT_SECRET=
 AUTH0_NAMESPACE=
 ```
 
@@ -82,7 +96,7 @@ npm run build
 docker build -t task-manager-api:latest .
 
 # Run in Docker Container (defaults to Port 3000)
-docker run -e BASE_URL -e PORT -e DATABASE_URI -e AUTH0_DOMAIN -e AUTH0_CLIENT_ID -e AUTH0_CLIENT_SECRET -p 3000:3000 --name "task_manager-backend" -d task-manager-api:latest
+docker run -e BASE_URL -e PORT -e DATABASE_URI -e AUTH0_DOMAIN -p 3000:3000 --name "task_manager-backend" -d task-manager-api:latest
 ```
 
 ### **NodeJS Environment**
