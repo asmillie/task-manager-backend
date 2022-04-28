@@ -20,7 +20,7 @@ A MongoDB database is required to connect to, **v5.0.4** is the latest version u
 
 You will also need an [Auth0](https://auth0.com/) account as the app uses [Auth0](https://auth0.com/) for authenticating requests to the api. The basic free account is enough for testing or development purposes. 
 
-*Please see the **Configuration** and **Run the Project** sections below for detailed instructions on setup and deployment.* 
+*Please see the **Auth0 Setup**, **Configuration** and **Run the Project** sections below for detailed instructions on setup and deployment.*
 
 <br>
 
@@ -39,7 +39,7 @@ The following section will outline the steps to complete setup within the Auth0 
 1. Add an API to Applications
 2. Add Custom Action to Actions Library
 3. Attach Custom Action to Login Flow
-4. Copy Auth0 Domain & Namespace to use in Configuration
+4. Copy Auth0 Domain & Namespace for use in Configuration
 
 ### 1. Add an API to Applications
 
@@ -97,6 +97,9 @@ For the **Domain** here is what the official [Auth0 Documentation](https://auth0
 <br>
 
 ## Configuration
+
+
+
 ### **Docker / Production**
 When running in a docker container or in production mode you will need to provide the following environment variables:
 
@@ -109,11 +112,12 @@ export API_RATE_LIMIT_WINDOW_MS=900000
 export API_RATE_LIMIT_MAX_REQ_PER_WMS=100
 
 # MongoDB Connection URI
-export DATABASE_URI=<Insert MongoDB URI>
+# Example: mongodb://127.0.0.1:27017/task-manager-api
+export DATABASE_URI=<Replace with MongoDB URI>
 
-# Auth0 
-export AUTH0_DOMAIN=
-export AUTH0_NAMESPACE=
+# Auth0
+export AUTH0_DOMAIN=<Replace with Auth0 Domain>
+export AUTH0_NAMESPACE=<Replace with Auth0 Namespace>
 ```
 
 ### **Development**
@@ -125,14 +129,16 @@ BASE_URL=http://localhost
 PORT=3000
 API_RATE_LIMIT_WINDOW_MS=900000
 API_RATE_LIMIT_MAX_REQ_PER_WMS=100
-DATABASE_URI=
-AUTH0_DOMAIN=
-AUTH0_NAMESPACE=
+DATABASE_URI=<Replace with MongoDB URI>
+AUTH0_DOMAIN=<Replace with Auth0 Domain>
+AUTH0_NAMESPACE=<Replace with Auth0 Namespace>
 ```
 
 <br>
 
 ## Run the Project
+
+After completing Auth0 Setup and configuration the project is ready to run.
 
 ### **Docker**
 ```bash
@@ -142,7 +148,7 @@ npm run build
 # Build Docker Image
 docker build -t task-manager-api:latest .
 
-# Run in Docker Container (defaults to Port 3000)
+# Run in Docker Container on Port 3000
 docker run -e BASE_URL -e PORT -e DATABASE_URI -e AUTH0_DOMAIN -p 3000:3000 --name "task_manager-backend" -d task-manager-api:latest
 ```
 
@@ -159,4 +165,27 @@ npm run start:prod
 ```
 
 <br>
+
+## Run Tests
+
+```bash
+# unit tests
+$ npm run test
+
+# e2e tests
+$ npm run test:e2e
+
+# test coverage
+$ npm run test:cov
+```
+
+<br>
+
+## Documentation
+
+```bash
+# generate documentation
+$ npx compodoc -p tsconfig.json -s
+
+```
 
