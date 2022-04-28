@@ -24,6 +24,13 @@ You will also need an [Auth0](https://auth0.com/) account as the app uses [Auth0
 
 <br>
 
+## Installation
+
+```bash
+$ git clone https://github.com/asmillie/task-manager
+```
+<br>
+
 ## Auth0 Setup
 As stated in the requirements an [Auth0](https://auth0.com/) account is required to run the project. The basic free account should be enough for testing or development purposes. For official documentation please see [https://auth0.com/docs](https://auth0.com/docs).
 
@@ -34,19 +41,59 @@ The following section will outline the steps to complete setup within the Auth0 
 3. Attach Custom Action to Login Flow
 4. Copy Auth0 Domain & Namespace to use in Configuration
 
-### Add an API to Applications
+### 1. Add an API to Applications
 
-In the Auth0 Dashboard under Applications -> APIs, click **Create API**. Enter a name for the API and set the **Identifier** as **task-manager** (all lowercase). Leave the **Signing Algorithm** as **RS256** and click **Create**.
+In the Auth0 Dashboard Sidebar under Applications -> APIs, click **Create API**. Enter a name for the API and set the **Identifier** as **task-manager** (all lowercase). Leave the **Signing Algorithm** as **RS256** and click **Create**.
 
+### 2. Add Custom Action to Actions Library
 
+Under Actions -> Library, click **Build Custom**. Enter name as **Add User Email to Token**, leave Trigger as **Login / Post Login** and Runtime as **Node 16**. Click **Create**.
 
-<br>
-
-## Installation
+You will be presented with the code editor where you can replace the existing code with the following code block. After entering the code click **Save Draft**.
 
 ```bash
-$ git clone https://github.com/asmillie/task-manager
+exports.onExecutePostLogin = async (event, api) => {
+  const namespace = 'https://example.com';
+  const email = event.user.email;
+  const email_verified = event.user.email_verified;
+
+  if (event.authorization) {
+    api.accessToken.setCustomClaim(`${namespace}/email`, email);
+    api.accessToken.setCustomClaim(`${namespace}/email_verified`, email_verified);
+  }
+};
 ```
+ _This code will attach a User's email and email verification status to the authorization token after the User has been authenticated by Auth0._
+
+Note the namespace variable, you will need this during the **Configuration** phase. This is currently a placeholder value but could be assigned a different URL if preferred.
+
+To complete this step Click **Deploy**.
+
+### 3. Attach Custom Action to Login Flow
+
+_Note: Please ensure that you deployed the action created in the previous step otherwise it will not show up in the Login Flow editor. You can deploy the action by navigating to Actions -> Library and under the Custom tab click on the **Add User Email to Token** action. Click **Deploy** in the upper right._
+
+Navigate from the Sidebar to Actions -> Flows and choose **Login**.
+
+From the panel on the right select the **Custom** tab. You should see the custom action created in the previous step labelled **Add User Email to Token**.
+
+Drag and drop the **Add User Email to Token** action between the **Start** and **Complete** in the graph.
+
+Click **Apply**.
+
+### 4. Copy Auth0 Domain & Namespace to use in Configuration
+
+As a final step copy your Auth0  **Domain** and **Namespace** for use in configuring the project. The **Namespace** was assigned during Step 2 of the Auth0 Setup (default value is **https://example.com**).
+
+For the **Domain** here is what the official [Auth0 Documentation](https://auth0.com/docs) says (tenant is your account/user name):
+
+>**Find Your Auth0 Domain**
+>
+>If your Auth0 domain is your tenant name, your regional subdomain (unless your tenant is in the US region and was created before June 2020), plus .auth0.com. For example, if your tenant name were travel0, your Auth0 domain name would be travel0.us.auth0.com. (If your tenant were in the US and created before June 2020, then your domain name would be https://travel0.auth0.com.)
+>
+>If you are using custom domains, this should be your custom domain name.
+
+
 <br>
 
 ## Configuration
