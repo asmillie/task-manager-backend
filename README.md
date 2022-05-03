@@ -22,7 +22,7 @@ _Please note the app is currently deployed on the Azure free tier and may take a
 
 ## Requirements
 
-Build the project as a docker image through the included `Dockerfile` or run it in a NodeJS **v12.22.8** environment.
+Build the project as a docker image through the included `Dockerfile` or run it in a NodeJS environment (**v12.22.8** used in development).
 
 A MongoDB database is required to connect to, **v5.0.4** is the latest version used during development.
 
