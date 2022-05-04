@@ -8,17 +8,11 @@ This repository contains the backend API for the app which is built on NestJS an
 
 To view the frontend repository you can follow this [link](https://github.com/asmillie/task-manager-frontend).
 
-
-
-<br>
-
 ## Live Demo
 
 View a live demo running @ [https://task-manager-frontend-dev.azurewebsites.net/](https://task-manager-frontend-dev.azurewebsites.net/)
 
 _Please note the app is currently deployed on the Azure free tier and may take a moment for the app to 'warm up'. Free tier services are 'parked' when not in continuous use to save on resources._
-
-<br>
 
 ## Requirements
 
@@ -30,14 +24,11 @@ You will also need an [Auth0](https://auth0.com/) account as the app uses [Auth0
 
 *Please see the **Auth0 Setup**, **Configuration** and **Run the Project** sections below for detailed instructions on setup and deployment.*
 
-<br>
-
 ## Installation
 
 ```bash
 $ git clone https://github.com/asmillie/task-manager
 ```
-<br>
 
 ## Auth0 Setup
 As stated in the requirements an [Auth0](https://auth0.com/) account is required to run the project. The basic free account should be enough for testing or development purposes. For official documentation please see [https://auth0.com/docs](https://auth0.com/docs).
@@ -101,12 +92,7 @@ For the **Domain** here is what the official [Auth0 Documentation](https://auth0
 >
 >If you are using custom domains, this should be your custom domain name.
 
-
-<br>
-
 ## Configuration
-
-
 
 ### **Docker / Production**
 When running in a docker container or in production mode you will need to provide the following environment variables:
@@ -142,8 +128,6 @@ AUTH0_DOMAIN=<Replace with Auth0 Domain>
 AUTH0_NAMESPACE=<Replace with Auth0 Namespace>
 ```
 
-<br>
-
 ## Run the Project
 
 After completing Auth0 Setup and configuration the project is ready to run.
@@ -172,8 +156,6 @@ npm run start:dev
 npm run start:prod
 ```
 
-<br>
-
 ## Run Tests
 
 ```bash
@@ -186,8 +168,6 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
-
-<br>
 
 ## Documentation
 
