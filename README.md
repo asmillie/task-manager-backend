@@ -141,7 +141,7 @@ npm run build
 docker build -t task-manager-api:latest .
 
 # Run in Docker Container on Port 3000
-docker run -e BASE_URL -e PORT -e DATABASE_URI -e AUTH0_DOMAIN -p 3000:3000 --name "task_manager-backend" -d task-manager-api:latest
+docker run -e BASE_URL -e PORT -e DATABASE_URI -e AUTH0_DOMAIN -e AUTH0_NAMESPACE -e API_RATE_LIMIT_WINDOW_MS -e API_RATE_LIMIT_MAX_REQ_PER_WMS -p 3000:3000 --name "task_manager-backend" -d task-manager-api:latest
 ```
 
 ### **NodeJS Environment**
