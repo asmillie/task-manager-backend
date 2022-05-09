@@ -14,6 +14,7 @@ import { RequestIdInterceptor } from './interceptors/request-id.interceptor';
 import { LogRequestInterceptor } from './interceptors/log-request.interceptor';
 import { EmailVerifiedGuard } from './auth/email-verified.guard';
 import { AuthGuard } from './auth/auth.guard';
+import { UserInterceptor } from './interceptors/user.interceptor';
 
 
 @Module({

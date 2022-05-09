@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
 
@@ -14,7 +14,7 @@ import { TasksModule } from '../tasks/tasks.module';
             { name: 'User', schema: UserSchema },
         ]),
         PassportModule.register({ defaultStrategy: 'jwt' }),
-        TasksModule
+        forwardRef(() => TasksModule)
     ],
     controllers: [],
     providers: [
