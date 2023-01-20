@@ -8,12 +8,6 @@ This repository contains the backend API for the app which is built on NestJS an
 
 To view the frontend repository you can follow this [link](https://github.com/asmillie/task-manager-frontend).
 
-## Live Demo
-
-View a live demo running @ [https://task-manager-frontend-dev.azurewebsites.net/](https://task-manager-frontend-dev.azurewebsites.net/)
-
-_Please note the app is currently deployed on the Azure free tier and may take a moment for the app to 'warm up'. Free tier services are 'parked' when not in continuous use to save on resources._
-
 ## Requirements
 
 Build the project as a docker image through the included `Dockerfile` or run it in a NodeJS environment (**v12.22.8** used in development).
